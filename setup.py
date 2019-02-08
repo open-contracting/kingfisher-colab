@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='kingfiser-colab',
+    name='kingfisher-colab',
     version='0.0.1',
     license='BSD',
     packages=['kingfishercolab'],
@@ -12,7 +12,9 @@ setup(
         'psycopg2-binary',
         'gspread',
         'requests',
-        'flattentool'
+        'flattentool',
+        'gspread-dataframe',
+        'pydrive',
     ],
     entry_points='''
     ''',
