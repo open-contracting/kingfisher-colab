@@ -1,0 +1,19 @@
+from setuptools import setup
+
+setup(
+    name='kingfiser-colab',
+    version='0.0.1',
+    license='BSD',
+    packages=['kingfishercolab'],
+    package_data={},
+    install_requires=[
+        'SQLAlchemy',
+        'alembic',
+        'psycopg2-binary',
+        'gspread',
+        'requests',
+        'flattentool'
+    ],
+    entry_points='''
+    ''',
+)
