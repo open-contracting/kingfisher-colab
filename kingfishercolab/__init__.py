@@ -15,8 +15,8 @@ conn = None
 
 
 def create_connection(database, user, password, host, port='5432'):
+    global conn
     if not conn:
-        global conn
         conn = psycopg2.connect(
             database = database,
             user = user,
@@ -110,7 +110,7 @@ def downloadReleases(collection_id, ocid, package_type):
 
           """
 
-          cur.execute(
+          cur.execute(querystring,
               {"ocid": ocid, "collection_id": collection_id}
           )
           

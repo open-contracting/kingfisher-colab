@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='kingfisher-colab',
-    version='0.0.1',
+    version='0.0.2',
     license='BSD',
     packages=['kingfishercolab'],
     package_data={},
