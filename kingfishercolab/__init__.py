@@ -106,7 +106,7 @@ def downloadReleases(collection_id, ocid, package_type):
           FROM
             releases
           WHERE
-            ocid = %s
+            ocid = %(ocid)s
 
           """
 
