@@ -110,7 +110,7 @@ def downloadReleases(collection_id, ocid, package_type):
 
           """
 
-          cur.execute(
+          cur.execute(querystring, 
               {"ocid": ocid, "collection_id": collection_id}
           )
           
