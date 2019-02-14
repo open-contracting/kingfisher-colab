@@ -95,7 +95,7 @@ def downloadReleases(collection_id, ocid, package_type):
               from
                   data
               join
-                  release_with_collection on data.id = release.data_id
+                  release_with_collection on data.id = release_with_collection.data_id
               where collection_id = %(collection_id)s
 
           )
