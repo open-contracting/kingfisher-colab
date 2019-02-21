@@ -9,7 +9,6 @@ import json
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-
 spreadsheet_name = None
 conn = None
 
@@ -18,11 +17,11 @@ def create_connection(database, user, password, host, port='5432'):
     global conn
     if not conn:
         conn = psycopg2.connect(
-            database = database,
-            user = user,
-            password = password,
-            host = host,
-            port = port,
+            database=database,
+            user=user,
+            password=password,
+            host=host,
+            port=port,
         )
     return conn
 
@@ -31,6 +30,7 @@ def authenticate_gspread():
     auth.authenticate_user()
     gc = gspread.authorize(GoogleCredentials.get_application_default())
     return gc
+
 
 def authenticate_pydrive():
     auth.authenticate_user()
@@ -42,50 +42,48 @@ def authenticate_pydrive():
 
 def getResults(cur):
     headers = [desc[0] for desc in cur.description]
-    results = pandas.DataFrame(cur.fetchall(), columns = headers)
+    results = pandas.DataFrame(cur.fetchall(), columns=headers)
     return results
 
 
 def saveToCSV(dataframe, filename):
-
     dataframe.to_csv(filename)
     files.download(filename)
-  
+
 
 def set_spreadsheet_name(name):
     global spreadsheet_name
     spreadsheet_name = name
-  
+
 
 def saveToSheets(dataframe, sheetname):
-  gc = authenticate_gspread()
-  
-  if input("Save to Google Sheets? (y/n)") == 'y':
+    gc = authenticate_gspread()
 
-    # open or create gSheet
-    try:
-      gSheet = gc.open(spreadsheet_name)
-    except Exception:
-      gSheet = gc.create(spreadsheet_name)
+    if input("Save to Google Sheets? (y/n)") == 'y':
 
-    try:
-      worksheet = gSheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
-    except Exception:
-      newsheetname = input(sheetname + " already exists, enter a different name: ")
-      worksheet = gSheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
+        # open or create gSheet
+        try:
+            gSheet = gc.open(spreadsheet_name)
+        except Exception:
+            gSheet = gc.create(spreadsheet_name)
 
-    # save dataframe to worksheet
-    set_with_dataframe(worksheet, dataframe)
-    
+        try:
+            worksheet = gSheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
+        except Exception:
+            newsheetname = input(sheetname + " already exists, enter a different name: ")
+            worksheet = gSheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
+
+        # save dataframe to worksheet
+        set_with_dataframe(worksheet, dataframe)
+
 
 def downloadReleases(collection_id, ocid, package_type):
-
     with conn.cursor() as cur:
         if package_type != 'release' and package_type != 'record':
             print("package_type parameter must be either 'release' or 'record'")
         else:
-        
-          querystring = """
+
+            querystring = """
 
           with releases as (
 
@@ -110,19 +108,19 @@ def downloadReleases(collection_id, ocid, package_type):
 
           """
 
-          cur.execute(querystring,
-              {"ocid": ocid, "collection_id": collection_id}
-          )
-          
-          file = ocid + '_' + package_type + '_package.json'
+            cur.execute(querystring,
+                        {"ocid": ocid, "collection_id": collection_id}
+                        )
 
-          with open(file, 'w') as f:
-            if package_type == 'release':
-              json.dump(cur.fetchone()[0], f, indent=2)
-            elif package_type == 'record':
-              json.dump(cur.fetchone()[1], f, indent=2)
+            file = ocid + '_' + package_type + '_package.json'
 
-          files.download(file)
+            with open(file, 'w') as f:
+                if package_type == 'release':
+                    json.dump(cur.fetchone()[0], f, indent=2)
+                elif package_type == 'record':
+                    json.dump(cur.fetchone()[1], f, indent=2)
+
+            files.download(file)
 
 
 def output_gsheet(workbook_name, sheet_name, sql, params=None):
@@ -134,16 +132,15 @@ def output_flattened_gsheet(workbook_name, sql, params=None):
     pass
 
 
-
 def output_notebook(sql, params=None):
     with conn.cursor() as cur:
-	try:
-	  cur.execute(sql, params)
-          return getResults(cur)
-	except Exception as e:
-	  cur.execute("rollback")
-	  return e	
+        try:
+            cur.execute(sql, params)
+            return getResults(cur)
+        except Exception as e:
+            cur.execute("rollback")
+            return e
+
 
 def download_json(root_list_path, sql, params=None):
     'data column needs to be in results'
-
