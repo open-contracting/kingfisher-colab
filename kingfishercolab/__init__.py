@@ -142,8 +142,7 @@ def output_notebook(sql, params=None):
           return getResults(cur)
 	except Exception as e:
 	  cur.execute("rollback")
-	  return e
-		
+	  return e	
 
 def download_json(root_list_path, sql, params=None):
     'data column needs to be in results'
