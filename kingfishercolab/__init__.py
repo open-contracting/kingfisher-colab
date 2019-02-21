@@ -137,8 +137,13 @@ def output_flattened_gsheet(workbook_name, sql, params=None):
 
 def output_notebook(sql, params=None):
     with conn.cursor() as cur:
-        cur.execute(sql, params)
-        return getResults(cur)
+	try:
+	  cur.execute(sql, params)
+          return getResults(cur)
+	except Exception as e:
+	  cur.execute("rollback")
+	  return e
+		
 
 def download_json(root_list_path, sql, params=None):
     'data column needs to be in results'
