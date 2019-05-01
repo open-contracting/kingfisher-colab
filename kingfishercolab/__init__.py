@@ -15,7 +15,7 @@ conn = None
 
 def create_connection(database, user, password, host, port='5432'):
     global conn
-    if not conn or conn.closed > 0:
+    if not conn:
         conn = psycopg2.connect(
             database=database,
             user=user,
@@ -24,6 +24,12 @@ def create_connection(database, user, password, host, port='5432'):
             port=port,
         )
     return conn
+
+
+def reset_connection():
+    conn.cancel()
+    conn.reset()
+    conn = None
 
 
 def authenticate_gspread():
