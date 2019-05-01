@@ -15,7 +15,7 @@ conn = None
 
 def create_connection(database, user, password, host, port='5432'):
     global conn
-    if not conn:
+    if not conn or conn.closed > 0:
         conn = psycopg2.connect(
             database=database,
             user=user,
