@@ -63,26 +63,28 @@ def set_spreadsheet_name(name):
     global spreadsheet_name
     spreadsheet_name = name
 
-
-def saveToSheets(dataframe, sheetname):
+# option to bypass confirmation in save to sheets
+def saveStraightToSheets(dataframe, sheetname):
     gc = authenticate_gspread()
+    # open or create gSheet
+    try:
+        gSheet = gc.open(spreadsheet_name)
+    except Exception:
+        gSheet = gc.create(spreadsheet_name)
 
+    try:
+        worksheet = gSheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
+    except Exception:
+        newsheetname = input(sheetname + " already exists, enter a different name: ")
+        worksheet = gSheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
+
+    # save dataframe to worksheet
+    set_with_dataframe(worksheet, dataframe)
+
+# saves dataframe to sheets after user confirms yes
+def saveToSheets(dataframe, sheetname):
     if input("Save to Google Sheets? (y/n)") == 'y':
-
-        # open or create gSheet
-        try:
-            gSheet = gc.open(spreadsheet_name)
-        except Exception:
-            gSheet = gc.create(spreadsheet_name)
-
-        try:
-            worksheet = gSheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
-        except Exception:
-            newsheetname = input(sheetname + " already exists, enter a different name: ")
-            worksheet = gSheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
-
-        # save dataframe to worksheet
-        set_with_dataframe(worksheet, dataframe)
+        saveStraightToSheets(dataframe, sheetname)
 
 
 def downloadReleases(collection_id, ocid, package_type):
