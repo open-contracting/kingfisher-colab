@@ -30,9 +30,10 @@ def create_connection(database, user, password, host, port='5432'):
 
 def reset_connection():
     global conn
-    conn.cancel()
-    conn.reset()
-    conn = None
+    if conn is not None and conn.closed > 0:
+        conn.cancel()
+        conn.reset()
+        conn = None
 
 
 def authenticate_gspread():
