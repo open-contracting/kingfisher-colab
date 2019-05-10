@@ -29,6 +29,7 @@ def create_connection(database, user, password, host, port='5432'):
 
 
 def reset_connection():
+    global conn
     conn.cancel()
     conn.reset()
     conn = None
