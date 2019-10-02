@@ -1,4 +1,5 @@
 import psycopg2
+import os
 from google.colab import auth
 import gspread
 from oauth2client.client import GoogleCredentials
@@ -161,30 +162,3 @@ def output_notebook(sql, params=None):
 
 def download_json(root_list_path, sql, params=None):
     'data column needs to be in results'
-
-# saving spreadsheets function
-def flatten_to_gsheets(dataframe, workbook):
-
-  import os
-  import json
-
-  drive = authenticate_pydrive()
-
-  if os.path.exists("release_package.json"):
-    os.remove("release_package.json")
-
-  #save release package to colab virtual machine
-  with open("release_package.json", 'w') as f:
-    json.dump(dataframe['release_package'][0],f)
-
-  if os.path.exists("flattened.xlsx"):
-    os.remove("flattened.xlsx")
-
-  #flatten to .xlsx
-  !flatten-tool flatten release_package.json --root-id=ocid --main-sheet-name releases --root-list-path=releases
-
-  #upload to Google Drive
-  uploaded = drive.CreateFile({'title': workbook + '.xlsx'})
-  uploaded.SetContentFile('flattened.xlsx')
-  uploaded.Upload()
-  print('Uploaded file with ID {}'.format(uploaded.get('id')))
