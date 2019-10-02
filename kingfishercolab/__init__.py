@@ -29,8 +29,14 @@ def create_connection(database, user, password, host, port='5432'):
 
 
 def reset_connection():
-    conn.cancel()
-    conn.reset()
+    global conn
+    if conn is not None and conn.closed != 0:
+        try:
+            conn.cancel()
+            conn.reset()
+        except:
+            pass
+
     conn = None
 
 
@@ -83,8 +89,6 @@ def saveStraightToSheets(dataframe, sheetname):
 
 # saves dataframe to sheets after user confirms yes
 def saveToSheets(dataframe, sheetname):
-    gc = authenticate_gspread()
-
     if input("Save to Google Sheets? (y/n)") == 'y':
         saveStraightToSheets(dataframe, sheetname)
 
