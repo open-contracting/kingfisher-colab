@@ -15,7 +15,7 @@ conn = None
 
 def create_connection(database, user, password, host, port='5432'):
     global conn
-    if conn and conn.closed > 0:
+    if conn and conn.gc = authenticate_gspread()closed > 0:
         reset_connection()
     if not conn:
         conn = psycopg2.connect(
@@ -63,30 +63,35 @@ def set_spreadsheet_name(name):
     global spreadsheet_name
     spreadsheet_name = name
 
+# option to bypass confirmation in save to sheets
+def saveStraightToSheets(dataframe, sheetname):
+    gc = authenticate_gspread()
+        # open or create gSheet
+    try:
+        gSheet = gc.open(spreadsheet_name)
+    except Exception:
+        gSheet = gc.create(spreadsheet_name)
 
+    try:
+        worksheet = gSheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
+    except Exception:
+        newsheetname = input(sheetname + " already exists, enter a different name: ")
+        worksheet = gSheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
+
+    # save dataframe to worksheet
+    set_with_dataframe(worksheet, dataframe)
+
+# saves dataframe to sheets after user confirms yes
 def saveToSheets(dataframe, sheetname):
     gc = authenticate_gspread()
 
     if input("Save to Google Sheets? (y/n)") == 'y':
+        saveStraightToSheets(dataframe, sheetname)
 
-        # open or create gSheet
-        try:
-            gSheet = gc.open(spreadsheet_name)
-        except Exception:
-            gSheet = gc.create(spreadsheet_name)
-
-        try:
-            worksheet = gSheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
-        except Exception:
-            newsheetname = input(sheetname + " already exists, enter a different name: ")
-            worksheet = gSheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
-
-        # save dataframe to worksheet
-        set_with_dataframe(worksheet, dataframe)
 
 
 def downloadReleases(collection_id, ocid, package_type):
-    with conn.cursor() as cur:
+    with conn, conn.cursor() as cur:
         if package_type != 'release' and package_type != 'record':
             print("package_type parameter must be either 'release' or 'record'")
         else:
@@ -141,7 +146,7 @@ def output_flattened_gsheet(workbook_name, sql, params=None):
 
 
 def output_notebook(sql, params=None):
-    with conn.cursor() as cur:
+    with conn, conn.cursor() as cur:
         try:
             cur.execute(sql, params)
             return getResults(cur)
@@ -152,3 +157,30 @@ def output_notebook(sql, params=None):
 
 def download_json(root_list_path, sql, params=None):
     'data column needs to be in results'
+
+# saving spreadsheets function
+def flatten_to_gsheets(dataframe, workbook):
+
+  import os
+  import json
+
+  drive = authenticate_pydrive()
+
+  if os.path.exists("release_package.json"):
+    os.remove("release_package.json")
+
+  #save release package to colab virtual machine
+  with open("release_package.json", 'w') as f:
+    json.dump(dataframe['release_package'][0],f)
+
+  if os.path.exists("flattened.xlsx"):
+    os.remove("flattened.xlsx")
+
+  #flatten to .xlsx
+  !flatten-tool flatten release_package.json --root-id=ocid --main-sheet-name releases --root-list-path=releases
+
+  #upload to Google Drive
+  uploaded = drive.CreateFile({'title': workbook + '.xlsx'})
+  uploaded.SetContentFile('flattened.xlsx')
+  uploaded.Upload()
+  print('Uploaded file with ID {}'.format(uploaded.get('id')))
