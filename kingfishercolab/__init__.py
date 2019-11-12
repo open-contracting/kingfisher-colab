@@ -134,9 +134,9 @@ def downloadReleases(collection_id, ocid, package_type):
 
             with open(file, 'w') as f:
                 if package_type == 'release':
-                    json.dump(cur.fetchone()[0], f, indent=2)
+                    json.dump(cur.fetchone()[0], f, indent=2, ensure_ascii=False)
                 elif package_type == 'record':
-                    json.dump(cur.fetchone()[1], f, indent=2)
+                    json.dump(cur.fetchone()[1], f, indent=2, ensure_ascii=False)
 
             files.download(file)
 
