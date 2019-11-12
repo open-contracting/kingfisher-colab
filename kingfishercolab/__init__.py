@@ -1,5 +1,4 @@
 import psycopg2
-import os
 from google.colab import auth
 import gspread
 from oauth2client.client import GoogleCredentials
@@ -14,17 +13,13 @@ spreadsheet_name = None
 conn = None
 
 
-def create_connection(database, user, password, host, port='5432'):
+def create_connection(database, user, password, host, port="5432"):
     global conn
     if conn and conn.closed > 0:
         reset_connection()
     if not conn:
         conn = psycopg2.connect(
-            database=database,
-            user=user,
-            password=password,
-            host=host,
-            port=port,
+            database=database, user=user, password=password, host=host, port=port,
         )
     return conn
 
@@ -35,7 +30,7 @@ def reset_connection():
         try:
             conn.cancel()
             conn.reset()
-        except:
+        except: # noqa
             pass
 
     conn = None
@@ -70,34 +65,39 @@ def set_spreadsheet_name(name):
     global spreadsheet_name
     spreadsheet_name = name
 
+
 # option to bypass confirmation in save to sheets
 def saveStraightToSheets(dataframe, sheetname):
     gc = authenticate_gspread()
-        # open or create gSheet
+    # open or create gSheet
     try:
         gSheet = gc.open(spreadsheet_name)
     except Exception:
         gSheet = gc.create(spreadsheet_name)
 
     try:
-        worksheet = gSheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
+        worksheet = gSheet.add_worksheet(
+            sheetname, dataframe.shape[0], dataframe.shape[1]
+        )
     except Exception:
         newsheetname = input(sheetname + " already exists, enter a different name: ")
-        worksheet = gSheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
+        worksheet = gSheet.add_worksheet(
+            newsheetname, dataframe.shape[0], dataframe.shape[1]
+        )
 
     # save dataframe to worksheet
     set_with_dataframe(worksheet, dataframe)
 
+
 # saves dataframe to sheets after user confirms yes
 def saveToSheets(dataframe, sheetname):
-    if input("Save to Google Sheets? (y/n)") == 'y':
+    if input("Save to Google Sheets? (y/n)") == "y":
         saveStraightToSheets(dataframe, sheetname)
-
 
 
 def downloadReleases(collection_id, ocid, package_type):
     with conn, conn.cursor() as cur:
-        if package_type != 'release' and package_type != 'record':
+        if package_type != "release" and package_type != "record":
             print("package_type parameter must be either 'release' or 'record'")
         else:
 
@@ -118,7 +118,8 @@ def downloadReleases(collection_id, ocid, package_type):
 
           SELECT
             jsonb_build_object('releases',jsonb_agg(data)),
-            jsonb_build_object('ocid', %(ocid)s ,'records',jsonb_build_array(jsonb_build_object('releases',jsonb_agg(data))))
+            jsonb_build_object('ocid', %(ocid)s ,'records',
+                jsonb_build_array(jsonb_build_object('releases',jsonb_agg(data))))
           FROM
             releases
           WHERE
@@ -126,16 +127,14 @@ def downloadReleases(collection_id, ocid, package_type):
 
           """
 
-            cur.execute(querystring,
-                        {"ocid": ocid, "collection_id": collection_id}
-                        )
+            cur.execute(querystring, {"ocid": ocid, "collection_id": collection_id})
 
-            file = ocid + '_' + package_type + '_package.json'
+            file = ocid + "_" + package_type + "_package.json"
 
-            with open(file, 'w') as f:
-                if package_type == 'release':
+            with open(file, "w") as f:
+                if package_type == "release":
                     json.dump(cur.fetchone()[0], f, indent=2, ensure_ascii=False)
-                elif package_type == 'record':
+                elif package_type == "record":
                     json.dump(cur.fetchone()[1], f, indent=2, ensure_ascii=False)
 
             files.download(file)
@@ -146,7 +145,7 @@ def output_gsheet(workbook_name, sheet_name, sql, params=None):
 
 
 def output_flattened_gsheet(workbook_name, sql, params=None):
-    'data column needs to be in results'
+    "data column needs to be in results"
     pass
 
 
@@ -161,4 +160,4 @@ def output_notebook(sql, params=None):
 
 
 def download_json(root_list_path, sql, params=None):
-    'data column needs to be in results'
+    "data column needs to be in results"
