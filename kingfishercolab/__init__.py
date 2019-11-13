@@ -14,7 +14,7 @@ spreadsheet_name = None
 conn = None
 
 
-def create_connection(database, user, password, host, port='5432'):
+def create_connection(database, user, password, host, port='5432', sslmode=None):
     global conn
     if conn and conn.closed > 0:
         reset_connection()
@@ -25,6 +25,7 @@ def create_connection(database, user, password, host, port='5432'):
             password=password,
             host=host,
             port=port,
+            sslmode=sslmode,
         )
     return conn
 
