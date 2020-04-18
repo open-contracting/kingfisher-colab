@@ -1,21 +1,17 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(
-    name='kingfisher-colab',
-    version='0.0.2',
-    license='BSD',
-    packages=['kingfishercolab'],
-    package_data={},
+    name='ocdskingfishercolab',
+    version='0.0.0',
+    packages=find_packages(),
     install_requires=[
-        'SQLAlchemy',
         'alembic',
-        'psycopg2-binary',
-        'gspread',
-        'requests',
         'flattentool',
+        'gspread',
         'gspread-dataframe',
+        'psycopg2-binary',
         'pydrive',
+        'requests',
+        'SQLAlchemy',
     ],
-    entry_points='''
-    ''',
 )
