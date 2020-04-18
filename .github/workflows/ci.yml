@@ -5,6 +5,18 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432/tcp
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v1
@@ -19,7 +31,9 @@ jobs:
     - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
     - run: pip install .[test]
     - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
-    - run: pytest --cov ocdskingfishercolab
+    - env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
+      run: pytest --cov ocdskingfishercolab
     - env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       run: coveralls

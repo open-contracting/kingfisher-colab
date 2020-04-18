@@ -13,7 +13,7 @@ from ocdskingfishercolab import create_connection, download_releases_as_package,
 
 @pytest.fixture
 def db():
-    connection = psycopg2.connect(dbname='postgres')
+    connection = psycopg2.connect(os.getenv('DATABASE_URL', 'dbname=postgres'))
     cursor = connection.cursor()
 
     # Avoid "CREATE DATABASE cannot run inside a transaction block" error
