@@ -24,7 +24,7 @@ spreadsheet_name = None
 conn = None
 
 
-def create_connection(database, user, password='', host='localhost', port='5432'):
+def create_connection(database, user, password='', host='localhost', port='5432', sslmode=None):
     """
     Creates a connection to the database.
 
@@ -35,7 +35,7 @@ def create_connection(database, user, password='', host='localhost', port='5432'
     if conn and conn.closed:
         reset_connection()
     if not conn:
-        conn = psycopg2.connect(dbname=database, user=user, password=password, host=host, port=port)
+        conn = psycopg2.connect(dbname=database, user=user, password=password, host=host, port=port, sslmode=sslmode)
     return conn
 
 
