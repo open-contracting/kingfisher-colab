@@ -7,6 +7,7 @@ setup(
     install_requires=[
         'alembic',
         'flattentool',
+        'google-colab',
         'gspread',
         'gspread-dataframe',
         'psycopg2-binary',
