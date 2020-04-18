@@ -1,15 +1,14 @@
 """
-Functions for use in `Google Colaboratory <https://colab.research.google.com/notebooks/intro.ipynb>`__ notebooks.
-
 To import all functions:
 
 .. code-block:: python
 
-   from ocdskingfishercolab import (create_connection, authenticate_gspread, getResults, saveToCSV, saveToSheets,
-                                    saveStraightToSheets, downloadReleases, output_notebook, set_spreadsheet_name,
-                                    authenticate_pydrive)
+   from ocdskingfishercolab import (create_connection, reset_connection, authenticate_gspread, authenticate_pydrive,
+                                    set_spreadsheet_name, save_dataframe_to_sheet, download_dataframe_as_csv,
+                                    download_releases_as_package, get_dataframe_from_query, get_dataframe_from_cursor)
 """
 import json
+import warnings
 
 import gspread
 import pandas
@@ -197,7 +196,7 @@ def saveToSheets(*args, **kwargs):
     save_dataframe_to_sheet(*args, **kwargs)
 
 
-def saveStraightToSheets(dataframe, sheetname):
+def saveStraightToSheets(*args, **kwargs):
     warnings.warn('saveStraightToSheets() is deprecated. Use save_dataframe_to_sheet(..., prompt=False) instead.',
                   DeprecationWarning, stacklevel=2)
     save_dataframe_to_sheet(*args, **kwargs, prompt=False)
@@ -218,7 +217,7 @@ def downloadReleases(*args, **kwargs):
 def output_notebook(*args, **kwargs):
     warnings.warn('output_notebook() is deprecated. Use get_dataframe_from_query() instead.',
                   DeprecationWarning, stacklevel=2)
-    get_dataframe_for_query(*args, **kwargs)
+    get_dataframe_from_query(*args, **kwargs)
 
 
 def getResults(*args, **kwargs):

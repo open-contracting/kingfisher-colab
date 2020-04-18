@@ -104,6 +104,6 @@ def test_output_notebook(db):
 
 def test_output_notebook_error(db):
     with pytest.raises(psycopg2.errors.SyntaxError) as excinfo:
-        dataframe = output_notebook('invalid')
+        output_notebook('invalid')
 
     assert str(excinfo.value) == 'syntax error at or near "invalid"\nLINE 1: invalid\n        ^\n'
