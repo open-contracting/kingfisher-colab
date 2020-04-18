@@ -8,7 +8,7 @@ from unittest.mock import patch
 import psycopg2
 import pytest
 
-from ocdskingfishercolab import create_connection, download_releases, output_notebook
+from ocdskingfishercolab import create_connection, download_releases_as_package, get_dataframe_from_query
 
 
 @pytest.fixture
@@ -54,9 +54,9 @@ def chdir(path):
 
 
 @patch('google.colab.files.download')
-def test_download_releases_release(mocked, db, tmpdir):
+def test_download_releases_as_package_release(mocked, db, tmpdir):
     with chdir(tmpdir):
-        download_releases(1, 'ocds-213czf-1', 'release')
+        download_releases_as_package(1, 'ocds-213czf-1', 'release')
 
         with open('ocds-213czf-1_release_package.json') as f:
             data = json.load(f)
@@ -67,9 +67,9 @@ def test_download_releases_release(mocked, db, tmpdir):
 
 
 @patch('google.colab.files.download')
-def test_download_releases_record(mocked, db, tmpdir):
+def test_download_releases_as_package_record(mocked, db, tmpdir):
     with chdir(tmpdir):
-        download_releases(1, 'ocds-213czf-1', 'record')
+        download_releases_as_package(1, 'ocds-213czf-1', 'record')
 
         with open('ocds-213czf-1_record_package.json') as f:
             data = json.load(f)
@@ -85,14 +85,14 @@ def test_download_releases_record(mocked, db, tmpdir):
 
 
 @patch('sys.stdout', new_callable=StringIO)
-def test_download_releases_other(stdout):
-    download_releases(1, 'ocds-213czf-1', 'other')
+def test_download_releases_as_package_other(stdout):
+    download_releases_as_package(1, 'ocds-213czf-1', 'other')
 
     assert stdout.getvalue() == "package_type parameter must be either 'release' or 'record'\n"
 
 
-def test_output_notebook(db):
-    dataframe = output_notebook('SELECT * FROM release')
+def test_get_dataframe_from_query(db):
+    dataframe = get_dataframe_from_query('SELECT * FROM release')
 
     assert dataframe.to_dict() == {
         'collection_id': {0: 1},
@@ -102,8 +102,8 @@ def test_output_notebook(db):
     }
 
 
-def test_output_notebook_error(db):
+def test_get_dataframe_from_query_error(db):
     with pytest.raises(psycopg2.errors.SyntaxError) as excinfo:
-        output_notebook('invalid')
+        get_dataframe_from_query('invalid')
 
     assert str(excinfo.value) == 'syntax error at or near "invalid"\nLINE 1: invalid\n        ^\n'
