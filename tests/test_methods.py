@@ -3,6 +3,7 @@ import getpass
 import json
 import os
 from io import StringIO
+from urllib.parse import urlparse
 from unittest.mock import patch
 
 import psycopg2
@@ -13,7 +14,16 @@ from ocdskingfishercolab import create_connection, download_releases_as_package,
 
 @pytest.fixture
 def db():
-    connection = psycopg2.connect(os.getenv('DATABASE_URL', 'dbname=postgres'))
+    database_url = os.getenv('DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
+    parts = urlparse(database_url)
+    kwargs = {
+        'user': parts.username,
+        'password': parts.password,
+        'host': parts.hostname,
+        'port': parts.port,
+    }
+
+    connection = psycopg2.connect(dbname=parts.path[1:], **kwargs)
     cursor = connection.cursor()
 
     # Avoid "CREATE DATABASE cannot run inside a transaction block" error
@@ -22,7 +32,7 @@ def db():
     try:
         cursor.execute('CREATE DATABASE ocdskingfishercolab_test')
 
-        conn = create_connection('ocdskingfishercolab_test', getpass.getuser())
+        conn = create_connection(database='ocdskingfishercolab_test', **kwargs)
         cur = conn.cursor()
 
         try:
