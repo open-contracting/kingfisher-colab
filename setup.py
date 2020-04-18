@@ -16,6 +16,9 @@ setup(
         'SQLAlchemy',
     ],
     extras_require={
+        'test': [
+            'pytest',
+        ],
         'docs': [
             'Sphinx',
             'sphinx-autobuild',
