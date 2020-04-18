@@ -187,14 +187,6 @@ def downloadReleases(collection_id, ocid, package_type):
             files.download(file)
 
 
-def output_flattened_gsheet(workbook_name, sql, params=None):
-    """
-    Not implemented.
-    """
-    # data column needs to be in results
-    raise NotImplementedError
-
-
 def output_notebook(sql, params=None):
     """
     Runs a SQL query and returns results to the notebook.
@@ -206,11 +198,3 @@ def output_notebook(sql, params=None):
         except Exception as e:
             cur.execute("rollback")
             return e
-
-
-def download_json(root_list_path, sql, params=None):
-    """
-    Not implemented.
-    """
-    # data column needs to be in results
-    raise NotImplementedError
