@@ -184,9 +184,9 @@ def output_notebook(sql, params=None):
         try:
             cur.execute(sql, params)
             return get_results(cur)
-        except Exception as e:
+        except Exception:
             cur.execute('rollback')
-            return e
+            raise
 
 
 def downloadReleases(*args, **kwargs):

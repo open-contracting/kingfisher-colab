@@ -8,7 +8,7 @@ from unittest.mock import patch
 import psycopg2
 import pytest
 
-from ocdskingfishercolab import create_connection, downloadReleases, output_notebook
+from ocdskingfishercolab import create_connection, download_releases, output_notebook
 
 
 @pytest.fixture
@@ -54,9 +54,9 @@ def chdir(path):
 
 
 @patch('google.colab.files.download')
-def test_downloadReleases_release(mocked, db, tmpdir):
+def test_download_releases_release(mocked, db, tmpdir):
     with chdir(tmpdir):
-        downloadReleases(1, 'ocds-213czf-1', 'release')
+        download_releases(1, 'ocds-213czf-1', 'release')
 
         with open('ocds-213czf-1_release_package.json') as f:
             data = json.load(f)
@@ -67,9 +67,9 @@ def test_downloadReleases_release(mocked, db, tmpdir):
 
 
 @patch('google.colab.files.download')
-def test_downloadReleases_record(mocked, db, tmpdir):
+def test_download_releases_record(mocked, db, tmpdir):
     with chdir(tmpdir):
-        downloadReleases(1, 'ocds-213czf-1', 'record')
+        download_releases(1, 'ocds-213czf-1', 'record')
 
         with open('ocds-213czf-1_record_package.json') as f:
             data = json.load(f)
@@ -85,8 +85,8 @@ def test_downloadReleases_record(mocked, db, tmpdir):
 
 
 @patch('sys.stdout', new_callable=StringIO)
-def test_downloadReleases_other(stdout):
-    downloadReleases(1, 'ocds-213czf-1', 'other')
+def test_download_releases_other(stdout):
+    download_releases(1, 'ocds-213czf-1', 'other')
 
     assert stdout.getvalue() == "package_type parameter must be either 'release' or 'record'\n"
 
@@ -103,16 +103,7 @@ def test_output_notebook(db):
 
 
 def test_output_notebook_error(db):
-    dataframe = output_notebook('invalid')
+    with pytest.raises(psycopg2.errors.SyntaxError) as excinfo:
+        dataframe = output_notebook('invalid')
 
-    assert type(dataframe) == psycopg2.errors.SyntaxError
-    assert str(dataframe) == 'syntax error at or near "invalid"\nLINE 1: invalid\n        ^\n'
-
-    dataframe = output_notebook('SELECT * FROM release')
-
-    assert dataframe.to_dict() == {
-        'collection_id': {0: 1},
-        'data_id': {0: 1},
-        'id': {0: 1},
-        'ocid': {0: 'ocds-213czf-1'},
-    }
+    assert str(excinfo.value) == 'syntax error at or near "invalid"\nLINE 1: invalid\n        ^\n'
