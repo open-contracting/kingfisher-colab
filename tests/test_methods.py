@@ -3,8 +3,8 @@ import getpass
 import json
 import os
 from io import StringIO
-from urllib.parse import urlparse
 from unittest.mock import patch
+from urllib.parse import urlparse
 
 import psycopg2
 import pytest
