@@ -14,4 +14,11 @@ setup(
         'requests',
         'SQLAlchemy',
     ],
+    extras_require={
+        'docs': [
+            'Sphinx',
+            'sphinx-autobuild',
+            'sphinx_rtd_theme',
+        ],
+    },
 )
