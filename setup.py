@@ -9,7 +9,8 @@ setup(
         'flattentool',
         'google-colab',
         'gspread',
-        'gspread-dataframe',
+        # See https://github.com/robin900/gspread-dataframe/issues/23
+        # 'gspread-dataframe',
         'psycopg2-binary',
         'pydrive',
         'requests',
