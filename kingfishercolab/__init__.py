@@ -1,5 +1,5 @@
 """
-A library of functions for use in `Google Colaboratory <https://colab.research.google.com/notebooks/intro.ipynb>`__ notebooks.
+Functions for use in `Google Colaboratory <https://colab.research.google.com/notebooks/intro.ipynb>`__ notebooks.
 
 To import all functions:
 
@@ -10,17 +10,15 @@ To import all functions:
                                     authenticate_pydrive, downloadReleases)
 """
 import json
-import os
 
-from google.colab import auth
-from google.colab import files
+import gspread
+import pandas
+import psycopg2
+from google.colab import auth, files
 from gspread_dataframe import set_with_dataframe
 from oauth2client.client import GoogleCredentials
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-import gspread
-import pandas
-import psycopg2
 
 spreadsheet_name = None
 conn = None
@@ -112,7 +110,7 @@ def saveStraightToSheets(dataframe, sheetname):
     Saves a DataFrame straight to a Google Spreadsheet.
     """
     gc = authenticate_gspread()
-        # open or create gSheet
+    # open or create gSheet
     try:
         gSheet = gc.open(spreadsheet_name)
     except Exception:
@@ -162,8 +160,11 @@ def downloadReleases(collection_id, ocid, package_type):
           )
 
           SELECT
-            jsonb_build_object('releases',jsonb_agg(data)),
-            jsonb_build_object('ocid', %(ocid)s ,'records',jsonb_build_array(jsonb_build_object('releases',jsonb_agg(data))))
+            jsonb_build_object('releases', jsonb_agg(data)),
+            jsonb_build_object(
+                'ocid', %(ocid)s,
+                'records', jsonb_build_array(jsonb_build_object('releases', jsonb_agg(data)))
+            )
           FROM
             releases
           WHERE
