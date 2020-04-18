@@ -186,13 +186,6 @@ def downloadReleases(collection_id, ocid, package_type):
             files.download(file)
 
 
-def output_gsheet(workbook_name, sheet_name, sql, params=None):
-    """
-    Not implemented.
-    """
-    raise NotImplementedError
-
-
 def output_flattened_gsheet(workbook_name, sql, params=None):
     """
     Not implemented.
