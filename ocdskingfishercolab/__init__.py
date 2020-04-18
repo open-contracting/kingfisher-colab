@@ -80,29 +80,6 @@ def authenticate_pydrive():
     return GoogleDrive(gauth)
 
 
-def get_dataframe_from_cursor(cur):
-    """
-    Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
-
-    :param psycopg2.extensions.cursor cur: a database cursor
-    :returns: The results as a data frame
-    :rtype: pandas.DataFrame
-    """
-    headers = [description[0] for description in cur.description]
-    return pandas.DataFrame(cur.fetchall(), columns=headers)
-
-
-def download_dataframe_as_csv(dataframe, filename):
-    """
-    Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
-
-    :param pandas.DataFrame dataframe: a data frame
-    :param str filename: a file name
-    """
-    dataframe.to_csv(filename)
-    files.download(filename)
-
-
 def set_spreadsheet_name(name):
     """
     Sets the name of the spreadsheet to which to save.
@@ -137,6 +114,17 @@ def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
             worksheet = sheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
 
         set_with_dataframe(worksheet, dataframe)
+
+
+def download_dataframe_as_csv(dataframe, filename):
+    """
+    Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
+
+    :param pandas.DataFrame dataframe: a data frame
+    :param str filename: a file name
+    """
+    dataframe.to_csv(filename)
+    files.download(filename)
 
 
 def download_releases_as_package(collection_id, ocid, package_type):
@@ -189,6 +177,18 @@ def get_dataframe_from_query(sql, params=None):
         except Exception:
             cur.execute('rollback')
             raise
+
+
+def get_dataframe_from_cursor(cur):
+    """
+    Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
+
+    :param psycopg2.extensions.cursor cur: a database cursor
+    :returns: The results as a data frame
+    :rtype: pandas.DataFrame
+    """
+    headers = [description[0] for description in cur.description]
+    return pandas.DataFrame(cur.fetchall(), columns=headers)
 
 
 def saveToSheets(*args, **kwargs):
