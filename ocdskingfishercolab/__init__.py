@@ -80,7 +80,7 @@ def authenticate_pydrive():
     return GoogleDrive(gauth)
 
 
-def getResults(cur):
+def get_results(cur):
     """
     Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
 
@@ -92,9 +92,9 @@ def getResults(cur):
     return pandas.DataFrame(cur.fetchall(), columns=headers)
 
 
-def saveToCSV(dataframe, filename):
+def download_dataframe(dataframe, filename):
     """
-    Saves the data frame to a file, and invokes a browser download of the file to your local computer.
+    Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
 
     :param pandas.DataFrame dataframe: a data frame
     :param str filename: a file name
@@ -113,42 +113,34 @@ def set_spreadsheet_name(name):
     spreadsheet_name = name
 
 
-def saveStraightToSheets(dataframe, sheetname):
-    """
-    Saves a data frame to Google Sheets, without asking the user for conformation.
-
-    :param pandas.DataFrame dataframe: a data frame
-    :param str sheetname: a sheet name
-    """
-    gc = authenticate_gspread()
-    try:
-        sheet = gc.open(spreadsheet_name)
-    except Exception:
-        sheet = gc.create(spreadsheet_name)
-
-    try:
-        worksheet = sheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
-    except Exception:
-        newsheetname = input('{} already exists, enter a new name:'.format(sheetname))
-        worksheet = sheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
-
-    set_with_dataframe(worksheet, dataframe)
-
-
-def saveToSheets(dataframe, sheetname):
+def save_to_sheets(dataframe, sheetname, prompt=True):
     """
     Saves a data frame to Google Sheets, after asking the user for confirmation.
 
     :param pandas.DataFrame dataframe: a data frame
     :param str sheetname: a sheet name
+    :param bool prompt: whether to prompt the user
     """
-    if input('Save to Google Sheets? (y/N)') == 'y':
-        saveStraightToSheets(dataframe, sheetname)
+    if prompt is False or input('Save to Google Sheets? (y/N)') == 'y':
+        gc = authenticate_gspread()
+        try:
+            sheet = gc.open(spreadsheet_name)
+        except Exception:
+            sheet = gc.create(spreadsheet_name)
+
+        try:
+            worksheet = sheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
+        except Exception:
+            newsheetname = input('{} already exists, enter a new name:'.format(sheetname))
+            worksheet = sheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
+
+        set_with_dataframe(worksheet, dataframe)
 
 
-def downloadReleases(collection_id, ocid, package_type):
+def download_releases(collection_id, ocid, package_type):
     """
-    Saves OCDS data to a file, and invokes a browser download of the file to your local computer.
+    Selects all releases with the given ocid from the given collection, and invokes a browser download of the packaged
+    releases to your local computer.
 
     :param int collection_id: a collection's ID
     :param str ocid: an OCID
@@ -191,7 +183,37 @@ def output_notebook(sql, params=None):
     with conn, conn.cursor() as cur:
         try:
             cur.execute(sql, params)
-            return getResults(cur)
+            return get_results(cur)
         except Exception as e:
-            cur.execute("rollback")
+            cur.execute('rollback')
             return e
+
+
+def downloadReleases(*args, **kwargs):
+    warnings.warn('downloadReleases() is deprecated. Use download_releases() instead.',
+                  DeprecationWarning, stacklevel=2)
+    download_releases(*args, **kwargs)
+
+
+def getResults(*args, **kwargs):
+    warnings.warn('getResults() is deprecated. Use get_results() instead.',
+                  DeprecationWarning, stacklevel=2)
+    get_results(*args, **kwargs)
+
+
+def saveToCSV(*args, **kwargs):
+    warnings.warn('saveToCSV() is deprecated. Use download_dataframe() instead.',
+                  DeprecationWarning, stacklevel=2)
+    download_dataframe(*args, **kwargs)
+
+
+def saveToSheets(*args, **kwargs):
+    warnings.warn('saveToSheets() is deprecated. Use save_to_sheets() instead.',
+                  DeprecationWarning, stacklevel=2)
+    save_to_sheets(*args, **kwargs)
+
+
+def saveStraightToSheets(dataframe, sheetname):
+    warnings.warn('saveStraightToSheets() is deprecated. Use save_to_sheets(..., prompt=False) instead.',
+                  DeprecationWarning, stacklevel=2)
+    save_to_sheets(*args, **kwargs, prompt=False)
