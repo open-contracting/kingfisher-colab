@@ -80,7 +80,7 @@ def authenticate_pydrive():
     return GoogleDrive(gauth)
 
 
-def get_results(cur):
+def get_dataframe_from_cursor(cur):
     """
     Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
 
@@ -88,11 +88,11 @@ def get_results(cur):
     :returns: The results as a data frame
     :rtype: pandas.DataFrame
     """
-    headers = [desc[0] for desc in cur.description]
+    headers = [description[0] for description in cur.description]
     return pandas.DataFrame(cur.fetchall(), columns=headers)
 
 
-def download_dataframe(dataframe, filename):
+def download_dataframe_as_csv(dataframe, filename):
     """
     Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
 
@@ -105,17 +105,19 @@ def download_dataframe(dataframe, filename):
 
 def set_spreadsheet_name(name):
     """
-    Sets the name of the spreadsheet to save. Used by saveStraightToSheets.
+    Sets the name of the spreadsheet to which to save.
 
-    :param str name: a sheet name
+    Used by :meth:`ocdskingfishercolab.save_dataframe_to_sheet`.
+
+    :param str name: a spreadsheet name
     """
     global spreadsheet_name
     spreadsheet_name = name
 
 
-def save_to_sheets(dataframe, sheetname, prompt=True):
+def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
     """
-    Saves a data frame to Google Sheets, after asking the user for confirmation.
+    Saves a data frame to a sheet in Google Sheets, after asking the user for confirmation.
 
     :param pandas.DataFrame dataframe: a data frame
     :param str sheetname: a sheet name
@@ -137,7 +139,7 @@ def save_to_sheets(dataframe, sheetname, prompt=True):
         set_with_dataframe(worksheet, dataframe)
 
 
-def download_releases(collection_id, ocid, package_type):
+def download_releases_as_package(collection_id, ocid, package_type):
     """
     Selects all releases with the given ocid from the given collection, and invokes a browser download of the packaged
     releases to your local computer.
@@ -171,7 +173,7 @@ def download_releases(collection_id, ocid, package_type):
         files.download(filename)
 
 
-def output_notebook(sql, params=None):
+def get_dataframe_from_query(sql, params=None):
     """
     Executes a SQL statement and returns the results as a data frame.
 
@@ -183,37 +185,43 @@ def output_notebook(sql, params=None):
     with conn, conn.cursor() as cur:
         try:
             cur.execute(sql, params)
-            return get_results(cur)
+            return get_dataframe_from_cursor(cur)
         except Exception:
             cur.execute('rollback')
             raise
 
 
-def downloadReleases(*args, **kwargs):
-    warnings.warn('downloadReleases() is deprecated. Use download_releases() instead.',
-                  DeprecationWarning, stacklevel=2)
-    download_releases(*args, **kwargs)
-
-
-def getResults(*args, **kwargs):
-    warnings.warn('getResults() is deprecated. Use get_results() instead.',
-                  DeprecationWarning, stacklevel=2)
-    get_results(*args, **kwargs)
-
-
-def saveToCSV(*args, **kwargs):
-    warnings.warn('saveToCSV() is deprecated. Use download_dataframe() instead.',
-                  DeprecationWarning, stacklevel=2)
-    download_dataframe(*args, **kwargs)
-
-
 def saveToSheets(*args, **kwargs):
-    warnings.warn('saveToSheets() is deprecated. Use save_to_sheets() instead.',
+    warnings.warn('saveToSheets() is deprecated. Use save_dataframe_to_sheet() instead.',
                   DeprecationWarning, stacklevel=2)
-    save_to_sheets(*args, **kwargs)
+    save_dataframe_to_sheet(*args, **kwargs)
 
 
 def saveStraightToSheets(dataframe, sheetname):
-    warnings.warn('saveStraightToSheets() is deprecated. Use save_to_sheets(..., prompt=False) instead.',
+    warnings.warn('saveStraightToSheets() is deprecated. Use save_dataframe_to_sheet(..., prompt=False) instead.',
                   DeprecationWarning, stacklevel=2)
-    save_to_sheets(*args, **kwargs, prompt=False)
+    save_dataframe_to_sheet(*args, **kwargs, prompt=False)
+
+
+def saveToCSV(*args, **kwargs):
+    warnings.warn('saveToCSV() is deprecated. Use download_dataframe_as_csv() instead.',
+                  DeprecationWarning, stacklevel=2)
+    download_dataframe_as_csv(*args, **kwargs)
+
+
+def downloadReleases(*args, **kwargs):
+    warnings.warn('downloadReleases() is deprecated. Use download_releases_as_package() instead.',
+                  DeprecationWarning, stacklevel=2)
+    download_releases_as_package(*args, **kwargs)
+
+
+def output_notebook(*args, **kwargs):
+    warnings.warn('output_notebook() is deprecated. Use get_dataframe_from_query() instead.',
+                  DeprecationWarning, stacklevel=2)
+    get_dataframe_for_query(*args, **kwargs)
+
+
+def getResults(*args, **kwargs):
+    warnings.warn('getResults() is deprecated. Use get_dataframe_from_cursor() instead.',
+                  DeprecationWarning, stacklevel=2)
+    get_dataframe_from_cursor(*args, **kwargs)
