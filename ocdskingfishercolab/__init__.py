@@ -24,7 +24,7 @@ spreadsheet_name = None
 conn = None
 
 
-def create_connection(database, user, password, host, port='5432'):
+def create_connection(database, user, password='', host='localhost', port='5432'):
     """
     Creates a connection to the database.
 
@@ -35,7 +35,7 @@ def create_connection(database, user, password, host, port='5432'):
     if conn and conn.closed:
         reset_connection()
     if not conn:
-        conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
+        conn = psycopg2.connect(dbname=database, user=user, password=password, host=host, port=port)
     return conn
 
 
@@ -50,7 +50,7 @@ def reset_connection():
         try:
             conn.cancel()
             conn.reset()
-        except:
+        except Exception:
             pass
 
     conn = None
@@ -82,7 +82,7 @@ def authenticate_pydrive():
 
 def getResults(cur):
     """
-    Takes in a database cursor and returns a Pandas DataFrame.
+    Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
 
     :param psycopg2.extensions.cursor cur: a database cursor
     :returns: The results as a data frame
@@ -94,7 +94,7 @@ def getResults(cur):
 
 def saveToCSV(dataframe, filename):
     """
-    Takes in a Pandas DataFrame and save the data to a file in the notebook.
+    Saves the data frame to a file, and invokes a browser download of the file to your local computer.
 
     :param pandas.DataFrame dataframe: a data frame
     :param str filename: a file name
@@ -148,7 +148,7 @@ def saveToSheets(dataframe, sheetname):
 
 def downloadReleases(collection_id, ocid, package_type):
     """
-    Downloads some releases into a file in the notebook.
+    Saves OCDS data to a file, and invokes a browser download of the file to your local computer.
 
     :param int collection_id: a collection's ID
     :param str ocid: an OCID
@@ -158,45 +158,30 @@ def downloadReleases(collection_id, ocid, package_type):
         print("package_type parameter must be either 'release' or 'record'")
         return
 
-    querystring = """
-    WITH releases AS (
-        SELECT
-            ocid,
-            data
-        FROM data
-        JOIN release_with_collection ON data.id = release_with_collection.data_id
-        WHERE collection_id = %(collection_id)s
-    )
-    SELECT
-      jsonb_build_object('releases', jsonb_agg(data)),
-      jsonb_build_object(
-          'ocid', %(ocid)s,
-          'records', jsonb_build_array(jsonb_build_object('releases', jsonb_agg(data)))
-      )
-    FROM releases
-    WHERE ocid = %(ocid)s
+    statement = """
+    SELECT jsonb_agg(data)
+    FROM data
+    JOIN release ON data.id = release.data_id
+    WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
     """
 
     with conn, conn.cursor() as cur:
-        cur.execute(querystring, {'ocid': ocid, 'collection_id': collection_id})
+        cur.execute(statement, {'ocid': ocid, 'collection_id': collection_id})
 
-        file = '{}_{}_package.json'.format(ocid, package_type)
+        package = {'releases': cur.fetchone()[0]}
+        if package_type == 'record':
+            package = {'ocid': ocid, 'records': [package]}
 
-        result = cur.fetchone()
-        if package_type == 'release':
-            index = 0
-        elif package_type == 'record':
-            index = 1
+        filename = '{}_{}_package.json'.format(ocid, package_type)
+        with open(filename, 'w') as f:
+            json.dump(package, f, indent=2, ensure_ascii=False)
 
-        with open(file, 'w') as f:
-            json.dump(result[index], f, indent=2, ensure_ascii=False)
-
-        files.download(file)
+        files.download(filename)
 
 
 def output_notebook(sql, params=None):
     """
-    Runs a SQL query and returns results to the notebook.
+    Executes a SQL statement and returns the results as a data frame.
 
     :param str sql: a SQL statement
     :param params: the parameters to pass to the SQL statement
