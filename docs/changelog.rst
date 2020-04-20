@@ -1,26 +1,30 @@
 Changelog
 =========
 
-0.2.0 (2020-03-20)
+0.2.0 (Unreleased)
 ------------------
 
 **Upgrade instructions:**
 
--  Upgrade to 0.1.x if you have not already, and address any deprecation warnings.
+-  Upgrade to 0.1.x if you have not already, and address any deprecation warnings. Then, upgrade to 0.2.x.
 -  Install alembic, requests and SQLAlchemy separately, if used by the notebook.
 
 Added
 ~~~~~
 
 -  :meth:~ocdskingfishercolab.download_data_as_json`
--  :meth:~ocdskingfishercolab.download_package_from_query`: Optional ``filename`` argument.
 
 Changed
 ~~~~~~~
 
 -  **Backwards-incompatible**: The methods deprecated in 0.1.x are removed.
 -  **Backwards-incompatible**: alembic, requests and SQLAlchemy are no longer installed.
--  **Backwards-incompatible**: :meth:~ocdskingfishercolab.download_package_from_ocid` returns a structurally correct record package. Previously, the ``ocid`` field was at the package-level instead of the record-level.
+
+Fixed
+~~~~~
+
+-  :meth:`~ocdskingfishercolab.download_package_from_ocid` returns structurally correct records. Previously, the ``ocid`` field was at the package-level instead of the record-level.
+-  :meth:`~ocdskingfishercolab.download_package_from_ocid` and :meth:`~ocdskingfishercolab.download_package_from_query` return structurally correct packages. Previously, required fields were omitted.
 
 0.1.1 (2020-03-20)
 ------------------
