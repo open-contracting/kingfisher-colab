@@ -9,7 +9,8 @@ from urllib.parse import urlparse
 import psycopg2
 import pytest
 
-from ocdskingfishercolab import create_connection, download_releases_as_package, get_dataframe_from_query
+from ocdskingfishercolab import (UnknownPackageTypeError, create_connection, download_package_from_ocid,
+                                 download_package_from_query, get_dataframe_from_query)
 
 
 @pytest.fixture
@@ -37,9 +38,13 @@ def db():
 
         try:
             cur.execute("CREATE TABLE release (id int, collection_id int, ocid text, data_id int)")
+            cur.execute("CREATE TABLE record (id int, collection_id int, ocid text, data_id int)")
             cur.execute("CREATE TABLE data (id int, data jsonb)")
             cur.execute("INSERT INTO release VALUES (1, 1, 'ocds-213czf-1', 1)")
+            cur.execute("INSERT INTO record VALUES (1, 1, 'ocds-213czf-2', 2)")
             cur.execute("""INSERT INTO data VALUES (1, '{"ocid":"ocds-213czf-1"}'::jsonb)""")
+            cur.execute("""INSERT INTO data VALUES (2, '{"ocid":"ocds-213czf-2","""
+                        """"releases":[{"ocid":"ocds-213czf-2"}]}'::jsonb)""")
             conn.commit()
 
             yield
@@ -64,9 +69,9 @@ def chdir(path):
 
 
 @patch('google.colab.files.download')
-def test_download_releases_as_package_release(mocked, db, tmpdir):
+def test_download_package_from_ocid_release(mocked, db, tmpdir):
     with chdir(tmpdir):
-        download_releases_as_package(1, 'ocds-213czf-1', 'release')
+        download_package_from_ocid(1, 'ocds-213czf-1', 'release')
 
         with open('ocds-213czf-1_release_package.json') as f:
             data = json.load(f)
@@ -77,9 +82,9 @@ def test_download_releases_as_package_release(mocked, db, tmpdir):
 
 
 @patch('google.colab.files.download')
-def test_download_releases_as_package_record(mocked, db, tmpdir):
+def test_download_package_from_ocid_record(mocked, db, tmpdir):
     with chdir(tmpdir):
-        download_releases_as_package(1, 'ocds-213czf-1', 'record')
+        download_package_from_ocid(1, 'ocds-213czf-1', 'record')
 
         with open('ocds-213czf-1_record_package.json') as f:
             data = json.load(f)
@@ -95,10 +100,59 @@ def test_download_releases_as_package_record(mocked, db, tmpdir):
 
 
 @patch('sys.stdout', new_callable=StringIO)
-def test_download_releases_as_package_other(stdout):
-    download_releases_as_package(1, 'ocds-213czf-1', 'other')
+def test_download_package_from_ocid_other(stdout):
+    with pytest.raises(UnknownPackageTypeError) as excinfo:
+        download_package_from_ocid(1, 'ocds-213czf-1', 'other')
 
-    assert stdout.getvalue() == "package_type parameter must be either 'release' or 'record'\n"
+    assert str(excinfo.value) == "package_type argument must be either 'release' or 'record'"
+
+
+@patch('google.colab.files.download')
+def test_download_package_from_query_release(mocked, db, tmpdir):
+    sql = """
+    SELECT data FROM data JOIN release ON data.id = release.data_id
+    WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
+    """
+
+    with chdir(tmpdir):
+        download_package_from_query(sql, {'collection_id': 1, 'ocid': 'ocds-213czf-1'}, 'release')
+
+        with open('release_package.json') as f:
+            data = json.load(f)
+
+            assert data == {'releases': [{'ocid': 'ocds-213czf-1'}]}
+
+            mocked.assert_called_once_with('release_package.json')
+
+
+@patch('google.colab.files.download')
+def test_download_package_from_query_record(mocked, db, tmpdir):
+    sql = """
+    SELECT data FROM data JOIN record ON data.id = record.data_id
+    WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
+    """
+
+    with chdir(tmpdir):
+        download_package_from_query(sql, {'collection_id': 1, 'ocid': 'ocds-213czf-2'}, 'record')
+
+        with open('record_package.json') as f:
+            data = json.load(f)
+
+            assert data == {
+                'records': [
+                    {'ocid': 'ocds-213czf-2', 'releases': [{'ocid': 'ocds-213czf-2'}]},
+                ],
+            }
+
+            mocked.assert_called_once_with('record_package.json')
+
+
+@patch('sys.stdout', new_callable=StringIO)
+def test_download_package_from_query_other(stdout):
+    with pytest.raises(UnknownPackageTypeError) as excinfo:
+        download_package_from_query('SELECT 1', package_type='other')
+
+    assert str(excinfo.value) == "package_type argument must be either 'release' or 'record'"
 
 
 def test_get_dataframe_from_query(db):

@@ -5,7 +5,8 @@ To import all functions:
 
    from ocdskingfishercolab import (create_connection, reset_connection, authenticate_gspread, authenticate_pydrive,
                                     set_spreadsheet_name, save_dataframe_to_sheet, download_dataframe_as_csv,
-                                    download_releases_as_package, get_dataframe_from_query, get_dataframe_from_cursor)
+                                    download_package_from_ocid, download_package_from_query, get_dataframe_from_query,
+                                    get_dataframe_from_cursor)
 """
 import json
 import warnings
@@ -21,6 +22,14 @@ from pydrive.drive import GoogleDrive
 
 spreadsheet_name = None
 conn = None
+
+
+class OCDSKingfisherColabError(Exception):
+    """Base class for exceptions from within this package"""
+
+
+class UnknownPackageTypeError(OCDSKingfisherColabError, ValueError):
+    """Raised when the provided package type is unknown"""
 
 
 def create_connection(database, user, password='', host='localhost', port='5432', sslmode=None):
@@ -126,7 +135,36 @@ def download_dataframe_as_csv(dataframe, filename):
     files.download(filename)
 
 
-def download_releases_as_package(collection_id, ocid, package_type):
+def download_package_from_query(sql, params=None, package_type=None):
+    """
+    Executes a SQL statement that SELECTs only the ``data`` column of the ``data`` table, and invokes a browser
+    download of the packaged data to your local computer.
+
+    :param str sql: a SQL statement
+    :param params: the parameters to pass to the SQL statement
+    :param str package_type: "record" or "release"
+    :raises UnknownPackageTypeError: when the provided package type is unknown
+    """
+    if package_type not in ('record', 'release'):
+        raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
+
+    with conn, conn.cursor() as cur:
+        _execute_statement(cur, sql, params)
+
+        data = [row[0] for row in cur]
+        if package_type == 'record':
+            package = {'records': data}
+        elif package_type == 'release':
+            package = {'releases': data}
+
+        filename = '{}_package.json'.format(package_type)
+        with open(filename, 'w') as f:
+            json.dump(package, f, indent=2, ensure_ascii=False)
+
+        files.download(filename)
+
+
+def download_package_from_ocid(collection_id, ocid, package_type):
     """
     Selects all releases with the given ocid from the given collection, and invokes a browser download of the packaged
     releases to your local computer.
@@ -134,22 +172,24 @@ def download_releases_as_package(collection_id, ocid, package_type):
     :param int collection_id: a collection's ID
     :param str ocid: an OCID
     :param str package_type: "record" or "release"
+    :raises UnknownPackageTypeError: when the provided package type is unknown
     """
     if package_type not in ('record', 'release'):
-        print("package_type parameter must be either 'release' or 'record'")
-        return
+        raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
-    statement = """
-    SELECT jsonb_agg(data)
+    sql = """
+    SELECT data
     FROM data
     JOIN release ON data.id = release.data_id
     WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
     """
 
-    with conn, conn.cursor() as cur:
-        cur.execute(statement, {'ocid': ocid, 'collection_id': collection_id})
+    params = {'ocid': ocid, 'collection_id': collection_id}
 
-        package = {'releases': cur.fetchone()[0]}
+    with conn, conn.cursor() as cur:
+        _execute_statement(cur, sql, params)
+
+        package = {'releases': [row[0] for row in cur]}
         if package_type == 'record':
             package = {'ocid': ocid, 'records': [package]}
 
@@ -170,12 +210,8 @@ def get_dataframe_from_query(sql, params=None):
     :rtype: pandas.DataFrame
     """
     with conn, conn.cursor() as cur:
-        try:
-            cur.execute(sql, params)
-            return get_dataframe_from_cursor(cur)
-        except Exception:
-            cur.execute('rollback')
-            raise
+        _execute_statement(cur, sql, params)
+        return get_dataframe_from_cursor(cur)
 
 
 def get_dataframe_from_cursor(cur):
@@ -188,6 +224,14 @@ def get_dataframe_from_cursor(cur):
     """
     headers = [description[0] for description in cur.description]
     return pandas.DataFrame(cur.fetchall(), columns=headers)
+
+
+def _execute_statement(cur, sql, params):
+    try:
+        cur.execute(sql, params)
+    except Exception:
+        cur.execute('rollback')
+        raise
 
 
 def saveToSheets(*args, **kwargs):
@@ -209,9 +253,9 @@ def saveToCSV(*args, **kwargs):
 
 
 def downloadReleases(*args, **kwargs):
-    warnings.warn('downloadReleases() is deprecated. Use download_releases_as_package() instead.',
+    warnings.warn('downloadReleases() is deprecated. Use download_package_from_ocid() instead.',
                   DeprecationWarning, stacklevel=2)
-    download_releases_as_package(*args, **kwargs)
+    download_package_from_ocid(*args, **kwargs)
 
 
 def output_notebook(*args, **kwargs):
