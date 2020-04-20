@@ -4,11 +4,12 @@ import os
 from io import StringIO
 from unittest.mock import patch
 
+import pandas
 import psycopg2
 import pytest
 
-from ocdskingfishercolab import (UnknownPackageTypeError, download_package_from_ocid, download_package_from_query,
-                                 get_dataframe_from_query)
+from ocdskingfishercolab import (UnknownPackageTypeError, download_dataframe_as_csv, download_package_from_ocid,
+                                 download_package_from_query, get_dataframe_from_query)
 
 
 @contextlib.contextmanager
@@ -19,6 +20,20 @@ def chdir(path):
         yield
     finally:
         os.chdir(cwd)
+
+
+@patch('google.colab.files.download')
+def test_download_dataframe_as_csv(mocked, tmpdir):
+    d = {'col1': [1, 2], 'col2': [3, 4]}
+    df = pandas.DataFrame(data=d)
+
+    with chdir(tmpdir):
+        download_dataframe_as_csv(df, 'file.csv')
+
+        with open('file.csv') as f:
+            data = f.read()
+
+            assert data == ',col1,col2\n0,1,3\n1,2,4\n'
 
 
 @patch('google.colab.files.download')
