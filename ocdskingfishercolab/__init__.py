@@ -9,7 +9,6 @@ To import all functions:
                                     get_dataframe_from_cursor)
 """
 import json
-import warnings
 
 import gspread
 import pandas
@@ -135,6 +134,18 @@ def download_dataframe_as_csv(dataframe, filename):
     files.download(filename)
 
 
+def download_data_as_json(data, filename):
+    """
+    Dumps the data to a JSON file, and invokes a browser download of the CSV file to your local computer.
+
+    :param data: JSON-serializable data
+    :param str filename: a file name
+    """
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    files.download(filename)
+
+
 def download_package_from_query(sql, params=None, package_type=None):
     """
     Executes a SQL statement that SELECTs only the ``data`` column of the ``data`` table, and invokes a browser
@@ -157,11 +168,7 @@ def download_package_from_query(sql, params=None, package_type=None):
         elif package_type == 'release':
             package = {'releases': data}
 
-        filename = '{}_package.json'.format(package_type)
-        with open(filename, 'w') as f:
-            json.dump(package, f, indent=2, ensure_ascii=False)
-
-        files.download(filename)
+        download_data_as_json(package, '{}_package.json'.format(package_type))
 
 
 def download_package_from_ocid(collection_id, ocid, package_type):
@@ -193,11 +200,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
         if package_type == 'record':
             package = {'ocid': ocid, 'records': [package]}
 
-        filename = '{}_{}_package.json'.format(ocid, package_type)
-        with open(filename, 'w') as f:
-            json.dump(package, f, indent=2, ensure_ascii=False)
-
-        files.download(filename)
+        download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
 
 
 def get_dataframe_from_query(sql, params=None):
