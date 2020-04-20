@@ -121,12 +121,12 @@ def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
         gc = authenticate_gspread()
         try:
             sheet = gc.open(spreadsheet_name)
-        except Exception:
+        except gspread.SpreadsheetNotFound:
             sheet = gc.create(spreadsheet_name)
 
         try:
             worksheet = sheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
-        except Exception:
+        except gspread.exceptions.APIError:
             newsheetname = input('{} already exists, enter a new name:'.format(sheetname))
             worksheet = sheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
 
@@ -246,6 +246,6 @@ def get_dataframe_from_cursor(cur):
 def _execute_statement(cur, sql, params):
     try:
         cur.execute(sql, params)
-    except Exception:
+    except psycopg2.Error:
         cur.execute('rollback')
         raise
