@@ -232,39 +232,3 @@ def _execute_statement(cur, sql, params):
     except Exception:
         cur.execute('rollback')
         raise
-
-
-def saveToSheets(*args, **kwargs):
-    warnings.warn('saveToSheets() is deprecated. Use save_dataframe_to_sheet() instead.',
-                  DeprecationWarning, stacklevel=2)
-    save_dataframe_to_sheet(*args, **kwargs)
-
-
-def saveStraightToSheets(*args, **kwargs):
-    warnings.warn('saveStraightToSheets() is deprecated. Use save_dataframe_to_sheet(..., prompt=False) instead.',
-                  DeprecationWarning, stacklevel=2)
-    save_dataframe_to_sheet(*args, **kwargs, prompt=False)
-
-
-def saveToCSV(*args, **kwargs):
-    warnings.warn('saveToCSV() is deprecated. Use download_dataframe_as_csv() instead.',
-                  DeprecationWarning, stacklevel=2)
-    download_dataframe_as_csv(*args, **kwargs)
-
-
-def downloadReleases(*args, **kwargs):
-    warnings.warn('downloadReleases() is deprecated. Use download_package_from_ocid() instead.',
-                  DeprecationWarning, stacklevel=2)
-    download_package_from_ocid(*args, **kwargs)
-
-
-def output_notebook(*args, **kwargs):
-    warnings.warn('output_notebook() is deprecated. Use get_dataframe_from_query() instead.',
-                  DeprecationWarning, stacklevel=2)
-    return get_dataframe_from_query(*args, **kwargs)
-
-
-def getResults(*args, **kwargs):
-    warnings.warn('getResults() is deprecated. Use get_dataframe_from_cursor() instead.',
-                  DeprecationWarning, stacklevel=2)
-    return get_dataframe_from_cursor(*args, **kwargs)
