@@ -77,6 +77,10 @@ def test_download_package_from_ocid_release(mocked, db, tmpdir):
             data = json.load(f)
 
             assert data == {
+                'uri': 'placeholder:',
+                'publisher': {'name': ''},
+                'publishedDate': '9999-01-01T00:00:00Z',
+                'version': '1.1',
                 'releases': [{'ocid': 'ocds-213czf-1'}],
             }
 
@@ -92,12 +96,14 @@ def test_download_package_from_ocid_record(mocked, db, tmpdir):
             data = json.load(f)
 
             assert data == {
-                'records': [
-                    {
-                        'ocid': 'ocds-213czf-1',
-                        'releases': [{'ocid': 'ocds-213czf-1'}],
-                    },
-                ],
+                'uri': 'placeholder:',
+                'publisher': {'name': ''},
+                'publishedDate': '9999-01-01T00:00:00Z',
+                'version': '1.1',
+                'records': [{
+                    'ocid': 'ocds-213czf-1',
+                    'releases': [{'ocid': 'ocds-213czf-1'}],
+                }],
             }
 
             mocked.assert_called_once_with('ocds-213czf-1_record_package.json')
@@ -124,7 +130,13 @@ def test_download_package_from_query_release(mocked, db, tmpdir):
         with open('release_package.json') as f:
             data = json.load(f)
 
-            assert data == {'releases': [{'ocid': 'ocds-213czf-1'}]}
+            assert data == {
+                'uri': 'placeholder:',
+                'publisher': {'name': ''},
+                'publishedDate': '9999-01-01T00:00:00Z',
+                'version': '1.1',
+                'releases': [{'ocid': 'ocds-213czf-1'}],
+            }
 
             mocked.assert_called_once_with('release_package.json')
 
@@ -143,9 +155,14 @@ def test_download_package_from_query_record(mocked, db, tmpdir):
             data = json.load(f)
 
             assert data == {
-                'records': [
-                    {'ocid': 'ocds-213czf-2', 'releases': [{'ocid': 'ocds-213czf-2'}]},
-                ],
+                'uri': 'placeholder:',
+                'publisher': {'name': ''},
+                'publishedDate': '9999-01-01T00:00:00Z',
+                'version': '1.1',
+                'records': [{
+                    'ocid': 'ocds-213czf-2',
+                    'releases': [{'ocid': 'ocds-213czf-2'}],
+                }],
             }
 
             mocked.assert_called_once_with('record_package.json')

@@ -22,6 +22,16 @@ from pydrive.drive import GoogleDrive
 spreadsheet_name = None
 conn = None
 
+# Use the same placeholder values as OCDS Kit.
+package_metadata = {
+    'uri': 'placeholder:',
+    'publisher': {
+        'name': '',
+    },
+    'publishedDate': '9999-01-01T00:00:00Z',
+    'version': '1.1',
+}
+
 
 class OCDSKingfisherColabError(Exception):
     """Base class for exceptions from within this package"""
@@ -168,6 +178,7 @@ def download_package_from_query(sql, params=None, package_type=None):
         elif package_type == 'release':
             package = {'releases': data}
 
+        package.update(package_metadata)
         download_data_as_json(package, '{}_package.json'.format(package_type))
 
 
@@ -202,6 +213,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
         elif package_type == 'release':
             package = {'releases': data}
 
+        package.update(package_metadata)
         download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
 
 
