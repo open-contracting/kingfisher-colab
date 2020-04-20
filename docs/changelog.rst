@@ -7,7 +7,7 @@ Changelog
 **Upgrade instructions:**
 
 -  Upgrade to 0.1.x if you have not already, and address any deprecation warnings. Then, upgrade to 0.2.x.
--  Install alembic and SQLAlchemy separately, if used by the notebook.
+-  Install alembic and SQLAlchemy separately, if used in the notebook.
 
 Added
 ~~~~~
@@ -19,7 +19,7 @@ Changed
 ~~~~~~~
 
 -  **Backwards-incompatible**: The methods deprecated in 0.1.x are removed.
--  **Backwards-incompatible**: alembic, requests and SQLAlchemy are no longer installed.
+-  **Backwards-incompatible**: alembic and SQLAlchemy are no longer installed.
 
 Fixed
 ~~~~~
