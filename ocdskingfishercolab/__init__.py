@@ -196,9 +196,11 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     with conn, conn.cursor() as cur:
         _execute_statement(cur, sql, params)
 
-        package = {'releases': [row[0] for row in cur]}
+        data = [row[0] for row in cur]
         if package_type == 'record':
-            package = {'ocid': ocid, 'records': [package]}
+            package = {'records': [{'ocid': ocid, 'releases': data}]}
+        elif package_type == 'release':
+            package = {'releases': data}
 
         download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
 

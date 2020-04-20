@@ -76,7 +76,9 @@ def test_download_package_from_ocid_release(mocked, db, tmpdir):
         with open('ocds-213czf-1_release_package.json') as f:
             data = json.load(f)
 
-            assert data == {'releases': [{'ocid': 'ocds-213czf-1'}]}
+            assert data == {
+                'releases': [{'ocid': 'ocds-213czf-1'}],
+            }
 
             mocked.assert_called_once_with('ocds-213czf-1_release_package.json')
 
@@ -90,9 +92,11 @@ def test_download_package_from_ocid_record(mocked, db, tmpdir):
             data = json.load(f)
 
             assert data == {
-                'ocid': 'ocds-213czf-1',
                 'records': [
-                    {'releases': [{'ocid': 'ocds-213czf-1'}]},
+                    {
+                        'ocid': 'ocds-213czf-1',
+                        'releases': [{'ocid': 'ocds-213czf-1'}],
+                    },
                 ],
             }
 
