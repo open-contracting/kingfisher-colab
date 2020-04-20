@@ -4,7 +4,7 @@ Changelog
 0.1.0 (2020-03-20)
 ------------------
 
-**Upgrade instructions**:
+**Upgrade instructions:**
 
 -  Use ``pip install -q 'ocdskingfishercolab<0.2'`` instead of any previous ``pip install`` command.
 -  Many methods are now deprecated and will be removed in 0.2.
