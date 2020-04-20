@@ -261,10 +261,10 @@ def downloadReleases(*args, **kwargs):
 def output_notebook(*args, **kwargs):
     warnings.warn('output_notebook() is deprecated. Use get_dataframe_from_query() instead.',
                   DeprecationWarning, stacklevel=2)
-    get_dataframe_from_query(*args, **kwargs)
+    return get_dataframe_from_query(*args, **kwargs)
 
 
 def getResults(*args, **kwargs):
     warnings.warn('getResults() is deprecated. Use get_dataframe_from_cursor() instead.',
                   DeprecationWarning, stacklevel=2)
-    get_dataframe_from_cursor(*args, **kwargs)
+    return get_dataframe_from_cursor(*args, **kwargs)

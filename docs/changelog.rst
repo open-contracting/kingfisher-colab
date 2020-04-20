@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.1.1 (2020-03-20)
+------------------
+
+Fixed
+~~~~~
+
+-  The deprecated methods ``output_notebook`` and ``get_results`` return values again.
+
 0.1.0 (2020-03-20)
 ------------------
 
