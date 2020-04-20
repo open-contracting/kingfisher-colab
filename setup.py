@@ -18,10 +18,12 @@ setup(
         'google-colab',
         'gspread',
         'gspread-dataframe',
+        'notebook',
         'oauth2client',
         'pandas',
         'psycopg2-binary',
         'pydrive',
+        'requests',
     ],
     extras_require={
         'test': [

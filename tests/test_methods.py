@@ -15,6 +15,10 @@ from ocdskingfishercolab import (UnknownPackageTypeError, download_dataframe_as_
                                  download_package_from_query, get_dataframe_from_query)
 
 
+def _notebook_id():
+    return '1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0'
+
+
 @contextlib.contextmanager
 def chdir(path):
     cwd = os.getcwd()
@@ -26,7 +30,7 @@ def chdir(path):
 
 
 @patch('google.colab.files.download')
-def test_download_dataframe_as_csv(mocked, tmpdir):
+def test_download_dataframe_as_csv(download, tmpdir):
     d = {'col1': [1, 2], 'col2': [3, 4]}
     df = pandas.DataFrame(data=d)
 
@@ -40,7 +44,8 @@ def test_download_dataframe_as_csv(mocked, tmpdir):
 
 
 @patch('google.colab.files.download')
-def test_download_package_from_ocid_release(mocked, db, tmpdir):
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_download_package_from_ocid_release(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, 'ocds-213czf-1', 'release')
 
@@ -55,11 +60,12 @@ def test_download_package_from_ocid_release(mocked, db, tmpdir):
                 'releases': [{'ocid': 'ocds-213czf-1'}],
             }
 
-            mocked.assert_called_once_with('ocds-213czf-1_release_package.json')
+            download.assert_called_once_with('ocds-213czf-1_release_package.json')
 
 
 @patch('google.colab.files.download')
-def test_download_package_from_ocid_record(mocked, db, tmpdir):
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_download_package_from_ocid_record(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, 'ocds-213czf-1', 'record')
 
@@ -77,7 +83,7 @@ def test_download_package_from_ocid_record(mocked, db, tmpdir):
                 }],
             }
 
-            mocked.assert_called_once_with('ocds-213czf-1_record_package.json')
+            download.assert_called_once_with('ocds-213czf-1_record_package.json')
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -89,7 +95,8 @@ def test_download_package_from_ocid_other(stdout):
 
 
 @patch('google.colab.files.download')
-def test_download_package_from_query_release(mocked, db, tmpdir):
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_download_package_from_query_release(download, db, tmpdir):
     sql = """
     SELECT data FROM data JOIN release ON data.id = release.data_id
     WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
@@ -109,11 +116,12 @@ def test_download_package_from_query_release(mocked, db, tmpdir):
                 'releases': [{'ocid': 'ocds-213czf-1'}],
             }
 
-            mocked.assert_called_once_with('release_package.json')
+            download.assert_called_once_with('release_package.json')
 
 
 @patch('google.colab.files.download')
-def test_download_package_from_query_record(mocked, db, tmpdir):
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_download_package_from_query_record(download, db, tmpdir):
     sql = """
     SELECT data FROM data JOIN record ON data.id = record.data_id
     WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
@@ -136,7 +144,7 @@ def test_download_package_from_query_record(mocked, db, tmpdir):
                 }],
             }
 
-            mocked.assert_called_once_with('record_package.json')
+            download.assert_called_once_with('record_package.json')
 
 
 @patch('sys.stdout', new_callable=StringIO)
@@ -147,6 +155,7 @@ def test_download_package_from_query_other(stdout):
     assert str(excinfo.value) == "package_type argument must be either 'release' or 'record'"
 
 
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_get_dataframe_from_query(db):
     dataframe = get_dataframe_from_query('SELECT * FROM release')
 
@@ -158,8 +167,11 @@ def test_get_dataframe_from_query(db):
     }
 
 
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_get_dataframe_from_query_error(db):
     with pytest.raises(psycopg2.errors.SyntaxError) as excinfo:
         get_dataframe_from_query('invalid')
 
-    assert str(excinfo.value) == 'syntax error at or near "invalid"\nLINE 1: invalid\n        ^\n'
+    assert str(excinfo.value) == 'syntax error at or near "invalid"\n' \
+                                 'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
+                                 '                                                                ^\n'

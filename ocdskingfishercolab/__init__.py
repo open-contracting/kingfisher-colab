@@ -9,12 +9,15 @@ To import all functions:
                                     get_dataframe_from_cursor)
 """
 import json
+from urllib.parse import urljoin
 
 import gspread
 import pandas
 import psycopg2
+import requests
 from google.colab import auth, files
 from gspread_dataframe import set_with_dataframe
+from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -245,7 +248,12 @@ def get_dataframe_from_cursor(cur):
 
 def _execute_statement(cur, sql, params):
     try:
-        cur.execute(sql, params)
+        cur.execute('/* https://colab.research.google.com/drive/{} */'.format(_notebook_id()) + sql, params)
     except psycopg2.Error:
         cur.execute('rollback')
         raise
+
+
+def _notebook_id():
+    server = next(notebookapp.list_running_servers())
+    return requests.get(urljoin(server['url'], 'api/sessions')).json()[0]['path'][7:]  # fileId=
