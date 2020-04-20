@@ -1,3 +1,6 @@
+# Manual tests can be performed against regularly used Colabotatory notebooks:
+# https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0
+
 import contextlib
 import json
 import os
