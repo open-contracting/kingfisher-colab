@@ -1,8 +1,10 @@
 from setuptools import setup
 
 setup(
-    name='kingfisher-colab',
-    version='0.0.2',
+    name='ocdskingfishercolab',
+    version='0.0.1',
+    author='Open Contracting Partnership',
+    author_email='data@open-contracting.org',
     license='BSD',
     packages=['kingfishercolab'],
     package_data={},
