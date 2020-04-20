@@ -14,15 +14,14 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     long_description=long_description,
     install_requires=[
-        'alembic',
         'flattentool',
         'google-colab',
         'gspread',
         'gspread-dataframe',
+        'oauth2client',
+        'pandas',
         'psycopg2-binary',
         'pydrive',
-        'requests',
-        'SQLAlchemy',
     ],
     extras_require={
         'test': [
