@@ -12,10 +12,11 @@ from zipfile import ZipFile
 import pandas
 import psycopg2
 import pytest
+from psycopg2.sql import SQL, Identifier
 
 from ocdskingfishercolab import (UnknownPackageTypeError, download_dataframe_as_csv, download_package_from_ocid,
-                                 download_package_from_query, get_dataframe_from_query, list_collections,
-                                 list_source_ids, save_dataframe_to_spreadsheet)
+                                 download_package_from_query, execute_statement, get_dataframe_from_query,
+                                 list_collections, list_source_ids, save_dataframe_to_spreadsheet)
 
 
 def path(filename):
@@ -38,6 +39,13 @@ def chdir(path):
         yield
     finally:
         os.chdir(cwd)
+
+
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_execute_statement_composable(db):
+    execute_statement(db, SQL('SELECT id FROM {}').format(Identifier('record')))
+
+    assert [row for row in db] == [(1,)]
 
 
 @patch('google.colab.files.download')

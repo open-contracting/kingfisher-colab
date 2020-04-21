@@ -51,7 +51,7 @@ def db():
 
             conn.commit()
 
-            yield
+            yield cur
         finally:
             cur.close()
             conn.close()

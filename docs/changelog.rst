@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.2.1 (2020-04-21)
+------------------
+
+Fixed
+~~~~~
+
+-  :meth:`~ocdskingfishercolab.execute_statement` no longer errors if given a ``psycopg2.sql.Composable``.
+
 0.2.0 (2020-04-21)
 ------------------
 

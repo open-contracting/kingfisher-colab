@@ -12,6 +12,7 @@ from gspread_dataframe import set_with_dataframe
 from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
+from psycopg2.sql import SQL
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
@@ -134,9 +135,12 @@ def list_collections(source_id):
     return get_dataframe_from_query(sql, {'source_id': source_id})
 
 
-def execute_statement(cur, sql, params):
+def execute_statement(cur, sql, params={}):
     try:
-        cur.execute('/* https://colab.research.google.com/drive/{} */'.format(_notebook_id()) + sql, params)
+        comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
+        if not isinstance(sql, str):
+            comment = SQL(comment)
+        cur.execute(comment + sql, params)
     except psycopg2.Error:
         cur.execute('rollback')
         raise
