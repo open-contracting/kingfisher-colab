@@ -36,14 +36,6 @@ package_metadata = {
 }
 
 
-class OCDSKingfisherColabError(Exception):
-    """Base class for exceptions from within this package"""
-
-
-class UnknownPackageTypeError(OCDSKingfisherColabError, ValueError):
-    """Raised when the provided package type is unknown"""
-
-
 def create_connection(database, user, password='', host='localhost', port='5432', sslmode=None):
     """
     Creates a connection to the database.
@@ -257,3 +249,11 @@ def _execute_statement(cur, sql, params):
 def _notebook_id():
     server = next(notebookapp.list_running_servers())
     return requests.get(urljoin(server['url'], 'api/sessions')).json()[0]['path'][7:]  # fileId=
+
+
+class OCDSKingfisherColabError(Exception):
+    """Base class for exceptions from within this package"""
+
+
+class UnknownPackageTypeError(OCDSKingfisherColabError, ValueError):
+    """Raised when the provided package type is unknown"""
