@@ -29,8 +29,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
-    # https://github.com/googleapis/google-api-python-client/issues/870
-    - run: pip install .[test] 'google-api-python-client!=1.8.1'
+    - run: pip install .[test]
     - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
     - env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres

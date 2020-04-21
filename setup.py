@@ -24,6 +24,8 @@ setup(
         'psycopg2-binary',
         'pydrive',
         'requests',
+        # https://github.com/googleapis/google-api-python-client/issues/870
+        'google-api-python-client!=1.8.1',
     ],
     extras_require={
         'test': [
