@@ -104,6 +104,40 @@ def set_spreadsheet_name(name):
     spreadsheet_name = name
 
 
+def execute_statement(cur, sql, params):
+    try:
+        cur.execute('/* https://colab.research.google.com/drive/{} */'.format(_notebook_id()) + sql, params)
+    except psycopg2.Error:
+        cur.execute('rollback')
+        raise
+
+
+def get_dataframe_from_query(sql, params=None):
+    """
+    Executes a SQL statement and returns the results as a data frame.
+
+    :param str sql: a SQL statement
+    :param params: the parameters to pass to the SQL statement
+    :returns: The results as a data frame
+    :rtype: pandas.DataFrame
+    """
+    with conn, conn.cursor() as cur:
+        execute_statement(cur, sql, params)
+        return get_dataframe_from_cursor(cur)
+
+
+def get_dataframe_from_cursor(cur):
+    """
+    Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
+
+    :param psycopg2.extensions.cursor cur: a database cursor
+    :returns: The results as a data frame
+    :rtype: pandas.DataFrame
+    """
+    headers = [description[0] for description in cur.description]
+    return pandas.DataFrame(cur.fetchall(), columns=headers)
+
+
 def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
     """
     Saves a data frame to a sheet in Google Sheets, after asking the user for confirmation.
@@ -167,7 +201,7 @@ def download_package_from_query(sql, params=None, package_type=None):
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
     with conn, conn.cursor() as cur:
-        _execute_statement(cur, sql, params)
+        execute_statement(cur, sql, params)
 
         data = [row[0] for row in cur]
         if package_type == 'record':
@@ -202,7 +236,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     params = {'ocid': ocid, 'collection_id': collection_id}
 
     with conn, conn.cursor() as cur:
-        _execute_statement(cur, sql, params)
+        execute_statement(cur, sql, params)
 
         data = [row[0] for row in cur]
         if package_type == 'record':
@@ -212,40 +246,6 @@ def download_package_from_ocid(collection_id, ocid, package_type):
 
         package.update(package_metadata)
         download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
-
-
-def get_dataframe_from_query(sql, params=None):
-    """
-    Executes a SQL statement and returns the results as a data frame.
-
-    :param str sql: a SQL statement
-    :param params: the parameters to pass to the SQL statement
-    :returns: The results as a data frame
-    :rtype: pandas.DataFrame
-    """
-    with conn, conn.cursor() as cur:
-        _execute_statement(cur, sql, params)
-        return get_dataframe_from_cursor(cur)
-
-
-def get_dataframe_from_cursor(cur):
-    """
-    Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
-
-    :param psycopg2.extensions.cursor cur: a database cursor
-    :returns: The results as a data frame
-    :rtype: pandas.DataFrame
-    """
-    headers = [description[0] for description in cur.description]
-    return pandas.DataFrame(cur.fetchall(), columns=headers)
-
-
-def _execute_statement(cur, sql, params):
-    try:
-        cur.execute('/* https://colab.research.google.com/drive/{} */'.format(_notebook_id()) + sql, params)
-    except psycopg2.Error:
-        cur.execute('rollback')
-        raise
 
 
 def _notebook_id():
