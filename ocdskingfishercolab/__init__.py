@@ -108,6 +108,8 @@ def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
     """
     Saves a data frame to a sheet in Google Sheets, after asking the user for confirmation.
 
+    Use :meth:`ocdskingfishercolab.set_spreadsheet_name` to set the spreadsheet name.
+
     :param pandas.DataFrame dataframe: a data frame
     :param str sheetname: a sheet name
     :param bool prompt: whether to prompt the user
