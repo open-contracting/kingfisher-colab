@@ -53,7 +53,7 @@ Fixed
 
 **Upgrade instructions:**
 
--  Use ``pip install -q 'ocdskingfishercolab<0.2'`` instead of any previous ``pip install`` command.
+-  Use ``pip install 'ocdskingfishercolab<0.2'`` instead of any previous ``pip install`` command.
 -  Import :mod:`ocdskingfishercolab` instead of ``kingfishercolab``.
 
 Added
