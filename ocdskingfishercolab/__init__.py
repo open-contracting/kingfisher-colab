@@ -9,14 +9,17 @@ To import all functions:
                                     get_dataframe_from_cursor)
 """
 import json
+import warnings
 from urllib.parse import urljoin
 
+import flattentool
 import gspread
 import pandas
 import psycopg2
 import requests
 from google.colab import auth, files
 from gspread_dataframe import set_with_dataframe
+from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
 from pydrive.auth import GoogleAuth
@@ -140,7 +143,7 @@ def get_dataframe_from_cursor(cur):
 
 def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
     """
-    Saves a data frame to a sheet in Google Sheets, after asking the user for confirmation.
+    Saves a data frame to a worksheet in Google Sheets, after asking the user for confirmation.
 
     Use :meth:`ocdskingfishercolab.set_spreadsheet_name` to set the spreadsheet name.
 
@@ -164,6 +167,37 @@ def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
         set_with_dataframe(worksheet, dataframe)
 
 
+def save_dataframe_to_spreadsheet(dataframe, name):
+    """
+    Dumps the ``release_package`` column of a data frame to a JSON file, converts the JSON file to an Excel file,
+    and uploads the Excel file to Google Drive.
+
+    :param pandas.DataFrame dataframe: a data frame
+    :param str name: the basename of the Excel file to write
+    """
+    write_data_as_json(dataframe['release_package'][0], 'release_package.json')
+
+    # Use similar code to Toucan.
+    config = LibCoveOCDSConfig().config
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore')  # flattentool uses UserWarning, so we can't set a specific category
+
+        flattentool.flatten(
+            'release_package.json',
+            main_sheet_name=config['root_list_path'],
+            root_list_path=config['root_list_path'],
+            root_id=config['root_id'],
+            schema=config['schema_version_choices']['1.1'][1] + 'release-schema.json',
+            disable_local_refs=config['flatten_tool']['disable_local_refs'],
+            remove_empty_schema_columns=config['flatten_tool']['remove_empty_schema_columns'],
+            root_is_list=False,
+            output_format='xlsx',
+        )
+
+    drive_file = _save_file_to_drive({'title': name + '.xlsx'}, 'flattened.xlsx')
+    print('Uploaded file with ID {!r}'.format(drive_file['id']))
+
+
 def download_dataframe_as_csv(dataframe, filename):
     """
     Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
@@ -182,8 +216,7 @@ def download_data_as_json(data, filename):
     :param data: JSON-serializable data
     :param str filename: a file name
     """
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    write_data_as_json(data, filename)
     files.download(filename)
 
 
@@ -248,9 +281,28 @@ def download_package_from_ocid(collection_id, ocid, package_type):
         download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
 
 
+def write_data_as_json(data, filename):
+    """
+    Dumps the data to a JSON file.
+
+    :param data: JSON-serializable data
+    :param str filename: a file name
+    """
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
 def _notebook_id():
     server = next(notebookapp.list_running_servers())
     return requests.get(urljoin(server['url'], 'api/sessions')).json()[0]['path'][7:]  # fileId=
+
+
+def _save_file_to_drive(metadata, filename):
+    drive = authenticate_pydrive()
+    drive_file = drive.CreateFile(metadata)
+    drive_file.SetContentFile(filename)
+    drive_file.Upload()
+    return drive_file
 
 
 class OCDSKingfisherColabError(Exception):

@@ -12,8 +12,10 @@ Changelog
 Added
 ~~~~~
 
--  :meth:~ocdskingfishercolab.execute_statement`
--  :meth:~ocdskingfishercolab.download_data_as_json`
+-  :meth:`~ocdskingfishercolab.execute_statement`
+-  :meth:`~ocdskingfishercolab.save_dataframe_to_spreadsheet`
+-  :meth:`~ocdskingfishercolab.download_data_as_json`
+-  :meth:`~ocdskingfishercolab.write_data_as_json`
 -  Add a comment to all SQL queries with a link to the notebook, for database administrators.
 
 Changed

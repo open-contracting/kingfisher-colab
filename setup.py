@@ -18,6 +18,7 @@ setup(
         'google-colab',
         'gspread',
         'gspread-dataframe',
+        'libcoveocds',
         'notebook',
         'oauth2client',
         'pandas',
