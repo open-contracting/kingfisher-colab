@@ -1,13 +1,3 @@
-"""
-To import all functions:
-
-.. code-block:: python
-
-   from ocdskingfishercolab import (create_connection, reset_connection, authenticate_gspread, authenticate_pydrive,
-                                    set_spreadsheet_name, save_dataframe_to_sheet, download_dataframe_as_csv,
-                                    download_package_from_ocid, download_package_from_query, get_dataframe_from_query,
-                                    get_dataframe_from_cursor)
-"""
 import json
 import warnings
 from urllib.parse import urljoin
