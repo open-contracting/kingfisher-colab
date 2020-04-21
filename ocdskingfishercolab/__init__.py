@@ -97,6 +97,43 @@ def set_spreadsheet_name(name):
     spreadsheet_name = name
 
 
+def list_source_ids(pattern=''):
+    """
+    Returns, as a data frame, a list of source IDs matching the given pattern.
+
+    :param str pattern: a substring, like "paraguay"
+    :returns: The results as a data frame
+    :rtype: pandas.DataFrame
+    """
+    sql = """
+    SELECT source_id
+    FROM collection
+    WHERE source_id ILIKE %(pattern)s
+    GROUP BY source_id
+    ORDER BY source_id
+    """
+
+    return get_dataframe_from_query(sql, {'pattern': '%{}%'.format(pattern)})
+
+
+def list_collections(source_id):
+    """
+    Returns, a a data frame, a list of collections with the given source ID.
+
+    :param str source_id: a source ID
+    :returns: The results as a data frame
+    :rtype: pandas.DataFrame
+    """
+    sql = """
+    SELECT *
+    FROM collection
+    WHERE source_id = %(source_id)s
+    ORDER BY id DESC
+    """
+
+    return get_dataframe_from_query(sql, {'source_id': source_id})
+
+
 def execute_statement(cur, sql, params):
     try:
         cur.execute('/* https://colab.research.google.com/drive/{} */'.format(_notebook_id()) + sql, params)

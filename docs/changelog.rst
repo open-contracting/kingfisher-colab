@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.2.0 (Unreleased)
+0.2.0 (2020-04-21)
 ------------------
 
 **Upgrade instructions:**
@@ -12,6 +12,8 @@ Changelog
 Added
 ~~~~~
 
+-  :meth:`~ocdskingfishercolab.list_source_ids`
+-  :meth:`~ocdskingfishercolab.list_collections`
 -  :meth:`~ocdskingfishercolab.execute_statement`
 -  :meth:`~ocdskingfishercolab.save_dataframe_to_spreadsheet`
 -  :meth:`~ocdskingfishercolab.download_data_as_json`

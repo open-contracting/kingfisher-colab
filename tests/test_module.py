@@ -3,6 +3,7 @@
 
 import contextlib
 import json
+import math
 import os
 from io import StringIO
 from unittest.mock import patch
@@ -13,7 +14,8 @@ import psycopg2
 import pytest
 
 from ocdskingfishercolab import (UnknownPackageTypeError, download_dataframe_as_csv, download_package_from_ocid,
-                                 download_package_from_query, get_dataframe_from_query, save_dataframe_to_spreadsheet)
+                                 download_package_from_query, get_dataframe_from_query, list_collections,
+                                 list_source_ids, save_dataframe_to_spreadsheet)
 
 
 def path(filename):
@@ -182,6 +184,46 @@ def test_get_dataframe_from_query_error(db):
     assert str(excinfo.value) == 'syntax error at or near "invalid"\n' \
                                  'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
                                  '                                                                ^\n'
+
+
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_list_source_ids(db):
+    dataframe = list_source_ids('paraguay')
+
+    assert dataframe.to_dict() == {
+        'source_id': {0: 'paraguay_dncp_records', 1: 'paraguay_dncp_releases'},
+    }
+
+
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_list_source_ids_default(db):
+    dataframe = list_source_ids()
+
+    assert dataframe.to_dict() == {
+        'source_id': {0: 'paraguay_dncp_records', 1: 'paraguay_dncp_releases', 2: 'scotland'},
+    }
+
+
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_list_collections(db):
+    dataframe = list_collections('paraguay_dncp_releases')
+
+    actual = dataframe.to_dict()
+
+    assert len(actual) == 3
+    assert actual['id'] == {
+        0: 5,
+        1: 4,
+        2: 3,
+    }
+    assert actual['source_id'] == {
+        0: 'paraguay_dncp_releases',
+        1: 'paraguay_dncp_releases',
+        2: 'paraguay_dncp_releases',
+    }
+    assert actual['transform_from_collection_id'][0] == 4.0
+    assert actual['transform_from_collection_id'][1] == 3.0
+    assert math.isnan(actual['transform_from_collection_id'][2])
 
 
 @patch('sys.stdout', new_callable=StringIO)
