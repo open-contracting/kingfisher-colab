@@ -156,10 +156,12 @@ def execute_statement(cur, sql, params=None):
     """
     if not params:
         params = {}
+
+    comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
+    if not isinstance(sql, str):
+        comment = SQL(comment)
+
     try:
-        comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
-        if not isinstance(sql, str):
-            comment = SQL(comment)
         cur.execute(comment + sql, params)
     except psycopg2.Error:
         cur.execute('rollback')
