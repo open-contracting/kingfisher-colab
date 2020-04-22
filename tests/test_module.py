@@ -16,7 +16,8 @@ from psycopg2.sql import SQL, Identifier
 
 from ocdskingfishercolab import (UnknownPackageTypeError, download_dataframe_as_csv, download_package_from_ocid,
                                  download_package_from_query, execute_statement, get_dataframe_from_query,
-                                 list_collections, list_source_ids, save_dataframe_to_spreadsheet)
+                                 get_list_from_query, list_collections, list_source_ids, save_dataframe_to_spreadsheet,
+                                 set_search_path)
 
 
 def path(filename):
@@ -39,6 +40,14 @@ def chdir(path):
         yield
     finally:
         os.chdir(cwd)
+
+
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_set_search_path(db):
+    set_search_path('test')
+
+    db.execute('show search_path')
+    assert db.fetchone()[0] == 'test, public'
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
@@ -170,6 +179,13 @@ def test_download_package_from_query_other():
         download_package_from_query('SELECT 1', package_type='other')
 
     assert str(excinfo.value) == "package_type argument must be either 'release' or 'record'"
+
+
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_get_list_from_query(db):
+    result = get_list_from_query('SELECT * FROM release')
+
+    assert result == [(1, 1, 'ocds-213czf-1', 1)]
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)

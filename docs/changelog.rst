@@ -1,6 +1,20 @@
 Changelog
 =========
 
+0.2.2 (2020-04-22)
+------------------
+
+Added
+~~~~~
+
+-  :meth:`ocdskingfishercolab.set_search_path`
+-  :meth:`ocdskingfishercolab.get_list_from_query`
+
+Fixed
+~~~~~
+
+-  :meth:`~ocdskingfishercolab.execute_statement` no longer has a mutable default argument value.
+
 0.2.1 (2020-04-21)
 ------------------
 

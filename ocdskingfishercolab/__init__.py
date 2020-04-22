@@ -12,7 +12,7 @@ from gspread_dataframe import set_with_dataframe
 from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
-from psycopg2.sql import SQL
+from psycopg2.sql import SQL, Identifier
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
@@ -103,7 +103,7 @@ def list_source_ids(pattern=''):
     Returns, as a data frame, a list of source IDs matching the given pattern.
 
     :param str pattern: a substring, like "paraguay"
-    :returns: The results as a data frame
+    :returns: the results as a data frame
     :rtype: pandas.DataFrame
     """
     sql = """
@@ -122,7 +122,7 @@ def list_collections(source_id):
     Returns, a a data frame, a list of collections with the given source ID.
 
     :param str source_id: a source ID
-    :returns: The results as a data frame
+    :returns: the results as a data frame
     :rtype: pandas.DataFrame
     """
     sql = """
@@ -135,7 +135,27 @@ def list_collections(source_id):
     return get_dataframe_from_query(sql, {'source_id': source_id})
 
 
-def execute_statement(cur, sql, params={}):
+def set_search_path(schema_name):
+    """
+    Sets the `search_path <https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-SEARCH-PATH>`__
+    to the given schema, followed by the ``public`` schema.
+
+    :param str schema_name: a schema name
+    """
+    with conn, conn.cursor() as cur:
+        execute_statement(cur, SQL("SET search_path = {}, public").format(Identifier(schema_name)))
+
+
+def execute_statement(cur, sql, params=None):
+    """
+    Executes a SQL statement, adding a comment with a link to the notebook for database administrators.
+
+    :param psycopg2.extensions.cursor cur: a database cursor
+    :param str sql: a SQL statement
+    :param params: the parameters to pass to the SQL statement
+    """
+    if not params:
+        params = {}
     try:
         comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
         if not isinstance(sql, str):
@@ -146,13 +166,27 @@ def execute_statement(cur, sql, params={}):
         raise
 
 
+def get_list_from_query(sql, params=None):
+    """
+    Executes a SQL statement and returns the results as a list of tuples.
+
+    :param str sql: a SQL statement
+    :param params: the parameters to pass to the SQL statement
+    :returns: the results as a list of tuples
+    :rtype: list
+    """
+    with conn, conn.cursor() as cur:
+        execute_statement(cur, sql, params)
+        return cur.fetchall()
+
+
 def get_dataframe_from_query(sql, params=None):
     """
     Executes a SQL statement and returns the results as a data frame.
 
     :param str sql: a SQL statement
     :param params: the parameters to pass to the SQL statement
-    :returns: The results as a data frame
+    :returns: the results as a data frame
     :rtype: pandas.DataFrame
     """
     with conn, conn.cursor() as cur:
@@ -165,7 +199,7 @@ def get_dataframe_from_cursor(cur):
     Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
 
     :param psycopg2.extensions.cursor cur: a database cursor
-    :returns: The results as a data frame
+    :returns: the results as a data frame
     :rtype: pandas.DataFrame
     """
     headers = [description[0] for description in cur.description]
@@ -264,17 +298,15 @@ def download_package_from_query(sql, params=None, package_type=None):
     if package_type not in ('record', 'release'):
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
-    with conn, conn.cursor() as cur:
-        execute_statement(cur, sql, params)
+    data = [row[0] for row in get_list_from_query(sql, params)]
 
-        data = [row[0] for row in cur]
-        if package_type == 'record':
-            package = {'records': data}
-        elif package_type == 'release':
-            package = {'releases': data}
+    if package_type == 'record':
+        package = {'records': data}
+    elif package_type == 'release':
+        package = {'releases': data}
 
-        package.update(package_metadata)
-        download_data_as_json(package, '{}_package.json'.format(package_type))
+    package.update(package_metadata)
+    download_data_as_json(package, '{}_package.json'.format(package_type))
 
 
 def download_package_from_ocid(collection_id, ocid, package_type):
@@ -299,17 +331,15 @@ def download_package_from_ocid(collection_id, ocid, package_type):
 
     params = {'ocid': ocid, 'collection_id': collection_id}
 
-    with conn, conn.cursor() as cur:
-        execute_statement(cur, sql, params)
+    data = [row[0] for row in get_list_from_query(sql, params)]
 
-        data = [row[0] for row in cur]
-        if package_type == 'record':
-            package = {'records': [{'ocid': ocid, 'releases': data}]}
-        elif package_type == 'release':
-            package = {'releases': data}
+    if package_type == 'record':
+        package = {'records': [{'ocid': ocid, 'releases': data}]}
+    elif package_type == 'release':
+        package = {'releases': data}
 
-        package.update(package_metadata)
-        download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
+    package.update(package_metadata)
+    download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
 
 
 def write_data_as_json(data, filename):
