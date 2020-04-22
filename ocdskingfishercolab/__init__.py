@@ -119,7 +119,7 @@ def list_source_ids(pattern=''):
 
 def list_collections(source_id):
     """
-    Returns, a a data frame, a list of collections with the given source ID.
+    Returns, as a data frame, a list of collections with the given source ID.
 
     :param str source_id: a source ID
     :returns: the results as a data frame
