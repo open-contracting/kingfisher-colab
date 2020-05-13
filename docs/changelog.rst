@@ -54,7 +54,7 @@ Fixed
 -  :meth:`~ocdskingfishercolab.download_package_from_ocid` returns structurally correct records. Previously, the ``ocid`` field was at the package-level instead of the record-level.
 -  :meth:`~ocdskingfishercolab.download_package_from_ocid` and :meth:`~ocdskingfishercolab.download_package_from_query` return structurally correct packages. Previously, required fields were omitted.
 
-0.1.1 (2020-03-20)
+0.1.1 (2020-04-20)
 ------------------
 
 Fixed
@@ -62,7 +62,7 @@ Fixed
 
 -  The deprecated methods ``output_notebook`` and ``get_results`` return values again.
 
-0.1.0 (2020-03-20)
+0.1.0 (2020-04-20)
 ------------------
 
 **Upgrade instructions:**
@@ -91,7 +91,7 @@ Changed
 -  :meth:`~ocdskingfishercolab.get_dataframe_from_query` raises an error instead of returning an error.
 -  :meth:`~ocdskingfishercolab.download_package_from_ocid` raises an error instead of printing a message.
 
-0.0.1 (2020-03-20)
+0.0.1 (2020-04-20)
 ------------------
 
 Initial release.
