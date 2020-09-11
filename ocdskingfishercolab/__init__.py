@@ -310,6 +310,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     FROM data
     JOIN release ON data.id = release.data_id
     WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
+    ORDER BY data ->> 'date' DESC
     """
 
     params = {'ocid': ocid, 'collection_id': collection_id}
