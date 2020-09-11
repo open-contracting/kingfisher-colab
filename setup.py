@@ -16,17 +16,21 @@ setup(
     install_requires=[
         'flattentool',
         'google-colab',
-        'gspread',
+        'gspread<3.5.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
         'gspread-dataframe',
         'libcoveocds',
-        'notebook',
+        'notebook~=5.2.0',  # google-colab 1.0.0
         'oauth2client',
-        'pandas',
+        'pandas~=0.24.0',  # google-colab 1.0.0
         'psycopg2-binary',
         'pydrive',
-        'requests',
+        'requests~=2.21.0',  # google-colab 1.0.0
         # https://github.com/googleapis/google-api-python-client/issues/870
-        'google-api-python-client!=1.8.1',
+        'google-api-python-client!=1.8.1,<1.9.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
+
+        # Avoid conflicts.
+        'Django<2.3',  # libcove 0.18.0
+        'google-api-core<1.17.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
     ],
     extras_require={
         'test': [
