@@ -38,28 +38,9 @@ def create_connection(database, user, password='', host='localhost', port='5432'
     :rtype: psycopg2.extensions.connection
     """
     global conn
-    if conn and conn.closed:
-        reset_connection()
-    if not conn:
+    if not conn or conn.closed:
         conn = psycopg2.connect(dbname=database, user=user, password=password, host=host, port=port, sslmode=sslmode)
     return conn
-
-
-def reset_connection():
-    """
-    Closes and resets the connection to the database.
-
-    This does not re-open the connection again.
-    """
-    global conn
-    if conn and not conn.closed:
-        try:
-            conn.cancel()
-            conn.reset()
-        except Exception:
-            pass
-
-    conn = None
 
 
 def authenticate_gspread():

@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.2.3 (Unreleased)
+------------------
+
+Changed
+~~~~~~~
+
+-  :meth:`ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
+-  Remove :meth:`ocdskingfishercolab.reset_connection`.
+
 0.2.2 (2020-04-22)
 ------------------
 
