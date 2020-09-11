@@ -8,6 +8,7 @@ Changed
 ~~~~~~~
 
 -  :meth:`ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
+-  :meth:`ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
 -  Remove :meth:`ocdskingfishercolab.reset_connection`.
 
 0.2.2 (2020-04-22)
