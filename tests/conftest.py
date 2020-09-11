@@ -43,10 +43,18 @@ def db():
             cur.execute("INSERT INTO collection VALUES (3, 'paraguay_dncp_releases', NULL)")
             cur.execute("INSERT INTO collection VALUES (4, 'paraguay_dncp_releases', 3)")
             cur.execute("INSERT INTO collection VALUES (5, 'paraguay_dncp_releases', 4)")
+
             cur.execute("INSERT INTO release VALUES (1, 1, 'ocds-213czf-1', 1)")
-            cur.execute("INSERT INTO record VALUES (1, 1, 'ocds-213czf-2', 2)")
-            cur.execute("""INSERT INTO data VALUES (1, '{"ocid":"ocds-213czf-1"}'::jsonb)""")
-            cur.execute("""INSERT INTO data VALUES (2, '{"ocid":"ocds-213czf-2","""
+            cur.execute("""INSERT INTO data VALUES (1, '{"ocid":"ocds-213czf-1","date":"2000"}'::jsonb)""")
+
+            cur.execute("INSERT INTO release VALUES (2, 1, 'ocds-213czf-1', 2)")
+            cur.execute("""INSERT INTO data VALUES (2, '{"ocid":"ocds-213czf-1","date":"2001"}'::jsonb)""")
+
+            cur.execute("INSERT INTO release VALUES (3, 1, 'ocds-213czf-1/a', 3)")
+            cur.execute("""INSERT INTO data VALUES (3, '{"ocid":"ocds-213czf-1/a"}'::jsonb)""")
+
+            cur.execute("INSERT INTO record VALUES (1, 1, 'ocds-213czf-2', 4)")
+            cur.execute("""INSERT INTO data VALUES (4, '{"ocid":"ocds-213czf-2","""
                         """"releases":[{"ocid":"ocds-213czf-2"}]}'::jsonb)""")
 
             conn.commit()

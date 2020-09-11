@@ -85,7 +85,10 @@ def test_download_package_from_ocid_release(download, db, tmpdir):
             'publisher': {'name': ''},
             'publishedDate': '9999-01-01T00:00:00Z',
             'version': '1.1',
-            'releases': [{'ocid': 'ocds-213czf-1'}],
+            'releases': [
+                {'ocid': 'ocds-213czf-1', 'date': '2001'},
+                {'ocid': 'ocds-213czf-1', 'date': '2000'},
+            ],
         }
 
         download.assert_called_once_with('ocds-213czf-1_release_package.json')
@@ -107,11 +110,33 @@ def test_download_package_from_ocid_record(download, db, tmpdir):
             'version': '1.1',
             'records': [{
                 'ocid': 'ocds-213czf-1',
-                'releases': [{'ocid': 'ocds-213czf-1'}],
+                'releases': [
+                    {'ocid': 'ocds-213czf-1', 'date': '2001'},
+                    {'ocid': 'ocds-213czf-1', 'date': '2000'},
+                ],
             }],
         }
 
         download.assert_called_once_with('ocds-213czf-1_record_package.json')
+
+@patch('google.colab.files.download')
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_download_package_from_ocid_path_separator(download, db, tmpdir):
+    with chdir(tmpdir):
+        download_package_from_ocid(1, 'ocds-213czf-1/a', 'release')
+
+        with open('ocds-213czf-1_a_release_package.json') as f:
+            data = json.load(f)
+
+        assert data == {
+            'uri': 'placeholder:',
+            'publisher': {'name': ''},
+            'publishedDate': '9999-01-01T00:00:00Z',
+            'version': '1.1',
+            'releases': [{'ocid': 'ocds-213czf-1/a'}],
+        }
+
+        download.assert_called_once_with('ocds-213czf-1/a_release_package.json')
 
 
 def test_download_package_from_ocid_other():
@@ -130,7 +155,7 @@ def test_download_package_from_query_release(download, db, tmpdir):
     """
 
     with chdir(tmpdir):
-        download_package_from_query(sql, {'collection_id': 1, 'ocid': 'ocds-213czf-1'}, 'release')
+        download_package_from_query(sql, {'collection_id': 1, 'ocid': 'ocds-213czf-1/a'}, 'release')
 
         with open('release_package.json') as f:
             data = json.load(f)
@@ -140,7 +165,7 @@ def test_download_package_from_query_release(download, db, tmpdir):
             'publisher': {'name': ''},
             'publishedDate': '9999-01-01T00:00:00Z',
             'version': '1.1',
-            'releases': [{'ocid': 'ocds-213czf-1'}],
+            'releases': [{'ocid': 'ocds-213czf-1/a'}],
         }
 
         download.assert_called_once_with('release_package.json')
@@ -183,20 +208,20 @@ def test_download_package_from_query_other():
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_get_list_from_query(db):
-    result = get_list_from_query('SELECT * FROM release')
+    result = get_list_from_query('SELECT * FROM record')
 
-    assert result == [(1, 1, 'ocds-213czf-1', 1)]
+    assert result == [(1, 1, 'ocds-213czf-2', 4)]
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_get_dataframe_from_query(db):
-    dataframe = get_dataframe_from_query('SELECT * FROM release')
+    dataframe = get_dataframe_from_query('SELECT * FROM record')
 
     assert dataframe.to_dict() == {
         'collection_id': {0: 1},
-        'data_id': {0: 1},
+        'data_id': {0: 4},
         'id': {0: 1},
-        'ocid': {0: 'ocds-213czf-1'},
+        'ocid': {0: 'ocds-213czf-2'},
     }
 
 
