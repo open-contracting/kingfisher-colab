@@ -11,6 +11,11 @@ Changed
 -  :meth:`ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
 -  Remove :meth:`ocdskingfishercolab.reset_connection`.
 
+Fixed
+~~~~~
+
+-  :meth:`ocdskingfishercolab.write_data_as_json` replaces path separators with underscores in filenames.
+
 0.2.2 (2020-04-22)
 ------------------
 

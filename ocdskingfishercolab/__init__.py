@@ -1,4 +1,5 @@
 import json
+import os
 import warnings
 from urllib.parse import urljoin
 
@@ -333,7 +334,7 @@ def write_data_as_json(data, filename):
     :param data: JSON-serializable data
     :param str filename: a file name
     """
-    with open(filename, 'w') as f:
+    with open(filename.replace(os.sep, '_'), 'w') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
