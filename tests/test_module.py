@@ -119,6 +119,7 @@ def test_download_package_from_ocid_record(download, db, tmpdir):
 
         download.assert_called_once_with('ocds-213czf-1_record_package.json')
 
+
 @patch('google.colab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_ocid_path_separator(download, db, tmpdir):
