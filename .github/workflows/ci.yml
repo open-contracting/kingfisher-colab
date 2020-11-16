@@ -31,9 +31,10 @@ jobs:
     - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
     - run: pip install .[test]
     - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
-    - env:
+    - run: pytest --cov ocdskingfishercolab
+      env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
-      run: pytest --cov ocdskingfishercolab
+      if: always()
     - env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
       run: coveralls
