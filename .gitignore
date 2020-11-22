@@ -1,6 +1,5 @@
 /*.egg-info
 /.coverage
-/build
 /dist
 /docs/_build
 /htmlcov
