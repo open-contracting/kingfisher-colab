@@ -9,7 +9,7 @@ from ocdskingfishercolab import create_connection
 
 
 # If this fixture becomes too slow, we can setup the database once, and run each test in a transaction.
-@pytest.fixture
+@pytest.fixture()
 def db():
     database_url = os.getenv('DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
     parts = urlparse(database_url)
