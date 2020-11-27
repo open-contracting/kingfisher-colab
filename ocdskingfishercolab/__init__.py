@@ -5,20 +5,38 @@ from urllib.parse import urljoin
 
 import flattentool
 import gspread
-import pandas
-import psycopg2
 import requests
+import sql
 from google.colab import auth, files
 from gspread_dataframe import set_with_dataframe
+from IPython import get_ipython
 from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
-from psycopg2.sql import SQL, Identifier
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
+
+# Monkeypatch ipython-sql's sql run function, to add a comment linking to the
+# colab notebook that it's run from
+# We monkeypatch run(), but don't call it directly below, as calling the magic
+# will handle connections for us.
+old_run = sql.run.run
+
+
+def run(conn, _sql, *args, **kwargs):
+    try:
+        comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
+    except KeyError:
+        comment = "/* run from a notebook, but no colab id */"
+    _sql = comment+_sql
+    return old_run(conn, _sql, *args, **kwargs)
+
+
+sql.run.run = run
+
+
 spreadsheet_name = None
-conn = None
 
 # Use the same placeholder values as OCDS Kit.
 package_metadata = {
@@ -29,19 +47,6 @@ package_metadata = {
     'publishedDate': '9999-01-01T00:00:00Z',
     'version': '1.1',
 }
-
-
-def create_connection(database, user, password='', host='localhost', port='5432', sslmode=None):
-    """
-    Creates a connection to the database.
-
-    :returns: a database connection
-    :rtype: psycopg2.extensions.connection
-    """
-    global conn
-    if not conn or conn.closed:
-        conn = psycopg2.connect(dbname=database, user=user, password=password, host=host, port=port, sslmode=sslmode)
-    return conn
 
 
 def authenticate_gspread():
@@ -91,12 +96,15 @@ def list_source_ids(pattern=''):
     sql = """
     SELECT source_id
     FROM collection
-    WHERE source_id ILIKE %(pattern)s
+    WHERE source_id ILIKE :pattern
     GROUP BY source_id
     ORDER BY source_id
     """
 
-    return get_dataframe_from_query(sql, {'pattern': '%{}%'.format(pattern)})
+    pattern = f'%{pattern}%'
+
+    # This inspects locals to find pattern
+    return get_ipython().magic(f'sql {sql}')
 
 
 def list_collections(source_id):
@@ -110,11 +118,12 @@ def list_collections(source_id):
     sql = """
     SELECT *
     FROM collection
-    WHERE source_id = %(source_id)s
+    WHERE source_id = :source_id
     ORDER BY id DESC
     """
 
-    return get_dataframe_from_query(sql, {'source_id': source_id})
+    # This inspects locals to find source_id
+    return get_ipython().magic(f'sql {sql}')
 
 
 def set_search_path(schema_name):
@@ -124,70 +133,7 @@ def set_search_path(schema_name):
 
     :param str schema_name: a schema name
     """
-    with conn, conn.cursor() as cur:
-        execute_statement(cur, SQL("SET search_path = {}, public").format(Identifier(schema_name)))
-
-
-def execute_statement(cur, sql, params=None):
-    """
-    Executes a SQL statement, adding a comment with a link to the notebook for database administrators.
-
-    :param psycopg2.extensions.cursor cur: a database cursor
-    :param str sql: a SQL statement
-    :param params: the parameters to pass to the SQL statement
-    """
-    if not params:
-        params = {}
-
-    comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
-    if not isinstance(sql, str):
-        comment = SQL(comment)
-
-    try:
-        cur.execute(comment + sql, params)
-    except psycopg2.Error:
-        cur.execute('rollback')
-        raise
-
-
-def get_list_from_query(sql, params=None):
-    """
-    Executes a SQL statement and returns the results as a list of tuples.
-
-    :param str sql: a SQL statement
-    :param params: the parameters to pass to the SQL statement
-    :returns: the results as a list of tuples
-    :rtype: list
-    """
-    with conn, conn.cursor() as cur:
-        execute_statement(cur, sql, params)
-        return cur.fetchall()
-
-
-def get_dataframe_from_query(sql, params=None):
-    """
-    Executes a SQL statement and returns the results as a data frame.
-
-    :param str sql: a SQL statement
-    :param params: the parameters to pass to the SQL statement
-    :returns: the results as a data frame
-    :rtype: pandas.DataFrame
-    """
-    with conn, conn.cursor() as cur:
-        execute_statement(cur, sql, params)
-        return get_dataframe_from_cursor(cur)
-
-
-def get_dataframe_from_cursor(cur):
-    """
-    Accepts a database cursor after a SQL statement has been executed and returns the results as a data frame.
-
-    :param psycopg2.extensions.cursor cur: a database cursor
-    :returns: the results as a data frame
-    :rtype: pandas.DataFrame
-    """
-    headers = [description[0] for description in cur.description]
-    return pandas.DataFrame(cur.fetchall(), columns=headers)
+    return get_ipython().magic(f'sql SET search_path = {schema_name}, public')
 
 
 def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
@@ -247,17 +193,6 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     print('Uploaded file with ID {!r}'.format(drive_file['id']))
 
 
-def download_dataframe_as_csv(dataframe, filename):
-    """
-    Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
-
-    :param pandas.DataFrame dataframe: a data frame
-    :param str filename: a file name
-    """
-    dataframe.to_csv(filename)
-    files.download(filename)
-
-
 def download_data_as_json(data, filename):
     """
     Dumps the data to a JSON file, and invokes a browser download of the CSV file to your local computer.
@@ -269,7 +204,7 @@ def download_data_as_json(data, filename):
     files.download(filename)
 
 
-def download_package_from_query(sql, params=None, package_type=None):
+def download_package_from_ipython_sql_results(results, package_type=None):
     """
     Executes a SQL statement that SELECTs only the ``data`` column of the ``data`` table, and invokes a browser
     download of the packaged data to your local computer.
@@ -282,7 +217,7 @@ def download_package_from_query(sql, params=None, package_type=None):
     if package_type not in ('record', 'release'):
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
-    data = [row[0] for row in get_list_from_query(sql, params)]
+    data = [row[0] for row in results]
 
     if package_type == 'record':
         package = {'records': data}
@@ -310,13 +245,14 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     SELECT data
     FROM data
     JOIN release ON data.id = release.data_id
-    WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
-    ORDER BY data ->> 'date' DESC
+    WHERE collection_id = :collection_id AND ocid = :ocid
+    ORDER BY data->>'date' DESC
     """
 
-    params = {'ocid': ocid, 'collection_id': collection_id}
+    # This inspects locals to find ocid and collection_id
+    results = get_ipython().magic(f'sql {sql}')
 
-    data = [row[0] for row in get_list_from_query(sql, params)]
+    data = [row[0] for row in results]
 
     if package_type == 'record':
         package = {'records': [{'ocid': ocid, 'releases': data}]}
