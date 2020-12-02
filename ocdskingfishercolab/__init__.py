@@ -193,6 +193,17 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     print('Uploaded file with ID {!r}'.format(drive_file['id']))
 
 
+def download_dataframe_as_csv(dataframe, filename):
+    """
+    Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
+
+    :param pandas.DataFrame dataframe: a data frame
+    :param str filename: a file name
+    """
+    dataframe.to_csv(filename)
+    files.download(filename)
+
+
 def download_data_as_json(data, filename):
     """
     Dumps the data to a JSON file, and invokes a browser download of the CSV file to your local computer.
@@ -204,20 +215,34 @@ def download_data_as_json(data, filename):
     files.download(filename)
 
 
-def download_package_from_ipython_sql_results(results, package_type=None):
+def get_ipython_sql_resultset_from_query(sql):
+    ipython = get_ipython()
+    if ipython.magic('config SqlMagic.autopandas'):
+        autopandas = True
+    if autopandas:
+        ipython.magic('config SqlMagic.autopandas=False')
+    # Use ipython.run_line_magic instead of ipython.magic here
+    # to get variables from the scope of the ipython cell,
+    # instead of the scope in this function.
+    results = ipython.run_line_magic('sql', sql)
+    if autopandas:
+        ipython.magic('config SqlMagic.autopandas=True')
+    return results
+
+
+def download_package_from_query(sql, package_type=None):
     """
     Executes a SQL statement that SELECTs only the ``data`` column of the ``data`` table, and invokes a browser
     download of the packaged data to your local computer.
 
     :param str sql: a SQL statement
-    :param params: the parameters to pass to the SQL statement
     :param str package_type: "record" or "release"
     :raises UnknownPackageTypeError: when the provided package type is unknown
     """
     if package_type not in ('record', 'release'):
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
-    data = [row[0] for row in results]
+    data = [row[0] for row in get_ipython_sql_resultset_from_query(sql)]
 
     if package_type == 'record':
         package = {'records': data}
@@ -249,8 +274,16 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     ORDER BY data->>'date' DESC
     """
 
+    ipython = get_ipython()
+    autopandas = False
+    if ipython.magic('config SqlMagic.autopandas'):
+        autopandas = True
+    if autopandas:
+        ipython.magic('config SqlMagic.autopandas=False')
     # This inspects locals to find ocid and collection_id
-    results = get_ipython().magic(f'sql {sql}')
+    results = ipython.magic(f'sql {sql}')
+    if autopandas:
+        ipython.magic('config SqlMagic.autopandas=True')
 
     data = [row[0] for row in results]
 
