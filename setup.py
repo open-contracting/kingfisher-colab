@@ -21,8 +21,6 @@ setup(
         'libcoveocds',
         'notebook~=5.2.0',  # google-colab 1.0.0
         'oauth2client',
-        'pandas~=0.24.0',  # google-colab 1.0.0
-        'psycopg2-binary',
         'pydrive',
         'requests~=2.21.0',  # google-colab 1.0.0
         'ipython-sql~=0.4.0',
@@ -38,6 +36,8 @@ setup(
             'coveralls',
             'pytest',
             'pytest-cov',
+            'pandas~=0.24.0',  # google-colab 1.0.0
+            'psycopg2-binary',
         ],
         'docs': [
             'Sphinx',
