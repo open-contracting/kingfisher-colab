@@ -31,9 +31,11 @@ jobs:
     - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
     - run: pip install .[test]
     - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
-    - run: pytest --cov ocdskingfishercolab
+    # The unit tests need to be run with ipython, as the code requires a
+    # running ipython instance (as you would have in a notebook)
+    - run: ipython -m pytest -- --cov ocdskingfishercolab
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
+        TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
       if: always()
     - env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}

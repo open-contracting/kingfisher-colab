@@ -1,17 +1,20 @@
 import getpass
 import os
+import re
 from urllib.parse import urlparse
 
 import psycopg2
 import pytest
-
-from ocdskingfishercolab import create_connection
+import sql
+from IPython import get_ipython
 
 
 # If this fixture becomes too slow, we can setup the database once, and run each test in a transaction.
 @pytest.fixture
 def db():
-    database_url = os.getenv('DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
+    # Don't call this DATABASE_URL, as ipython-sql will try and use it, instaed of the created database url
+    database_url = os.getenv('TEST_DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
+    created_database_url = re.sub('/[^/]*$', '/ocdskingfishercolab_test', database_url)
     parts = urlparse(database_url)
     kwargs = {
         'user': parts.username,
@@ -29,7 +32,7 @@ def db():
     try:
         cursor.execute('CREATE DATABASE ocdskingfishercolab_test')
 
-        conn = create_connection(database='ocdskingfishercolab_test', **kwargs)
+        conn = psycopg2.connect(dbname='ocdskingfishercolab_test', **kwargs)
         cur = conn.cursor()
 
         try:
@@ -59,11 +62,21 @@ def db():
 
             conn.commit()
 
+            get_ipython().magic('load_ext sql')
+            get_ipython().magic(f'sql {created_database_url}')
+            # Set autopandas, because we think most users will
+            get_ipython().magic('config SqlMagic.autopandas=True')
+
             yield cur
         finally:
             cur.close()
             conn.close()
     finally:
+        for ipython_sql_connection in sql.connection.Connection.connections.values():
+            ipython_sql_connection.session.close()
+            ipython_sql_connection.session.engine.dispose()
+        sql.connection.Connection.connections = {}
+
         cursor.execute('DROP DATABASE ocdskingfishercolab_test')
 
         cursor.close()

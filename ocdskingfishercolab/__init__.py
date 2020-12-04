@@ -217,6 +217,7 @@ def download_data_as_json(data, filename):
 
 def get_ipython_sql_resultset_from_query(sql):
     ipython = get_ipython()
+    autopandas = False
     if ipython.magic('config SqlMagic.autopandas'):
         autopandas = True
     if autopandas:
