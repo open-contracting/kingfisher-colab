@@ -12,10 +12,10 @@ from IPython import get_ipython
 # If this fixture becomes too slow, we can setup the database once, and run each test in a transaction.
 @pytest.fixture
 def db():
-    # Don't call this DATABASE_URL, as ipython-sql will try and use it, instaed of the created database url
+    # This can't be named DATABASE_URL, because ipython-sql will try and use it.
     database_url = os.getenv('TEST_DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
-    created_database_url = re.sub('/[^/]*$', '/ocdskingfishercolab_test', database_url)
     parts = urlparse(database_url)
+    created_database_url = parts._replace(path='/ocdskingfishercolab_test').geturl()
     kwargs = {
         'user': parts.username,
         'password': parts.password,

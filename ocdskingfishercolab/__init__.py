@@ -29,8 +29,7 @@ def run(conn, _sql, *args, **kwargs):
         comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
     except KeyError:
         comment = "/* run from a notebook, but no colab id */"
-    _sql = comment+_sql
-    return old_run(conn, _sql, *args, **kwargs)
+    return old_run(conn, comment + _sql, *args, **kwargs)
 
 
 sql.run.run = run
@@ -217,9 +216,7 @@ def download_data_as_json(data, filename):
 
 def get_ipython_sql_resultset_from_query(sql):
     ipython = get_ipython()
-    autopandas = False
-    if ipython.magic('config SqlMagic.autopandas'):
-        autopandas = True
+    autopandas = ipython.magic('config SqlMagic.autopandas')
     if autopandas:
         ipython.magic('config SqlMagic.autopandas=False')
     # Use ipython.run_line_magic instead of ipython.magic here
@@ -276,9 +273,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     """
 
     ipython = get_ipython()
-    autopandas = False
-    if ipython.magic('config SqlMagic.autopandas'):
-        autopandas = True
+    autopandas = ipython.magic('config SqlMagic.autopandas')
     if autopandas:
         ipython.magic('config SqlMagic.autopandas=False')
     # This inspects locals to find ocid and collection_id
