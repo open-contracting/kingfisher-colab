@@ -86,11 +86,11 @@ def set_spreadsheet_name(name):
 
 def list_source_ids(pattern=''):
     """
-    Returns, as a data frame, a list of source IDs matching the given pattern.
+    Returns, as a ResultSet or DataFrame, a list of source IDs matching the given pattern.
 
     :param str pattern: a substring, like "paraguay"
-    :returns: the results as a data frame
-    :rtype: pandas.DataFrame
+    :returns: the results as a pandas DataFrame or an ipython-sql `ResultSet <https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/src/sql/run.py#L99>`__, depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the same behaviour as ipython-sql's ``%sql`` magic.
+    :rtype: pandas.DataFrame or sql.run.ResultSet
     """
     sql = """
     SELECT source_id
@@ -108,11 +108,11 @@ def list_source_ids(pattern=''):
 
 def list_collections(source_id):
     """
-    Returns, as a data frame, a list of collections with the given source ID.
+    Returns, as a ResultSet or DataFrame, a list of collections with the given source ID.
 
     :param str source_id: a source ID
-    :returns: the results as a data frame
-    :rtype: pandas.DataFrame
+    :returns: the results as a pandas DataFrame or an ipython-sql `ResultSet <https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/src/sql/run.py#L99>`__, depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the same behaviour as ipython-sql's ``%sql`` magic.
+    :rtype: pandas.DataFrame or sql.run.ResultSet
     """
     sql = """
     SELECT *
@@ -132,7 +132,7 @@ def set_search_path(schema_name):
 
     :param str schema_name: a schema name
     """
-    return get_ipython().magic(f'sql SET search_path = {schema_name}, public')
+    get_ipython().magic(f'sql SET search_path = {schema_name}, public')
 
 
 def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
@@ -215,6 +215,16 @@ def download_data_as_json(data, filename):
 
 
 def get_ipython_sql_resultset_from_query(sql):
+    """
+    Executes a SQL statement and returns a ResultSet.
+
+    Parameters are taken from the scope this function is called from (same behaviour as ipython-sql's ``%sql`` magic).
+
+    :param str sql: a SQL statement
+    :returns: the results as a `ResultSet <https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/src/sql/run.py#L99>`__
+    :rtype: sql.run.ResultSet
+
+    """
     ipython = get_ipython()
     autopandas = ipython.magic('config SqlMagic.autopandas')
     if autopandas:
