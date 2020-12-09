@@ -12,9 +12,9 @@ Changed
 
    Replacements (must run ``%load_ext sql`` first, and ``%config SqlMagic.autopandas = True`` to get a pandas ``DataFrame``):
 
-   -  :meth:`ocdskingfishercolab.create_connection` — replaced by using an ipython-sql connection string, e.g. ``%sql postgresql://user:pass@host/db``
-   -  :meth:`ocdskingfishercolab.execute_statement`, :meth:`ocdskingfishercolab.get_dataframe_from_cursor` and :meth:`ocdskingfishercolab.get_dataframe_from_query` — replaced by ipython-sql's ``%sql`` magic, e.g. ``%sql SELECT a FROM b``
-   -  :meth:`ocdskingfishercolab.get_list_from_query` — replaced by :meth:`get_ipython_sql_resultset_from_query`. This returns an ipython-sql ResultSet, which can behave broadly like a list, but also has other features.
+   -  ``ocdskingfishercolab.create_connection`` — replaced by using an ipython-sql connection string, e.g. ``%sql postgresql://user:pass@host/db``
+   -  ``ocdskingfishercolab.execute_statement``, ``ocdskingfishercolab.get_dataframe_from_cursor`` and ``ocdskingfishercolab.get_dataframe_from_query`` — replaced by ipython-sql's ``%sql`` magic, e.g. ``%sql SELECT a FROM b``
+   -  ``ocdskingfishercolab.get_list_from_query`` — replaced by :meth:`ocdskingfishercolab.get_ipython_sql_resultset_from_query`. This returns an `ipython-sql ResultSet <https://pypi.org/project/ipython-sql/#examples>`__, the type returned by the ``%sql%`` magic when ``autopandas`` is off. It behaves like a list, but with extra methods.
    -  :meth:`ocdskingfishercolab.download_package_from_query` no longer takes a ``params`` argument, and instead uses variables from the local scope, to be consisent with the ipython-sql's ``%sql`` magic.
 
    There's a shared (but not public) `colab notebook of examples run against live kingfisher <https://colab.research.google.com/drive/1cUYY4on72831DPSiQ_JLxJEY2uGTfVrN#scrollTo=I-QPDbliMVXC>`__.
