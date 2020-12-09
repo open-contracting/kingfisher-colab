@@ -226,6 +226,9 @@ def get_ipython_sql_resultset_from_query(sql):
     """  # noqa: E501
     ipython = get_ipython()
     autopandas = ipython.magic('config SqlMagic.autopandas')
+    # Disable autopandas, so we know that the sql magic call will always return
+    # a ResultSet (rather than a pandas DataFrame). Since the DataFrame would
+    # be created from the ResultSet, it would be less efficient.
     if autopandas:
         ipython.magic('config SqlMagic.autopandas=False')
     # Use ipython.run_line_magic instead of ipython.magic here
@@ -283,6 +286,9 @@ def download_package_from_ocid(collection_id, ocid, package_type):
 
     ipython = get_ipython()
     autopandas = ipython.magic('config SqlMagic.autopandas')
+    # Disable autopandas, so we know that the sql magic call will always return
+    # a ResultSet (rather than a pandas DataFrame). Since the DataFrame would
+    # be created from the ResultSet, it would be less efficient.
     if autopandas:
         ipython.magic('config SqlMagic.autopandas=False')
     # This inspects locals to find ocid and collection_id
