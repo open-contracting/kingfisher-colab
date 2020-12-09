@@ -71,6 +71,10 @@ def db():
             cur.close()
             conn.close()
     finally:
+        # Close ipython-sql's open connections, so that we can drop the database.
+        # We have to do this manually, because ipython-sql's own connection
+        # closing support is broken
+        # https://github.com/catherinedevlin/ipython-sql/issues/170
         for ipython_sql_connection in sql.connection.Connection.connections.values():
             ipython_sql_connection.session.close()
             ipython_sql_connection.session.engine.dispose()
