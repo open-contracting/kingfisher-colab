@@ -4,15 +4,17 @@ from urllib.parse import urlparse
 
 import psycopg2
 import pytest
-
-from ocdskingfishercolab import create_connection
+import sql
+from IPython import get_ipython
 
 
 # If this fixture becomes too slow, we can setup the database once, and run each test in a transaction.
 @pytest.fixture()
 def db():
-    database_url = os.getenv('DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
+    # This can't be named DATABASE_URL, because ipython-sql will try and use it.
+    database_url = os.getenv('TEST_DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
     parts = urlparse(database_url)
+    created_database_url = parts._replace(path='/ocdskingfishercolab_test').geturl()
     kwargs = {
         'user': parts.username,
         'password': parts.password,
@@ -29,7 +31,7 @@ def db():
     try:
         cursor.execute('CREATE DATABASE ocdskingfishercolab_test')
 
-        conn = create_connection(database='ocdskingfishercolab_test', **kwargs)
+        conn = psycopg2.connect(dbname='ocdskingfishercolab_test', **kwargs)
         cur = conn.cursor()
 
         try:
@@ -59,11 +61,25 @@ def db():
 
             conn.commit()
 
+            get_ipython().magic('load_ext sql')
+            get_ipython().magic(f'sql {created_database_url}')
+            # Set autopandas, because we think most users will
+            get_ipython().magic('config SqlMagic.autopandas=True')
+
             yield cur
         finally:
             cur.close()
             conn.close()
     finally:
+        # Close ipython-sql's open connections, so that we can drop the database.
+        # We have to do this manually, because ipython-sql's own connection
+        # closing support is broken
+        # https://github.com/catherinedevlin/ipython-sql/issues/170
+        for ipython_sql_connection in sql.connection.Connection.connections.values():
+            ipython_sql_connection.session.close()
+            ipython_sql_connection.session.engine.dispose()
+        sql.connection.Connection.connections = {}
+
         cursor.execute('DROP DATABASE ocdskingfishercolab_test')
 
         cursor.close()

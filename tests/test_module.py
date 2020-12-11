@@ -5,19 +5,18 @@ import contextlib
 import json
 import math
 import os
+import textwrap
 from io import StringIO
 from unittest.mock import patch
 from zipfile import ZipFile
 
 import pandas
-import psycopg2
 import pytest
-from psycopg2.sql import SQL, Identifier
+from IPython import get_ipython
 
 from ocdskingfishercolab import (UnknownPackageTypeError, download_dataframe_as_csv, download_package_from_ocid,
-                                 download_package_from_query, execute_statement, get_dataframe_from_query,
-                                 get_list_from_query, list_collections, list_source_ids, save_dataframe_to_spreadsheet,
-                                 set_search_path)
+                                 download_package_from_query, get_ipython_sql_resultset_from_query, list_collections,
+                                 list_source_ids, save_dataframe_to_spreadsheet, set_search_path)
 
 
 def path(filename):
@@ -46,15 +45,7 @@ def chdir(path):
 def test_set_search_path(db):
     set_search_path('test')
 
-    db.execute('show search_path')
-    assert db.fetchone()[0] == 'test, public'
-
-
-@patch('ocdskingfishercolab._notebook_id', _notebook_id)
-def test_execute_statement_composable(db):
-    execute_statement(db, SQL('SELECT id FROM {}').format(Identifier('record')))
-
-    assert [row for row in db] == [(1,)]
+    get_ipython().magic('sql show search_path')['search_path'][0] == 'test, public'
 
 
 @patch('google.colab.files.download')
@@ -150,13 +141,18 @@ def test_download_package_from_ocid_other():
 @patch('google.colab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_query_release(download, db, tmpdir):
-    sql = """
-    SELECT data FROM data JOIN release ON data.id = release.data_id
-    WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
-    """
 
     with chdir(tmpdir):
-        download_package_from_query(sql, {'collection_id': 1, 'ocid': 'ocds-213czf-1/a'}, 'release')
+        get_ipython().run_cell(textwrap.dedent("""
+            sql = '''
+                SELECT data FROM data JOIN release ON data.id = release.data_id
+                WHERE collection_id = :collection_id AND ocid = :ocid
+            '''
+            from ocdskingfishercolab import download_package_from_query
+            collection_id = 1
+            ocid = 'ocds-213czf-1/a'
+            download_package_from_query(sql, 'release')
+        """))
 
         with open('release_package.json') as f:
             data = json.load(f)
@@ -175,13 +171,18 @@ def test_download_package_from_query_release(download, db, tmpdir):
 @patch('google.colab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_query_record(download, db, tmpdir):
-    sql = """
-    SELECT data FROM data JOIN record ON data.id = record.data_id
-    WHERE collection_id = %(collection_id)s AND ocid = %(ocid)s
-    """
 
     with chdir(tmpdir):
-        download_package_from_query(sql, {'collection_id': 1, 'ocid': 'ocds-213czf-2'}, 'record')
+        get_ipython().run_cell(textwrap.dedent("""
+            sql = '''
+                SELECT data FROM data JOIN record ON data.id = record.data_id
+                WHERE collection_id = :collection_id AND ocid = :ocid
+            '''
+            from ocdskingfishercolab import download_package_from_query
+            collection_id = 1
+            ocid = 'ocds-213czf-2'
+            download_package_from_query(sql, 'record')
+        """))
 
         with open('record_package.json') as f:
             data = json.load(f)
@@ -209,16 +210,16 @@ def test_download_package_from_query_other():
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_get_list_from_query(db):
-    result = get_list_from_query('SELECT * FROM record')
+    result = get_ipython_sql_resultset_from_query('SELECT * FROM record')
 
     assert result == [(1, 1, 'ocds-213czf-2', 4)]
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
-def test_get_dataframe_from_query(db):
-    dataframe = get_dataframe_from_query('SELECT * FROM record')
+def test_get_ipython_sql_resultset_from_query(db):
+    result = get_ipython_sql_resultset_from_query('SELECT * FROM record')
 
-    assert dataframe.to_dict() == {
+    assert result.DataFrame().to_dict() == {
         'collection_id': {0: 1},
         'data_id': {0: 4},
         'id': {0: 1},
@@ -227,13 +228,16 @@ def test_get_dataframe_from_query(db):
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
-def test_get_dataframe_from_query_error(db):
-    with pytest.raises(psycopg2.errors.SyntaxError) as excinfo:
-        get_dataframe_from_query('invalid')
+def test_get_ipython_sql_resultset_from_query_error(db, capsys):
+    get_ipython().magic('sql invalid')
+    captured = capsys.readouterr()
 
-    assert str(excinfo.value) == 'syntax error at or near "invalid"\n' \
-                                 'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
-                                 '                                                                ^\n'
+    assert '(psycopg2.errors.SyntaxError) syntax error at or near "invalid"\n' \
+           'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
+           '                                                                ^\n\n' \
+           '[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0' \
+           ' */invalid]\n' \
+           '(Background on this error at: http://sqlalche.me/e/13/f405)\n' in captured.out
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
