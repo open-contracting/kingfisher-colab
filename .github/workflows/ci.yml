@@ -29,6 +29,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
+    - run: pip install --upgrade pip
     - run: pip install .[test]
     - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
     # The unit tests need to be run with ipython, as the code requires a
