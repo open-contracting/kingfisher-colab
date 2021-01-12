@@ -11,11 +11,19 @@ OCDS Kingfisher Colab |release|
 Troubleshooting
 ---------------
 
-If you are using Kingfisher Colab in a Jupyter Notebook (not on Google Colaboratory), you might need to upgrade the ``ipykernel`` package:
+If you are using Kingfisher Colab in a Jupyter Notebook (not on Google Colaboratory), you need to:
 
-.. code-block:: bash
+#. Install the ``google-colab`` package:
 
-   pip install --upgrade ipykernel
+   .. code-block:: bash
+
+      pip install google-colab
+
+#. Upgrade the ``ipykernel`` package:
+
+   .. code-block:: bash
+
+      pip install --upgrade ipykernel
 
 API
 ---

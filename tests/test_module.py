@@ -48,7 +48,7 @@ def test_set_search_path(db):
     get_ipython().magic('sql show search_path')['search_path'][0] == 'test, public'
 
 
-@patch('google.colab.files.download')
+@patch('ocdskingfishercolab.files.download')
 def test_download_dataframe_as_csv(download, tmpdir):
     d = {'col1': [1, 2], 'col2': [3, 4]}
     df = pandas.DataFrame(data=d)
@@ -62,7 +62,7 @@ def test_download_dataframe_as_csv(download, tmpdir):
         assert data == ',col1,col2\n0,1,3\n1,2,4\n'
 
 
-@patch('google.colab.files.download')
+@patch('ocdskingfishercolab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_ocid_release(download, db, tmpdir):
     with chdir(tmpdir):
@@ -85,7 +85,7 @@ def test_download_package_from_ocid_release(download, db, tmpdir):
         download.assert_called_once_with('ocds-213czf-1_release_package.json')
 
 
-@patch('google.colab.files.download')
+@patch('ocdskingfishercolab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_ocid_record(download, db, tmpdir):
     with chdir(tmpdir):
@@ -111,7 +111,7 @@ def test_download_package_from_ocid_record(download, db, tmpdir):
         download.assert_called_once_with('ocds-213czf-1_record_package.json')
 
 
-@patch('google.colab.files.download')
+@patch('ocdskingfishercolab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_ocid_path_separator(download, db, tmpdir):
     with chdir(tmpdir):
@@ -138,7 +138,7 @@ def test_download_package_from_ocid_other():
     assert str(excinfo.value) == "package_type argument must be either 'release' or 'record'"
 
 
-@patch('google.colab.files.download')
+@patch('ocdskingfishercolab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_query_release(download, db, tmpdir):
 
@@ -168,7 +168,7 @@ def test_download_package_from_query_release(download, db, tmpdir):
         download.assert_called_once_with('release_package.json')
 
 
-@patch('google.colab.files.download')
+@patch('ocdskingfishercolab.files.download')
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_download_package_from_query_record(download, db, tmpdir):
 

@@ -7,7 +7,14 @@ import flattentool
 import gspread
 import requests
 import sql
-from google.colab import auth, files
+try:
+    from google.colab import auth, files
+except ImportError:
+    # Assume we are in a testing environment.
+    from unittest.mock import Mock
+
+    files = Mock()
+    files.download.return_value = None
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
 from libcoveocds.config import LibCoveOCDSConfig

@@ -13,30 +13,26 @@ setup(
     license='BSD',
     packages=find_packages(exclude=['tests', 'tests.*']),
     long_description=long_description,
+    # google-colab on PyPi has different requirements than google-colab on Google Colaboratory. It's not possible to
+    # list a set of requirements that pip can resolve in both environments.
     install_requires=[
         'flattentool',
-        'google-colab',
-        'gspread<3.5.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
+        'gspread',
         'gspread-dataframe',
+        'ipython',
+        'ipython-sql',
         'libcoveocds',
-        'notebook>=5.2.0',  # required by Google Colaboratory (google-colab 1.0.0 requires notebook~=5.2.0)
+        'notebook',
         'oauth2client',
         'pydrive',
-        'requests>=2.21.0',  # required by Google Colaboratory (google-colab 1.0.0 requires requests~=2.21.0)
-        'ipython-sql~=0.4.0',
-        # https://github.com/googleapis/google-api-python-client/issues/870
-        'google-api-python-client!=1.8.1,<1.9.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
-
-        # Avoid conflicts.
-        'Django<2.3',  # libcove 0.18.0
-        'google-api-core<1.17.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
+        'requests',
     ],
     extras_require={
         'test': [
             'coveralls',
             'pytest',
             'pytest-cov',
-            'pandas~=0.24.0',  # google-colab 1.0.0
+            'pandas',
             'psycopg2-binary',
         ],
         'docs': [
