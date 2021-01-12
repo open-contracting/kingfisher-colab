@@ -19,10 +19,10 @@ setup(
         'gspread<3.5.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
         'gspread-dataframe',
         'libcoveocds',
-        'notebook~=5.3.0',  # required by Google Colaboratory (google-colab 1.0.0 requires notebook~=5.2.0)
+        'notebook>=5.2.0',  # required by Google Colaboratory (google-colab 1.0.0 requires notebook~=5.2.0)
         'oauth2client',
         'pydrive',
-        'requests~=2.23.0',  # required by Google Colaboratory (google-colab 1.0.0 requires requests~=2.21.0)
+        'requests>=2.21.0',  # required by Google Colaboratory (google-colab 1.0.0 requires requests~=2.21.0)
         'ipython-sql~=0.4.0',
         # https://github.com/googleapis/google-api-python-client/issues/870
         'google-api-python-client!=1.8.1,<1.9.0',  # google-colab 1.0.0 requires google-auth~=1.4.0
