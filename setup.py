@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name='ocdskingfishercolab',
-    version='0.3.0',
+    version='0.3.1',
     author='Open Contracting Partnership',
     author_email='data@open-contracting.org',
     url='https://github.com/open-contracting/kingfisher-colab',

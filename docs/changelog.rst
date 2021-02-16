@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.1 (2021-02-16)
+------------------
+
+Fixed
+~~~~~
+
+-  Fixed dependencies to install cleanly both locally and on Google Colaboratory.
+
 0.3.0 (2020-12-15)
 ------------------
 
