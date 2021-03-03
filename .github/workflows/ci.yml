@@ -32,6 +32,7 @@ jobs:
     - run: pip install --upgrade pip
     - run: pip install .[test]
     - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
+    - run: pytest /tmp/test_requirements.py
     # The unit tests need to be run with ipython, as the code requires a
     # running ipython instance (as you would have in a notebook)
     - run: ipython -m pytest -- --cov ocdskingfishercolab
