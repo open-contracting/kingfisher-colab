@@ -4,6 +4,7 @@ env:
   BASEDIR: https://raw.githubusercontent.com/open-contracting/standard-maintenance-scripts/main
 jobs:
   build:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -18,27 +19,27 @@ jobs:
         ports:
           - 5432/tcp
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v1
-      with:
-        python-version: 3.6
-    - uses: actions/cache@v1
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
-    - run: pip install --upgrade pip
-    - run: pip install .[test]
-    - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
-    - run: pytest /tmp/test_requirements.py
-    # The unit tests need to be run with ipython, as the code requires a
-    # running ipython instance (as you would have in a notebook)
-    - run: ipython -m pytest -- --cov ocdskingfishercolab
-      env:
-        TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
-      if: always()
-    - env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: coveralls --service=github
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
+      - run: pip install --upgrade pip
+      - run: pip install .[test]
+      - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
+      - run: pytest /tmp/test_requirements.py
+      # The unit tests need to be run with ipython, as the code requires a
+      # running ipython instance (as you would have in a notebook)
+      - run: ipython -m pytest -- --cov ocdskingfishercolab
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
+        if: always()
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: coveralls --service=github
