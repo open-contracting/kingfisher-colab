@@ -29,13 +29,8 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
-      - run: pip install --upgrade pip
       - run: pip install .[test]
-      - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
-      - run: pytest /tmp/test_requirements.py
-      # The unit tests need to be run with ipython, as the code requires a
-      # running ipython instance (as you would have in a notebook)
+      # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
       - run: ipython -m pytest -- --cov ocdskingfishercolab
         env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
