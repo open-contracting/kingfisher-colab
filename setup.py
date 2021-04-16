@@ -27,6 +27,7 @@ setup(
         'oauth2client',
         'pydrive',
         'requests',
+        'sqlalchemy',
     ],
     extras_require={
         'test': [
