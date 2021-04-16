@@ -144,7 +144,7 @@ def set_search_path(schema_name):
     try:
         get_ipython().magic(f'sql SET search_path = {schema_name}, public')
     # https://github.com/catherinedevlin/ipython-sql/issues/191
-    except ResourceClosedError as e:
+    except ResourceClosedError:
         print('Done')
 
 
