@@ -145,7 +145,7 @@ def set_search_path(schema_name):
         get_ipython().magic(f'sql SET search_path = {schema_name}, public')
     # https://github.com/catherinedevlin/ipython-sql/issues/191
     except ResourceClosedError:
-        print('Done')
+        pass
 
 
 def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
