@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.4 (2021-04-16)
+------------------
+
+Fixed
+~~~~~
+
+-  :meth:`~ocdskingfishercolab.set_search_path` no longer outputs an error message.
+
 0.3.3 (2021-04-10)
 ------------------
 
@@ -49,14 +57,14 @@ Changed
 Changed
 ~~~~~~~
 
--  :meth:`ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
--  :meth:`ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
--  Remove :meth:`ocdskingfishercolab.reset_connection`.
+-  :meth:`~ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
+-  :meth:`~ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
+-  Remove :meth:`~ocdskingfishercolab.reset_connection`.
 
 Fixed
 ~~~~~
 
--  :meth:`ocdskingfishercolab.write_data_as_json` replaces path separators with underscores in filenames.
+-  :meth:`~ocdskingfishercolab.write_data_as_json` replaces path separators with underscores in filenames.
 
 0.2.2 (2020-04-22)
 ------------------
@@ -64,8 +72,8 @@ Fixed
 Added
 ~~~~~
 
--  :meth:`ocdskingfishercolab.set_search_path`
--  :meth:`ocdskingfishercolab.get_list_from_query`
+-  :meth:`~ocdskingfishercolab.set_search_path`
+-  :meth:`~ocdskingfishercolab.get_list_from_query`
 
 Fixed
 ~~~~~
