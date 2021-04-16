@@ -14,7 +14,7 @@ setup(
     packages=find_packages(exclude=['tests', 'tests.*']),
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    # google-colab on PyPi has different requirements than google-colab on Google Colaboratory. It's not possible to
+    # google-colab on PyPI has different requirements than google-colab on Google Colaboratory. It's not possible to
     # list a set of requirements that pip can resolve in both environments.
     install_requires=[
         'flattentool',
