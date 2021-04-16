@@ -7,6 +7,8 @@ import flattentool
 import gspread
 import requests
 import sql
+from sqlalchemy.exc import ResourceClosedError
+
 try:
     from google.colab import auth, files
 except ImportError:
@@ -139,7 +141,11 @@ def set_search_path(schema_name):
 
     :param str schema_name: a schema name
     """
-    get_ipython().magic(f'sql SET search_path = {schema_name}, public')
+    try:
+        get_ipython().magic(f'sql SET search_path = {schema_name}, public')
+    # https://github.com/catherinedevlin/ipython-sql/issues/191
+    except ResourceClosedError as e:
+        print('Done')
 
 
 def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
