@@ -32,9 +32,9 @@ jobs:
       - run: pip install .[test]
       # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
       - run: ipython -m pytest -- --cov ocdskingfishercolab
+        if: always()
         env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
-        if: always()
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github
