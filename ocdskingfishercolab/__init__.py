@@ -184,7 +184,6 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     """
     write_data_as_json(dataframe['release_package'][0], 'release_package.json')
 
-    # Use similar code to Toucan.
     config = LibCoveOCDSConfig().config
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore')  # flattentool uses UserWarning, so we can't set a specific category
