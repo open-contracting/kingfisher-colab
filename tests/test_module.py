@@ -6,7 +6,6 @@ import json
 import math
 import os
 import textwrap
-from io import StringIO
 from unittest.mock import patch
 from zipfile import ZipFile
 
@@ -280,9 +279,8 @@ def test_list_collections(db):
     assert math.isnan(actual['transform_from_collection_id'][2])
 
 
-@patch('sys.stdout', new_callable=StringIO)
 @patch('ocdskingfishercolab._save_file_to_drive')
-def test_save_dataframe_to_spreadsheet(save, stdout, tmpdir):
+def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
     save.return_value = {'id': 'test'}
 
     d = {'release_package': [{'releases': [{'ocid': 'ocds-213czf-1'}]}]}
@@ -302,6 +300,6 @@ def test_save_dataframe_to_spreadsheet(save, stdout, tmpdir):
             assert _worksheets_length(actual) == _worksheets_length(expected) == 1
             assert actual.read('xl/worksheets/sheet1.xml') == expected.read('xl/worksheets/sheet1.xml')
 
-        assert stdout.getvalue() == "Uploaded file with ID 'test'\n"
+        assert capsys.readouterr().out == "Uploaded file with ID 'test'\n"
 
         save.assert_called_once_with({'title': 'yet_another_excel_file.xlsx'}, 'flattened.xlsx')
