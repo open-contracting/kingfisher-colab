@@ -11,6 +11,9 @@ OCDS Kingfisher Colab |release|
 Troubleshooting
 ---------------
 
+Using Jupyter Notebook
+^^^^^^^^^^^^^^^^^^^^^^
+
 If you are using Kingfisher Colab in a Jupyter Notebook (not on Google Colaboratory), you need to:
 
 #. Install the ``google-colab`` package:
@@ -24,6 +27,13 @@ If you are using Kingfisher Colab in a Jupyter Notebook (not on Google Colaborat
    .. code-block:: bash
 
       pip install --upgrade ipykernel
+
+Using JSON operators with the %sql magic
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When using the ipython-sql ``%sql`` line magic, you must avoid spaces around JSON operators.
+
+E.g. ``data->'ocid'`` not ``data -> 'ocid'``
 
 API
 ---
