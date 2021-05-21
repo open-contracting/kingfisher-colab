@@ -28,10 +28,10 @@ If you are using Kingfisher Colab in a Jupyter Notebook (not on Google Colaborat
 
       pip install --upgrade ipykernel
 
-Using JSON operators with ipython-sql magics
+Using JSON operators with the %sql magic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When using the ipython-sql magics (``%sql`` or ``%%sql``), you must avoid spaces around JSON operators.
+When using the ipython-sql ``%sql`` line magic, you must avoid spaces around JSON operators.
 
 E.g. ``data->'ocid'`` not ``data -> 'ocid'``
 
