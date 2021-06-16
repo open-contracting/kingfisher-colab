@@ -51,12 +51,6 @@ Changed
 
    There's a shared (but not public) `colab notebook of examples run against live kingfisher <https://colab.research.google.com/drive/1cUYY4on72831DPSiQ_JLxJEY2uGTfVrN#scrollTo=I-QPDbliMVXC>`__.
 
-0.2.3 (Unreleased)
-------------------
-
-Changed
-~~~~~~~
-
 -  :meth:`~ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
 -  :meth:`~ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
 -  Remove :meth:`~ocdskingfishercolab.reset_connection`.
