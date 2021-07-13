@@ -25,7 +25,6 @@ from oauth2client.client import GoogleCredentials
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-
 # Monkeypatch ipython-sql's sql run function, to add a comment linking to the
 # colab notebook that it's run from
 # We monkeypatch run(), but don't call it directly below, as calling the magic
