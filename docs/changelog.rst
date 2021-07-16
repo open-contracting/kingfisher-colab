@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.5 (2021-07-16)
+------------------
+
+Added
+~~~~~
+
+-  Add :meth:`~ocdskingfishercolab.render_json` to render JSON into collapsible HTML. 
+
 0.3.4 (2021-04-16)
 ------------------
 

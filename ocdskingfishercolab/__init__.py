@@ -19,6 +19,7 @@ except ImportError:
     files.download.return_value = None
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
+from IPython.display import HTML
 from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
@@ -341,6 +342,22 @@ def _save_file_to_drive(metadata, filename):
     drive_file.Upload()
     return drive_file
 
+def render_json(json_string):
+    """
+    Renders JSON into collapsible HTML.
+    
+    :param json_string: JSON-deserializable string
+    """
+    if isinstance(json_string, str):
+        jstr = json.dumps(json_string)
+        return HTML(f"""
+        <script src="https://raw.githubusercontent.com/open-contracting/kingfisher-colab/main/script/renderjson.js"></script>
+        <script>
+        renderjson.set_show_to_level(1)
+        document.body.appendChild(renderjson({json_string}))
+        new ResizeObserver(google.colab.output.resizeIframeToContent).observe(document.body)
+        </script>
+        """)
 
 class OCDSKingfisherColabError(Exception):
     """Base class for exceptions from within this package"""
