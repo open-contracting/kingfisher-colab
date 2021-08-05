@@ -353,7 +353,7 @@ def render_json(json_string):
         json_string = json.dumps(json_string)
         return HTML(f"""
         <script
-        src="https://raw.githubusercontent.com/open-contracting/kingfisher-colab/main/script/renderjson.js">
+        src="https://cdn.jsdelivr.net/gh/caldwell/renderjson@master/renderjson.js">
         </script>
         <script>
         renderjson.set_show_to_level(1)
