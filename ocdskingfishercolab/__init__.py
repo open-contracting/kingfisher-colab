@@ -349,15 +349,15 @@ def render_json(json_string):
 
     :param json_string: JSON-deserializable string
     """
-    if isinstance(json_string, str):
-        json_data= json.dumps(json_string)
-        return HTML(f"""
+    if not isinstance(json_string, str):
+        json_string = json.dumps(json_string)
+    return HTML(f"""
         <script
         src="https://cdn.jsdelivr.net/gh/caldwell/renderjson@master/renderjson.js">
         </script>
         <script>
         renderjson.set_show_to_level(1)
-        document.body.appendChild(renderjson({json_data}))
+        document.body.appendChild(renderjson({json_string}))
         new ResizeObserver(google.colab.output.resizeIframeToContent).observe(document.body)
         </script>
         """)
