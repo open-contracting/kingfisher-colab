@@ -1,6 +1,6 @@
 import getpass
 import os
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 import psycopg2
 import pytest
@@ -13,7 +13,7 @@ from IPython import get_ipython
 def db():
     # This can't be named DATABASE_URL, because ipython-sql will try and use it.
     database_url = os.getenv('TEST_DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
-    parts = urlparse(database_url)
+    parts = urlsplit(database_url)
     created_database_url = parts._replace(path='/ocdskingfishercolab_test').geturl()
     kwargs = {
         'user': parts.username,
