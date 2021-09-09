@@ -135,7 +135,7 @@ def list_collections(source_id=None):
         SELECT *
         FROM collection
         ORDER BY id DESC
-        """        
+        """
 
     # This inspects locals to find source_id
     return get_ipython().magic(f'sql {sql}')
