@@ -115,7 +115,7 @@ def list_source_ids(pattern=''):
     return get_ipython().magic(f'sql {sql}')
 
 
-def list_collections(source_id):
+def list_collections(source_id=None):
     """
     Returns, as a ResultSet or DataFrame, a list of collections with the given source ID.
 
@@ -123,12 +123,19 @@ def list_collections(source_id):
     :returns: the results as a pandas DataFrame or an ipython-sql `ResultSet <https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/src/sql/run.py#L99>`__, depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the same behaviour as ipython-sql's ``%sql`` magic.
     :rtype: pandas.DataFrame or sql.run.ResultSet
     """  # noqa: E501
-    sql = """
-    SELECT *
-    FROM collection
-    WHERE source_id = :source_id
-    ORDER BY id DESC
-    """
+    if source_id:
+        sql = """
+        SELECT *
+        FROM collection
+        WHERE source_id = :source_id
+        ORDER BY id DESC
+        """
+    else:
+        sql = """
+        SELECT *
+        FROM collection
+        ORDER BY id DESC
+        """        
 
     # This inspects locals to find source_id
     return get_ipython().magic(f'sql {sql}')
