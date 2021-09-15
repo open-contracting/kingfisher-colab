@@ -23,8 +23,8 @@ from IPython.display import HTML
 from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
 
 # Monkeypatch ipython-sql's sql run function, to add a comment linking to the
 # colab notebook that it's run from

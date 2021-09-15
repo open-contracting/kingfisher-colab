@@ -25,7 +25,7 @@ setup(
         'libcoveocds',
         'notebook',
         'oauth2client',
-        'pydrive',
+        'pydrive2',
         'requests',
         'sqlalchemy',
     ],
