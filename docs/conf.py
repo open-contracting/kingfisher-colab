@@ -38,6 +38,7 @@ release = version
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    "sphinx.ext.extlinks",
     'sphinx.ext.viewcode',
 ]
 
@@ -72,6 +73,11 @@ autodoc_default_options = {
     'members': None,
 }
 autodoc_member_order = 'bysource'
+
+extlinks = {
+    "ipython-sql": (
+        "https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/%s", None),
+}
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
