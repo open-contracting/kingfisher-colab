@@ -127,19 +127,10 @@ def list_collections(source_id=None):
               same behaviour as ipython-sql's ``%sql`` magic.
     :rtype: pandas.DataFrame or sql.run.ResultSet
     """
+    sql = "SELECT * FROM collection"
     if source_id:
-        sql = """
-        SELECT *
-        FROM collection
-        WHERE source_id = :source_id
-        ORDER BY id DESC
-        """
-    else:
-        sql = """
-        SELECT *
-        FROM collection
-        ORDER BY id DESC
-        """
+        sql += " WHERE source_id = :source_id"
+    sql += " ORDER BY id DESC"
 
     # This inspects locals to find source_id
     return get_ipython().magic(f'sql {sql}')
