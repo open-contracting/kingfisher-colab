@@ -23,8 +23,8 @@ from IPython.display import HTML
 from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
 
 # Monkeypatch ipython-sql's sql run function, to add a comment linking to the
 # colab notebook that it's run from
@@ -98,9 +98,11 @@ def list_source_ids(pattern=''):
     Returns, as a ResultSet or DataFrame, a list of source IDs matching the given pattern.
 
     :param str pattern: a substring, like "paraguay"
-    :returns: the results as a pandas DataFrame or an ipython-sql `ResultSet <https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/src/sql/run.py#L99>`__, depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the same behaviour as ipython-sql's ``%sql`` magic.
+    :returns: the results as a pandas DataFrame or an ipython-sql :ipython-sql:`ResultSet<src/sql/run.py#L99>`,
+              depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the
+              same behaviour as ipython-sql's ``%sql`` magic.
     :rtype: pandas.DataFrame or sql.run.ResultSet
-    """  # noqa: E501
+    """
     sql = """
     SELECT source_id
     FROM collection
@@ -115,20 +117,20 @@ def list_source_ids(pattern=''):
     return get_ipython().magic(f'sql {sql}')
 
 
-def list_collections(source_id):
+def list_collections(source_id=None):
     """
     Returns, as a ResultSet or DataFrame, a list of collections with the given source ID.
 
     :param str source_id: a source ID
-    :returns: the results as a pandas DataFrame or an ipython-sql `ResultSet <https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/src/sql/run.py#L99>`__, depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the same behaviour as ipython-sql's ``%sql`` magic.
+    :returns: the results as a pandas DataFrame or an ipython-sql :ipython-sql:`ResultSet<src/sql/run.py#L99>`,
+              depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the
+              same behaviour as ipython-sql's ``%sql`` magic.
     :rtype: pandas.DataFrame or sql.run.ResultSet
-    """  # noqa: E501
-    sql = """
-    SELECT *
-    FROM collection
-    WHERE source_id = :source_id
-    ORDER BY id DESC
     """
+    sql = "SELECT * FROM collection"
+    if source_id:
+        sql += " WHERE source_id = :source_id"
+    sql += " ORDER BY id DESC"
 
     # This inspects locals to find source_id
     return get_ipython().magic(f'sql {sql}')
@@ -233,9 +235,9 @@ def get_ipython_sql_resultset_from_query(sql):
     Parameters are taken from the scope this function is called from (same behaviour as ipython-sql's ``%sql`` magic).
 
     :param str sql: a SQL statement
-    :returns: the results as a `ResultSet <https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/src/sql/run.py#L99>`__
+    :returns: the results as a :ipython-sql:`ResultSet<src/sql/run.py#L99>`
     :rtype: sql.run.ResultSet
-    """  # noqa: E501
+    """
     ipython = get_ipython()
     autopandas = ipython.magic('config SqlMagic.autopandas')
     # Disable autopandas, so we know that the sql magic call will always return

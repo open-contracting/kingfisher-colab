@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.6 (2021-09-15)
+------------------
+
+Changed
+-------
+
+- :meth:`~ocdskingfishercolab.list_collections`: `source_id` is now an optional argument. If omitted, all collections are returned.
+
 0.3.5 (2021-08-09)
 ------------------
 
