@@ -4,18 +4,6 @@ jobs:
   build:
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:11
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432/tcp
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -29,9 +17,21 @@ jobs:
             ${{ runner.os }}-pip-
       - run: pip install .[test]
       # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
-      - run: ipython -m pytest -- --cov ocdskingfishercolab
-        env:
+      - env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
+        run: ipython -m pytest -- --cov ocdskingfishercolab
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432/tcp
