@@ -35,7 +35,7 @@ old_run = sql.run.run
 
 def run(conn, _sql, *args, **kwargs):
     try:
-        comment = '/* https://colab.research.google.com/drive/{} */'.format(_notebook_id())
+        comment = f'/* https://colab.research.google.com/drive/{_notebook_id()} */'
     except KeyError:
         comment = "/* run from a notebook, but no colab id */"
     return old_run(conn, comment + _sql, *args, **kwargs)
@@ -170,7 +170,7 @@ def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
         try:
             worksheet = sheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
         except gspread.exceptions.APIError:
-            newsheetname = input('{} already exists, enter a new name:'.format(sheetname))
+            newsheetname = input(f'{sheetname} already exists, enter a new name:')
             worksheet = sheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
 
         set_with_dataframe(worksheet, dataframe)
@@ -203,7 +203,7 @@ def save_dataframe_to_spreadsheet(dataframe, name):
         )
 
     drive_file = _save_file_to_drive({'title': name + '.xlsx'}, 'flattened.xlsx')
-    print('Uploaded file with ID {!r}'.format(drive_file['id']))
+    print(f"Uploaded file with ID {drive_file['id']!r}")
 
 
 def download_dataframe_as_csv(dataframe, filename):
@@ -274,7 +274,7 @@ def download_package_from_query(sql, package_type=None):
         package = {'releases': data}
 
     package.update(package_metadata)
-    download_data_as_json(package, '{}_package.json'.format(package_type))
+    download_data_as_json(package, f'{package_type}_package.json')
 
 
 def download_package_from_ocid(collection_id, ocid, package_type):
@@ -318,7 +318,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
         package = {'releases': data}
 
     package.update(package_metadata)
-    download_data_as_json(package, '{}_{}_package.json'.format(ocid, package_type))
+    download_data_as_json(package, f'{ocid}_{package_type}_package.json')
 
 
 def write_data_as_json(data, filename):

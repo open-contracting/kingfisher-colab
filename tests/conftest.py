@@ -12,7 +12,7 @@ from IPython import get_ipython
 @pytest.fixture()
 def db():
     # This can't be named DATABASE_URL, because ipython-sql will try and use it.
-    database_url = os.getenv('TEST_DATABASE_URL', 'postgresql://{}:@localhost:5432/postgres'.format(getpass.getuser()))
+    database_url = os.getenv('TEST_DATABASE_URL', f'postgresql://{getpass.getuser()}:@localhost:5432/postgres')
     parts = urlsplit(database_url)
     created_database_url = parts._replace(path='/ocdskingfishercolab_test').geturl()
     kwargs = {
