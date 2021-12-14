@@ -1,6 +1,0 @@
-# ReadTheDocs can't seem to install the package via setup.py. For example:
-#
-#   File "build/bdist.linux-x86_64/egg/tornado/test/asyncio_test.py", line 49
-#     ensure_future = asyncio.async
-# SyntaxError: invalid syntax
--e .
