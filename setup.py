@@ -38,9 +38,9 @@ setup(
             'psycopg2-binary',
         ],
         'docs': [
-            'Sphinx',
+            'furo',
+            'sphinx',
             'sphinx-autobuild',
-            'sphinx-rtd-theme',
         ],
     },
     classifiers=[
