@@ -365,6 +365,145 @@ def render_json(json_string):
         """)
 
 
+def calculate_coverage(fields, scope=None, sql=True):
+    """
+    Calculate the coverage of the fields supplied.
+
+    `scope` is the table name of where the coverage is going to be counted from;
+    the total rows in this table will be the denomitor of the coverage percentage.
+
+    `fields` are a list of field paths (with a `/` delimeter) relative to the scope table.
+    e.g if field is `value/amount` with a scope of `awards` the full path would be 'awards/value/amount'.
+    For each field the amount of co-occurences of that field, for each row in the scope table,
+    is mesured as the numerator.
+    For one-to-many releationsips it will count if `ANY` of that field occurs across all instances,
+    but if the field is prepended with an `ALL` it will count only if the field appears for all instances of its
+    nearest parent one-to-many table and that the parent exists for all instances.
+
+    By default if you are looking at `awards` then a path beginning with `contracts/` will look at fields in the
+    related contract liked to by `awardID` and the same vice versa when looking at `contracts` with a path
+    beginning with `awards/`.
+
+    If the field is prepended with a `/` it will look at its related release/record as the base for the path.
+    So for example if you are looking at `contracts` and want to check for any or all `awards`
+    *on the same release/record* has a value you can specify `/awards/value`.
+
+    A total coverage percentage of all the fields co-occuring together is also calculated.
+
+    :param list fields: list of fields described above.
+    :param str scope: table name described above, if missing will use the table of the first item in the fields list.
+    :parem str sql: If you want to print the generated SQL.
+
+    :returns: the results as a pandas DataFrame or an ipython-sql :ipython-sql:`ResultSet<src/sql/run.py#L99>`,
+              depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the
+              same behaviour as ipython-sql's ``%sql`` magic.
+    :rtype: pandas.DataFrame or sql.run.ResultSet
+    """
+
+    def get_all_tables():
+        views = get_ipython_sql_resultset_from_query(
+            "SELECT viewname FROM pg_catalog.pg_views WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
+        )
+        tables = get_ipython_sql_resultset_from_query(
+            "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
+        )
+        return [x[0] for x in list(views) + list(tables)]
+
+    def get_table(field, scope_table=None):
+        all_tables = get_all_tables()
+        path = field.split("/")
+        table_candidates = {
+            "_".join(path[:-i]) + "_summary" for i in range(1, len(path))
+        }
+        # If a possible candidate is the scope table, always use that
+        if scope_table in table_candidates:
+            return scope_table
+        # Otherwise pick the first one that is a real table
+        for table in table_candidates:
+            if table in all_tables:
+                return table
+        # If none are real, we fall back to the release table
+        else:
+            return "release_summary"
+
+    def coverage_wrapper(condition, field):
+        field_name = field.replace("/", "_").replace(" ", "_").lower()
+        return f"ROUND(SUM(CASE WHEN {condition} THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS {field_name}_percentage"
+
+    def any_condition(field, current_scope_table):
+        return f"{current_scope_table}.field_list ? '{field}'"
+
+    def all_condition(field, current_scope_table):
+        split_field = field.split("/")
+        one_to_manys = [field for field in split_field[:-1] if field.endswith("s")]
+
+        if not one_to_manys:
+            nearest_parent_one_to_many = split_field[0]
+        else:
+            nearest_parent_one_to_many = one_to_manys[-1]
+
+        if len(one_to_manys) > 1:
+            print(
+                f"""WARNING: The results of this query might be inacurate, you will need to check that
+                 `{', '.join(one_to_manys[:-1])}` fields are one to one with `{current_scope_table}`"""
+            )
+
+        return f"""coalesce({current_scope_table}.field_list ->> '{field}' =
+                  {current_scope_table}.field_list ->> '{nearest_parent_one_to_many}', false)"""
+
+    def release_summary_join(scope_table, join_to_release):
+        if not join_to_release:
+            return ""
+        return f"""JOIN
+        release_summary ON release_summary.id = {scope_table}.id"""
+
+    if not scope:
+        scope = fields[0]
+    scope_table = get_table(scope + "/")
+
+    join_to_release = False
+
+    conditions = []
+
+    query_parts = []
+
+    for field in fields:
+        current_scope_table = scope_table
+        if field.startswith("/"):
+            join_to_release = True
+            current_scope_table = "release_summary"
+            field = field.lstrip("/")
+
+        split_field = field.split()
+        field_name = split_field[-1]
+
+        if len(split_field) == 2 and split_field[0].lower() == "all":
+            condition = all_condition(field_name, current_scope_table)
+        else:
+            condition = any_condition(field_name, current_scope_table)
+
+        conditions.append(condition)
+        query_parts.append(coverage_wrapper(condition, field_name))
+
+    query_parts.append(
+        coverage_wrapper(" AND \n              ".join(conditions), "total")
+    )
+
+    select = ",\n    ".join(query_parts)
+    select = f"""
+SELECT
+    count(*) AS total_{scope},
+    {select.lstrip()}
+FROM
+    {scope_table}
+{release_summary_join(scope_table, join_to_release)}
+"""
+
+    if sql:
+        print(select)
+    return get_ipython().run_cell_magic("sql", "", select)
+
+
 class OCDSKingfisherColabError(Exception):
     """Base class for exceptions from within this package"""
 
