@@ -1,5 +1,6 @@
 import json
 import os
+import textwrap
 import warnings
 from urllib.parse import urljoin
 
@@ -365,7 +366,7 @@ def render_json(json_string):
         """)
 
 
-def calculate_coverage(fields, scope=None, sql=True):
+def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     """
     Calculates the coverage of one or more fields using the summary tables produced by Kingfisher Summarize's
     `--field-lists` option. Returns the coverage of each field and the co-occurrence coverage of all the fields.
@@ -517,18 +518,20 @@ def calculate_coverage(fields, scope=None, sql=True):
         coverage_wrapper(" AND \n              ".join(conditions), "total")
     )
 
-    select = ",\n    ".join(query_parts)
-    select = f"""
-    SELECT
-        count(*) AS total_{scope},
-    {select.lstrip()}
+    select = ",\n            ".join(query_parts)
+    select = textwrap.dedent(f"""
+        SELECT
+            count(*) AS total_{scope},
+            {select}
         FROM
-    {scope_table}
-    {release_summary_join(scope_table, join_to_release)}
-    """
+        {scope_table}
+        {release_summary_join(scope_table, join_to_release)}
+    """)
 
     if sql:
         print(select)
+    if sql_only:
+        return select
     return get_ipython().run_cell_magic("sql", "", select)
 
 

@@ -13,9 +13,10 @@ import pandas
 import pytest
 from IPython import get_ipython
 
-from ocdskingfishercolab import (UnknownPackageTypeError, download_dataframe_as_csv, download_package_from_ocid,
-                                 download_package_from_query, get_ipython_sql_resultset_from_query, list_collections,
-                                 list_source_ids, save_dataframe_to_spreadsheet, set_search_path)
+from ocdskingfishercolab import (UnknownPackageTypeError, calculate_coverage, download_dataframe_as_csv,
+                                 download_package_from_ocid, download_package_from_query,
+                                 get_ipython_sql_resultset_from_query, list_collections, list_source_ids,
+                                 save_dataframe_to_spreadsheet, set_search_path)
 
 
 def path(filename):
@@ -303,3 +304,20 @@ def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
         assert capsys.readouterr().out == "Uploaded file with ID 'test'\n"
 
         save.assert_called_once_with({'title': 'yet_another_excel_file.xlsx'}, 'flattened.xlsx')
+
+
+@patch('ocdskingfishercolab._notebook_id', _notebook_id)
+def test_calculate_coverage(db, tmpdir):
+
+    sql = calculate_coverage(["ocid"], scope="release", sql_only=True)
+
+    # only seperated to reduce line length
+    case_statement = "CASE WHEN release_summary.field_list ? 'ocid' THEN 1 ELSE 0 END"
+
+    assert sql.strip() == textwrap.dedent(f'''
+    SELECT
+        count(*) AS total_release,
+        ROUND(SUM({case_statement}) * 100.0 / count(*), 2) AS ocid_percentage,
+        ROUND(SUM({case_statement}) * 100.0 / count(*), 2) AS total_percentage
+    FROM
+    release_summary''').strip()
