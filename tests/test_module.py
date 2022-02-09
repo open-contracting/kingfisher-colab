@@ -309,14 +309,14 @@ def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_calculate_coverage(db, tmpdir):
 
-    sql = calculate_coverage(["ocid"], scope="release", sql_only=True)
+    sql = calculate_coverage(["ocid"], scope="release_summary", sql_only=True)
 
     # only seperated to reduce line length
     case_statement = "CASE WHEN release_summary.field_list ? 'ocid' THEN 1 ELSE 0 END"
 
     assert sql.strip() == textwrap.dedent(f'''
     SELECT
-        count(*) AS total_release,
+        count(*) AS total_release_summary,
         ROUND(SUM({case_statement}) * 100.0 / count(*), 2) AS ocid_percentage,
         ROUND(SUM({case_statement}) * 100.0 / count(*), 2) AS total_percentage
     FROM

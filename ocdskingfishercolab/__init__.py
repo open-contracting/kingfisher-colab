@@ -375,10 +375,13 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     the total rows in this table will be the denomitor of the coverage percentage.
 
     `fields` is a list of fields to measure the coverage of, specified using JSON Pointer.
-    
-    To specify fields that are children of the scope table, you can use either an absolute pointer or a relative pointer prefixed with `:`, e.g. if `scope` is set to 'awards', then `awards/value/amount` and `:value/amount` refer to the same field. Coverage of such fields is measured against the number of rows in the `scope` table.
-    
-    To specify fields that are not children of the scope table, use an absolute path, e.g. `tender/procurementMethod`. Coverage of such fields is measured against the number of releases/records.
+
+    To specify fields that are children of the scope table, you can use either an absolute pointer or a relative
+    pointer prefixed with `:`, e.g. if `scope` is set to 'awards', then `awards/value/amount` and `:value/amount`
+    refer to the same field. Coverage of such fields is measured against the number of rows in the `scope` table.
+
+    To specify fields that are not children of the scope table, use an absolute path,
+    e.g. `tender/procurementMethod`. Coverage of such fields is measured against the number of releases/records.
 
    For arrays, a field is counted if it appears in **any** object in the array,
    e.g. if `scope` is set to `awards` and `field` is set to `:items/description`,
@@ -388,7 +391,10 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
    e.g. if `scope` is set to `awards` and `field` is set to `ALL :items/description`,
    all items must have a description for the coverage to be non-zero.
 
-    If `scope` is set to `awards`, specify fields on related contracts by prefixing the path with `:contracts/`, e.g. to measure how many awards have a value and a related contract with a period, set `scope` to `awards` and `fields` to `[':value', ':contracts/period']`. Similarly, if `scope` is set to `contracts`, specify fields on related awards by prefixing the path with `:awards/`.
+    If `scope` is set to `awards`, specify fields on related contracts by prefixing the path with `:contracts/`,
+    e.g. to measure how many awards have a value and a related contract with a period, set `scope` to `awards`
+    and `fields` to `[':value', ':contracts/period']`. Similarly, if `scope` is set to `contracts`, specify fields
+    on related awards by prefixing the path with `:awards/`.
 
 
     :param list fields: a list of fields as described above.
@@ -414,7 +420,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     def get_table_and_path(field, scope_table):
 
         if field.startswith(':'):
-            return scope_table + '_summary', field[1:]
+            return scope_table, field[1:]
 
         path = field.split("/")
         table_candidates = [
@@ -425,7 +431,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         for num, table_canditate in enumerate(table_candidates):
             if scope_table == table_canditate:
                 path = path[num+1:]
-                table = scope_table + '_summary'
+                table = scope_table
                 break
         return table, "/".join(path)
 
@@ -441,7 +447,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         for table_canditate in table_candidates:
             if table_canditate + '_summary' in all_tables:
                 table = table_canditate
-        return table
+        return table + '_summary'
 
     def coverage_wrapper(condition, field):
         field_name = field.replace("/", "_").replace(" ", "_").lower()
@@ -479,7 +485,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         field = fields[0].split()[-1]
         scope = get_scope_table(field)
 
-    scope_table = scope + '_summary'
+    scope_table = scope
 
     join_to_release = False
 
