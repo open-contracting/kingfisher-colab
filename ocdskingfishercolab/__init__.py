@@ -371,8 +371,8 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     Calculates the coverage of one or more fields using the summary tables produced by Kingfisher Summarize's
     `--field-lists` option. Returns the coverage of each field and the co-occurrence coverage of all the fields.
 
-    `scope` is the table name of where the coverage is going to be counted from;
-    the total rows in this table will be the denomitor of the coverage percentage.
+    `scope` is the Kingfisher Summarize table to measure coverage against, e.g. `awards_summary`.
+    The number of rows in this table is used as the denominator when calculating the coverage.
 
     `fields` is a list of fields to measure the coverage of, specified using JSON Pointer.
 
@@ -383,13 +383,13 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     To specify fields that are not children of the scope table, use an absolute path,
     e.g. `tender/procurementMethod`. Coverage of such fields is measured against the number of releases/records.
 
-   For arrays, a field is counted if it appears in **any** object in the array,
-   e.g. if `scope` is set to `awards` and `field` is set to `:items/description`,
-   at least one item must have a description for the coverage to be non-zero.
+    For arrays, a field is counted if it appears in **any** object in the array,
+    e.g. if `scope` is set to `awards` and `field` is set to `:items/description`,
+    at least one item must have a description for the coverage to be non-zero.
 
-   To specify that a field must appear in **all** objects in the array, prepend the field with `ALL `,
-   e.g. if `scope` is set to `awards` and `field` is set to `ALL :items/description`,
-   all items must have a description for the coverage to be non-zero.
+    To specify that a field must appear in **all** objects in the array, prepend the field with `ALL `,
+    e.g. if `scope` is set to `awards` and `field` is set to `ALL :items/description`,
+    all items must have a description for the coverage to be non-zero.
 
     If `scope` is set to `awards`, specify fields on related contracts by prefixing the path with `:contracts/`,
     e.g. to measure how many awards have a value and a related contract with a period, set `scope` to `awards`
