@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.7 (2022-03-10)
+------------------
+
+Added
+~~~~~
+
+-  Add :meth:`~ocdskingfishercolab.calculate_coverage` to calculate the co-occurence coverage of a group of fields. 
+
 0.3.6 (2021-09-15)
 ------------------
 
