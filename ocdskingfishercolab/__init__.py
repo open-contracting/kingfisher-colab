@@ -377,8 +377,9 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     `fields` is a list of fields to measure the coverage of, specified using JSON Pointer.
 
     To specify fields that are children of the scope table, you can use either an absolute pointer or a relative
-    pointer prefixed with `:`, e.g. if `scope` is set to 'awards_summary', then `awards/value/amount` and `:value/amount`
-    refer to the same field. Coverage of such fields is measured against the number of rows in the `scope` table.
+    pointer prefixed with `:`, e.g. if `scope` is set to 'awards_summary', then `awards/value/amount` and
+    `:value/amount` refer to the same field. Coverage of such fields is measured against the number of rows
+    in the `scope` table.
 
     To specify fields that are not children of the scope table, use an absolute path,
     e.g. `tender/procurementMethod`. Coverage of such fields is measured against the number of releases/records.
@@ -391,10 +392,10 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     e.g. if `scope` is set to `awards_summary` and `field` is set to `ALL :items/description`,
     all items must have a description for the coverage to be non-zero.
 
-    If `scope` is set to `awards_summary`, specify fields on related contracts by prefixing the path with `:contracts/`,
-    e.g. to measure how many awards have a value and a related contract with a period, set `scope` to `awards`
-    and `fields` to `[':value', ':contracts/period']`. Similarly, if `scope` is set to `contracts_summary`, specify fields
-    on related awards by prefixing the path with `:awards/`.
+    If `scope` is set to `awards_summary`, specify fields on related contracts by prefixing the path with
+    `:contracts/`, e.g. to measure how many awards have a value and a related contract with a period, set `scope`
+    to `awards` and `fields` to `[':value', ':contracts/period']`. Similarly, if `scope` is set to
+    `contracts_summary`, specify fields on related awards by prefixing the path with `:awards/`.
 
 
     :param list fields: a list of fields as described above.
