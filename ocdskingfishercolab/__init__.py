@@ -429,8 +429,8 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         ]
         table = "release_summary"
 
-        for num, table_canditate in enumerate(table_candidates):
-            if scope_table[:-8] == table_canditate:
+        for num, table_candidate in enumerate(table_candidates):
+            if scope_table[:-8] == table_candidate:
                 path = path[num+1:]
                 table = scope_table
                 break
@@ -445,9 +445,9 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         }
         table = "release"
 
-        for table_canditate in table_candidates:
-            if table_canditate + '_summary' in all_tables:
-                table = table_canditate
+        for table_candidate in table_candidates:
+            if table_candidate + '_summary' in all_tables:
+                table = table_candidate
         return table + '_summary'
 
     def coverage_wrapper(condition, field):
