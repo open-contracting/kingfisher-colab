@@ -429,7 +429,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         table = "release_summary"
 
         for num, table_canditate in enumerate(table_candidates):
-            if scope_table == table_canditate:
+            if scope_table[:-8] == table_canditate:
                 path = path[num+1:]
                 table = scope_table
                 break
