@@ -203,7 +203,7 @@ def save_dataframe_to_spreadsheet(dataframe, name):
             output_format='xlsx',
         )
 
-    drive_file = _save_file_to_drive({'title': name + '.xlsx'}, 'flattened.xlsx')
+    drive_file = _save_file_to_drive({'title': f'{name}.xlsx'}, 'flattened.xlsx')
     print(f"Uploaded file with ID {drive_file['id']!r}")
 
 
@@ -430,7 +430,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         table = "release_summary"
 
         for num, table_candidate in enumerate(table_candidates):
-            if scope_table[:-8] == table_candidate:
+            if scope_table[:-8] == table_candidate:  # remove "_summary" from `scope_table`
                 path = path[num+1:]
                 table = scope_table
                 break
@@ -446,9 +446,9 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         table = "release"
 
         for table_candidate in table_candidates:
-            if table_candidate + '_summary' in all_tables:
+            if f"{table_candidate}_summary" in all_tables:
                 table = table_candidate
-        return table + '_summary'
+        return f"{table}_summary"
 
     def coverage_wrapper(condition, field):
         field_name = field.replace("/", "_").replace(" ", "_").lower()
