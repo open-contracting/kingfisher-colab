@@ -9,17 +9,13 @@ jobs:
       - uses: actions/setup-python@v3
         with:
           python-version: 3.7  # Google Colaboratory uses Python 3.7
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', 'setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: pip
+          cache-dependency-path: setup.py
       - run: pip install .[test]
-      # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
       - env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:${{ job.services.postgres.ports[5432] }}/postgres
-        run: ipython -m pytest -- --cov ocdskingfishercolab
+        # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
+        run: ipython -m pytest -- -W error --cov ocdskingfishercolab
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github

@@ -114,8 +114,8 @@ def list_source_ids(pattern=''):
 
     pattern = f'%{pattern}%'
 
-    # This inspects locals to find pattern
-    return get_ipython().magic(f'sql {sql}')
+    # This inspects locals to find `pattern`.
+    return get_ipython().run_line_magic('sql', sql)
 
 
 def list_collections(source_id=None):
@@ -133,8 +133,8 @@ def list_collections(source_id=None):
         sql += " WHERE source_id = :source_id"
     sql += " ORDER BY id DESC"
 
-    # This inspects locals to find source_id
-    return get_ipython().magic(f'sql {sql}')
+    # This inspects locals to find `source_id`.
+    return get_ipython().run_line_magic('sql', sql)
 
 
 def set_search_path(schema_name):
@@ -145,7 +145,7 @@ def set_search_path(schema_name):
     :param str schema_name: a schema name
     """
     try:
-        get_ipython().magic(f'sql SET search_path = {schema_name}, public')
+        get_ipython().run_line_magic('sql', f'SET search_path = {schema_name}, public')
     # https://github.com/catherinedevlin/ipython-sql/issues/191
     except ResourceClosedError:
         pass
@@ -240,18 +240,18 @@ def get_ipython_sql_resultset_from_query(sql):
     :rtype: sql.run.ResultSet
     """
     ipython = get_ipython()
-    autopandas = ipython.magic('config SqlMagic.autopandas')
+    autopandas = ipython.run_line_magic('config', 'SqlMagic.autopandas')
     # Disable autopandas, so we know that the sql magic call will always return
     # a ResultSet (rather than a pandas DataFrame). Since the DataFrame would
     # be created from the ResultSet, it would be less efficient.
     if autopandas:
-        ipython.magic('config SqlMagic.autopandas=False')
+        ipython.run_line_magic('config', 'SqlMagic.autopandas = False')
     # Use ipython.run_line_magic instead of ipython.magic here
     # to get variables from the scope of the ipython cell,
     # instead of the scope in this function.
     results = ipython.run_line_magic('sql', sql)
     if autopandas:
-        ipython.magic('config SqlMagic.autopandas=True')
+        ipython.run_line_magic('config', 'SqlMagic.autopandas = True')
     return results
 
 
@@ -300,16 +300,16 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     """
 
     ipython = get_ipython()
-    autopandas = ipython.magic('config SqlMagic.autopandas')
+    autopandas = ipython.run_line_magic('config', 'SqlMagic.autopandas')
     # Disable autopandas, so we know that the sql magic call will always return
     # a ResultSet (rather than a pandas DataFrame). Since the DataFrame would
     # be created from the ResultSet, it would be less efficient.
     if autopandas:
-        ipython.magic('config SqlMagic.autopandas=False')
-    # This inspects locals to find ocid and collection_id
-    results = ipython.magic(f'sql {sql}')
+        ipython.run_line_magic('config', 'SqlMagic.autopandas = False')
+    # This inspects locals to find `ocid` and `collection_id`.
+    results = ipython.run_line_magic('sql', sql)
     if autopandas:
-        ipython.magic('config SqlMagic.autopandas=True')
+        ipython.run_line_magic('config', 'SqlMagic.autopandas = True')
 
     data = [row[0] for row in results]
 

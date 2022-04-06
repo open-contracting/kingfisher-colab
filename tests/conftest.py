@@ -61,10 +61,10 @@ def db():
 
             conn.commit()
 
-            get_ipython().magic('load_ext sql')
-            get_ipython().magic(f'sql {created_database_url}')
-            # Set autopandas, because we think most users will
-            get_ipython().magic('config SqlMagic.autopandas=True')
+            get_ipython().run_line_magic('load_ext', 'sql')
+            get_ipython().run_line_magic('sql', created_database_url)
+            # Set autopandas, because we think most users will want it.
+            get_ipython().run_line_magic('config', 'SqlMagic.autopandas = True')
 
             yield cur
         finally:

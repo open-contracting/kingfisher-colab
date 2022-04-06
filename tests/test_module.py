@@ -45,7 +45,7 @@ def chdir(path):
 def test_set_search_path(db):
     set_search_path('test')
 
-    get_ipython().magic('sql show search_path')['search_path'][0] == 'test, public'
+    get_ipython().run_line_magic('sql', 'show search_path')['search_path'][0] == 'test, public'
 
 
 @patch('ocdskingfishercolab.files.download')
@@ -229,15 +229,14 @@ def test_get_ipython_sql_resultset_from_query(db):
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_get_ipython_sql_resultset_from_query_error(db, capsys):
-    get_ipython().magic('sql invalid')
+    get_ipython().run_line_magic('sql', 'invalid')
     captured = capsys.readouterr()
 
     assert '(psycopg2.errors.SyntaxError) syntax error at or near "invalid"\n' \
            'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
            '                                                                ^\n\n' \
-           '[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0' \
-           ' */invalid]\n' \
-           '(Background on this error at: http://sqlalche.me/e/13/f405)\n' in captured.out
+           '[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid]\n' \
+           '(Background on this error at: https://sqlalche.me/e/14/f405)\n' in captured.out
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
