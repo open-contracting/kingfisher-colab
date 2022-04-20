@@ -5,6 +5,7 @@ import warnings
 from urllib.parse import urljoin
 
 import flattentool
+import google.auth
 import gspread
 import requests
 import sql
@@ -18,6 +19,7 @@ except ImportError:
 
     files = Mock()
     files.download.return_value = None
+
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
 from IPython.display import HTML
@@ -66,7 +68,8 @@ def authenticate_gspread():
     :rtype: gspread.Client
     """
     auth.authenticate_user()
-    return gspread.authorize(GoogleCredentials.get_application_default())
+    credentials, _ = google.auth.default()
+    return gspread.authorize(credentials)
 
 
 def authenticate_pydrive():

@@ -18,6 +18,7 @@ setup(
     # list a set of requirements that pip can resolve in both environments.
     install_requires=[
         'flattentool',
+        'google-auth',
         'gspread',
         'gspread-dataframe',
         'ipython',
