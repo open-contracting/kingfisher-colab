@@ -23,7 +23,6 @@ except ImportError:
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
 from IPython.display import HTML
-from libcoveocds.config import LibCoveOCDSConfig
 from notebook import notebookapp
 from oauth2client.client import GoogleCredentials
 from pydrive2.auth import GoogleAuth
@@ -190,18 +189,17 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     """
     write_data_as_json(dataframe['release_package'][0], 'release_package.json')
 
-    config = LibCoveOCDSConfig().config
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore')  # flattentool uses UserWarning, so we can't set a specific category
 
         flattentool.flatten(
             'release_package.json',
-            main_sheet_name=config['root_list_path'],
-            root_list_path=config['root_list_path'],
-            root_id=config['root_id'],
-            schema=config['schema_version_choices']['1.1'][1] + 'release-schema.json',
-            disable_local_refs=config['flatten_tool']['disable_local_refs'],
-            remove_empty_schema_columns=config['flatten_tool']['remove_empty_schema_columns'],
+            main_sheet_name='releases',  # root_list_path
+            root_list_path='releases',  # root_list_path
+            root_id='ocid',  # root_id
+            schema='https://standard.open-contracting.org/1.1/en/release-schema.json',  # schema_version_choices
+            disable_local_refs=True,  # flatten_tool.disable_local_refs
+            remove_empty_schema_columns=True,  # flatten_tool.remove_empty_schema_columns
             root_is_list=False,
             output_format='xlsx',
         )

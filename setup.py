@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name='ocdskingfishercolab',
-    version='0.3.7',
+    version='0.3.8',
     author='Open Contracting Partnership',
     author_email='data@open-contracting.org',
     url='https://github.com/open-contracting/kingfisher-colab',
@@ -23,7 +23,6 @@ setup(
         'gspread-dataframe',
         'ipython',
         'ipython-sql~=0.4.0',  # Google Colaboratory uses 0.3.x
-        'libcoveocds',
         'notebook',
         'oauth2client',
         'pydrive2',

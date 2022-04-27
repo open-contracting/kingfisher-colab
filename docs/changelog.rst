@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.8 (2022-04-27)
+------------------
+
+Changed
+-------
+
+-  Removed dependency on `libcoveocds <https://pypi.org/project/libcoveocds/>`__ (GPL).
+
 0.3.7 (2022-03-11)
 ------------------
 
