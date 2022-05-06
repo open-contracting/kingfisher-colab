@@ -238,7 +238,9 @@ def download_data_as_json(data, filename):
     files.download(filename)
 
 
-def get_ipython_sql_resultset_from_query(sql):
+# We need to add the local variables from its callers, so that `run_line_magic` finds them among locals. This module's
+# local variables are prefixed with "_", to avoid shadowing local variables in the notebook's cells.
+def get_ipython_sql_resultset_from_query(sql, _collection_id=None, _ocid=None):
     """
     Executes a SQL statement and returns a ResultSet.
 
@@ -250,14 +252,8 @@ def get_ipython_sql_resultset_from_query(sql):
     """
     ipython = get_ipython()
     autopandas = ipython.run_line_magic('config', 'SqlMagic.autopandas')
-    # Disable autopandas, so we know that the sql magic call will always return
-    # a ResultSet (rather than a pandas DataFrame). Since the DataFrame would
-    # be created from the ResultSet, it would be less efficient.
     if autopandas:
         ipython.run_line_magic('config', 'SqlMagic.autopandas = False')
-    # Use ipython.run_line_magic instead of ipython.magic here
-    # to get variables from the scope of the ipython cell,
-    # instead of the scope in this function.
     results = ipython.run_line_magic('sql', sql)
     if autopandas:
         ipython.run_line_magic('config', 'SqlMagic.autopandas = True')
@@ -276,7 +272,7 @@ def download_package_from_query(sql, package_type=None):
     if package_type not in ('record', 'release'):
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
-    data = [row[0] for row in get_ipython_sql_resultset_from_query(sql)]
+    data = _pluck(sql)
 
     if package_type == 'record':
         package = {'records': data}
@@ -304,23 +300,11 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     SELECT data
     FROM data
     JOIN release ON data.id = release.data_id
-    WHERE collection_id = :collection_id AND ocid = :ocid
+    WHERE collection_id = :_collection_id AND ocid = :_ocid
     ORDER BY data->>'date' DESC
     """
 
-    ipython = get_ipython()
-    autopandas = ipython.run_line_magic('config', 'SqlMagic.autopandas')
-    # Disable autopandas, so we know that the sql magic call will always return
-    # a ResultSet (rather than a pandas DataFrame). Since the DataFrame would
-    # be created from the ResultSet, it would be less efficient.
-    if autopandas:
-        ipython.run_line_magic('config', 'SqlMagic.autopandas = False')
-    # This inspects locals to find `ocid` and `collection_id`.
-    results = ipython.run_line_magic('sql', sql)
-    if autopandas:
-        ipython.run_line_magic('config', 'SqlMagic.autopandas = True')
-
-    data = [row[0] for row in results]
+    data = _pluck(sql, _collection_id=collection_id, _ocid=ocid)
 
     if package_type == 'record':
         package = {'records': [{'ocid': ocid, 'releases': data}]}
@@ -355,14 +339,17 @@ def _save_file_to_drive(metadata, filename):
     return drive_file
 
 
+def _pluck(sql, **kwargs):
+    return [row[0] for row in get_ipython_sql_resultset_from_query(sql, **kwargs)]
+
+
 def _all_tables():
-    views = get_ipython_sql_resultset_from_query(
-        "SELECT viewname FROM pg_catalog.pg_views WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
-    )
-    tables = get_ipython_sql_resultset_from_query(
-        "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
-    )
-    return [x[0] for x in list(views) + list(tables)]
+    tables = set()
+    for column, table in (('viewname', 'pg_views'), ('tablename', 'pg_tables')):
+        tables.update(_pluck(
+            f"SELECT {column} FROM pg_catalog.{table} WHERE schemaname = ANY(CURRENT_SCHEMAS(false))"
+        ))
+    return tables
 
 
 def render_json(json_string):
