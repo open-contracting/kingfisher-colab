@@ -496,9 +496,12 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         # If the first token isn't "ALL" or if there are more than 2, behave as if only the last token was provided.
         if mode == "all":
             parts = pointer.split("/")
+            # This causes spurious warnings.
             # https://github.com/open-contracting/kingfisher-colab/issues/62
             one_to_manys = [part for part in parts[:-1] if part.endswith("s")]
 
+            # This logic is likely incorrect.
+            # https://github.com/open-contracting/kingfisher-colab/issues/63
             if not one_to_manys:
                 nearest_one_to_many_parent = parts[0]
             else:
@@ -510,6 +513,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
                     f"`{'/'.join(one_to_manys[:-1])}` entry per `{table[:-8]}`."
                 )
 
+            # This logic is likely incorrect.
             # https://github.com/open-contracting/kingfisher-colab/issues/63#issuecomment-1120005015
             condition = (
                 f"coalesce({table}.field_list->>'{pointer}' =\n"
