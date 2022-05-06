@@ -333,7 +333,6 @@ def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
         save.assert_called_once_with({'title': 'yet_another_excel_file.xlsx'}, 'flattened.xlsx')
 
 
-@pytest.mark.xfail()
 @patch('ocdskingfishercolab._save_file_to_drive')
 def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
     df = pandas.DataFrame()

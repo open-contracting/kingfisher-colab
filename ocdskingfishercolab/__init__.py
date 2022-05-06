@@ -163,7 +163,11 @@ def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
     :param str sheetname: a sheet name
     :param bool prompt: whether to prompt the user
     """
-    if prompt is False or input('Save to Google Sheets? (y/N)') == 'y':
+    if dataframe.empty:
+        print('Data frame is empty.')
+        return
+
+    if not prompt or input('Save to Google Sheets? (y/N)') == 'y':
         gc = authenticate_gspread()
         try:
             sheet = gc.open(spreadsheet_name)
@@ -187,6 +191,10 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     :param pandas.DataFrame dataframe: a data frame
     :param str name: the basename of the Excel file to write
     """
+    if dataframe.empty:
+        print('Data frame is empty.')
+        return
+
     write_data_as_json(dataframe['release_package'][0], 'release_package.json')
 
     with warnings.catch_warnings():

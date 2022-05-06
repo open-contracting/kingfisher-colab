@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.9 (Unreleased)
+------------------
+
+Changed
+~~~~~~~
+
+-  :func:`~ocdskingfishercolab.save_dataframe_to_sheet` and :func:`save_dataframe_to_spreadsheet` do nothing if the data frame is empty.
+
 0.3.8 (2022-04-27)
 ------------------
 
