@@ -347,6 +347,16 @@ def _save_file_to_drive(metadata, filename):
     return drive_file
 
 
+def _all_tables():
+    views = get_ipython_sql_resultset_from_query(
+        "SELECT viewname FROM pg_catalog.pg_views WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
+    )
+    tables = get_ipython_sql_resultset_from_query(
+        "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
+    )
+    return [x[0] for x in list(views) + list(tables)]
+
+
 def render_json(json_string):
     """
     Renders JSON into collapsible HTML.
@@ -410,15 +420,6 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
     :rtype: pandas.DataFrame or sql.run.ResultSet
     """
 
-    def get_all_tables():
-        views = get_ipython_sql_resultset_from_query(
-            "SELECT viewname FROM pg_catalog.pg_views WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
-        )
-        tables = get_ipython_sql_resultset_from_query(
-            "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = ANY (CURRENT_SCHEMAS(false))"
-        )
-        return [x[0] for x in list(views) + list(tables)]
-
     def get_table_and_path(field, scope_table):
 
         if field.startswith(':'):
@@ -439,7 +440,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
 
     def get_scope_table(field):
 
-        all_tables = get_all_tables()
+        all_tables = _all_tables()
         path = field.split("/")
         table_candidates = {
             "_".join(path[:-i]) for i in range(1, len(path))
@@ -469,19 +470,18 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
 
         if len(one_to_manys) > 1:
             print(
-                f"""WARNING: The results of this query might be inacurate, you will need to check that
-                 `{', '.join(one_to_manys[:-1])}` fields are one to one with `{current_scope_table[:-8]}`
-                 and that `{', '.join(one_to_manys[:-1])}` exists for all `{current_scope_table[:-8]}` """
+                'WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one '
+                f"`{'/'.join(one_to_manys[:-1])}` entry per `{current_scope_table[:-8]}`."
             )
 
-        return f"""coalesce({current_scope_table}.field_list ->> '{field}' =
-                  {current_scope_table}.field_list ->> '{nearest_parent_one_to_many}', false)"""
+        return f"""coalesce({current_scope_table}.field_list->>'{field}' =
+                  {current_scope_table}.field_list->>'{nearest_parent_one_to_many}', false)"""
 
     def release_summary_join(scope_table, join_to_release):
         if not join_to_release:
             return ""
         return f"""JOIN
-        release_summary ON release_summary.id = {scope_table}.id"""
+            release_summary ON release_summary.id = {scope_table}.id"""
 
     if not scope:
         field = fields[0].split()[-1]
@@ -513,16 +513,15 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         query_parts.append(coverage_wrapper(condition, path))
 
     query_parts.append(
-        coverage_wrapper(" AND \n              ".join(conditions), "total")
+        coverage_wrapper(" AND\n                ".join(conditions), "total")
     )
 
     select = ",\n            ".join(query_parts)
-    select = textwrap.dedent(f"""
+    select = textwrap.dedent(f"""\
         SELECT
             count(*) AS total_{scope},
             {select}
-        FROM
-        {scope_table}
+        FROM {scope_table}
         {release_summary_join(scope_table, join_to_release)}
     """)
 

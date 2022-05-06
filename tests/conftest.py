@@ -61,10 +61,13 @@ def db():
 
             conn.commit()
 
-            get_ipython().run_line_magic('load_ext', 'sql')
-            get_ipython().run_line_magic('sql', created_database_url)
-            # Set autopandas, because we think most users will want it.
-            get_ipython().run_line_magic('config', 'SqlMagic.autopandas = True')
+            ipython = get_ipython()
+            ipython.run_line_magic('load_ext', 'sql')
+            ipython.run_line_magic('sql', created_database_url)
+            # Avoid "KeyError: 'DEFAULT'" in some test environments.
+            # https://github.com/catherinedevlin/ipython-sql/issues/129
+            ipython.run_line_magic('config', 'SqlMagic.style = "NONE"')
+            ipython.run_line_magic('config', 'SqlMagic.autopandas = True')
 
             yield cur
         finally:

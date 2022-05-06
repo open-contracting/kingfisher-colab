@@ -19,16 +19,40 @@ from ocdskingfishercolab import (UnknownPackageTypeError, calculate_coverage, do
                                  save_dataframe_to_spreadsheet, set_search_path)
 
 
-def path(filename):
-    return os.path.join('tests', 'fixtures', filename)
-
-
 def _notebook_id():
     return '1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0'
 
 
-def _worksheets_length(zipfile):
-    return len([name for name in zipfile.namelist() if name.startswith('xl/worksheets')])
+def _all_tables():
+    return {
+        'field_counts',
+        'release_summary',
+        'release_summary_no_data',
+        'parties_summary',
+        'buyer_summary',
+        'procuringEntity_summary',
+        'tenderers_summary',
+        'planning_summary',
+        'planning_documents_summary',
+        'planning_milestones_summary',
+        'tender_summary',
+        'tender_summary_no_data',
+        'tender_items_summary',
+        'tender_documents_summary',
+        'tender_milestones_summary',
+        'awards_summary',
+        'award_suppliers_summary',
+        'award_items_summary',
+        'award_documents_summary',
+        'contracts_summary',
+        'contract_items_summary',
+        'contract_documents_summary',
+        'contract_milestones_summary',
+        'contract_implementation_transactions_summary',
+        'contract_implementation_documents_summary',
+        'contract_implementation_milestones_summary',
+        'relatedprocesses_summary',
+    }
 
 
 @contextlib.contextmanager
@@ -50,8 +74,7 @@ def test_set_search_path(db):
 
 @patch('ocdskingfishercolab.files.download')
 def test_download_dataframe_as_csv(download, tmpdir):
-    d = {'col1': [1, 2], 'col2': [3, 4]}
-    df = pandas.DataFrame(data=d)
+    df = pandas.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]})
 
     with chdir(tmpdir):
         download_dataframe_as_csv(df, 'file.csv')
@@ -230,13 +253,12 @@ def test_get_ipython_sql_resultset_from_query(db):
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
 def test_get_ipython_sql_resultset_from_query_error(db, capsys):
     get_ipython().run_line_magic('sql', 'invalid')
-    captured = capsys.readouterr()
 
     assert '(psycopg2.errors.SyntaxError) syntax error at or near "invalid"\n' \
            'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
            '                                                                ^\n\n' \
            '[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid]\n' \
-           '(Background on this error at: https://sqlalche.me/e/14/f405)\n' in captured.out
+           '(Background on this error at: https://sqlalche.me/e/14/f405)\n' in capsys.readouterr().out
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
@@ -283,40 +305,188 @@ def test_list_collections(db):
 def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
     save.return_value = {'id': 'test'}
 
-    d = {'release_package': [{'releases': [{'ocid': 'ocds-213czf-1'}]}]}
-    df = pandas.DataFrame(data=d)
-
-    fixture = os.path.realpath(path('flattened.xlsx'))
+    df = pandas.DataFrame(data={'release_package': [{'releases': [{'ocid': 'ocds-213czf-1'}]}]})
 
     with chdir(tmpdir):
         save_dataframe_to_spreadsheet(df, 'yet_another_excel_file')
 
         with open('release_package.json') as f:
-            data = json.load(f)
+            assert json.load(f) == {'releases': [{'ocid': 'ocds-213czf-1'}]}
 
-        assert data == {'releases': [{'ocid': 'ocds-213czf-1'}]}
+        with ZipFile('flattened.xlsx') as zipfile:
+            sheet_count = len([name for name in zipfile.namelist() if name.startswith('xl/worksheets')])
+            sheet_content = (
+                b'<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetPr><outlinePr '
+                b'summaryBelow="1" summaryRight="1"/><pageSetUpPr/></sheetPr><sheetViews><sheetView '
+                b'workbookViewId="0"><selection activeCell="A1" sqref="A1"/></sheetView></sheetViews><sheetFormatPr '
+                b'baseColWidth="8" defaultRowHeight="15"/><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>ocid'
+                b'</t></is></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>ocds-213czf-1</t></is></c></row>'
+                b'</sheetData><pageMargins left="0.75" right="0.75" top="1" bottom="1" header="0.5" footer="0.5"/>'
+                b'</worksheet>'
+            )
 
-        with ZipFile('flattened.xlsx') as actual, ZipFile(fixture) as expected:
-            assert _worksheets_length(actual) == _worksheets_length(expected) == 1
-            assert actual.read('xl/worksheets/sheet1.xml') == expected.read('xl/worksheets/sheet1.xml')
+            assert sheet_count == 1
+            assert zipfile.read('xl/worksheets/sheet1.xml') == sheet_content
 
         assert capsys.readouterr().out == "Uploaded file with ID 'test'\n"
 
         save.assert_called_once_with({'title': 'yet_another_excel_file.xlsx'}, 'flattened.xlsx')
 
 
-@patch('ocdskingfishercolab._notebook_id', _notebook_id)
-def test_calculate_coverage(db, tmpdir):
+@pytest.mark.xfail()
+@patch('ocdskingfishercolab._save_file_to_drive')
+def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
+    df = pandas.DataFrame()
 
+    with chdir(tmpdir):
+        save_dataframe_to_spreadsheet(df, 'yet_another_excel_file')
+
+        for filename in ('release_package.json', 'flattened.xlsx'):
+            assert not os.path.exists(filename)
+
+        assert capsys.readouterr().out == "Data frame is empty.\n"
+
+        save.assert_not_called()
+
+
+def test_calculate_coverage(db, tmpdir):
     sql = calculate_coverage(["ocid"], scope="release_summary", sql_only=True)
 
-    # only seperated to reduce line length
-    case_statement = "CASE WHEN release_summary.field_list ? 'ocid' THEN 1 ELSE 0 END"
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_release_summary,
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'ocid' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS ocid_percentage,
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'ocid' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM release_summary
 
-    assert sql.strip() == textwrap.dedent(f'''
-    SELECT
-        count(*) AS total_release_summary,
-        ROUND(SUM({case_statement}) * 100.0 / count(*), 2) AS ocid_percentage,
-        ROUND(SUM({case_statement}) * 100.0 / count(*), 2) AS total_percentage
-    FROM
-    release_summary''').strip()
+    """)  # noqa: E501
+
+
+def test_calculate_coverage_all_one_to_one(db, capsys, tmpdir):
+    sql = calculate_coverage(["ALL :date"], scope="awards_summary", sql=False, sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_awards_summary,
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'date' =
+                  awards_summary.field_list->>'date', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS date_percentage,
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'date' =
+                  awards_summary.field_list->>'date', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM awards_summary
+
+    """)  # noqa: E501
+
+    assert capsys.readouterr().out == ""
+
+
+def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
+    sql = calculate_coverage(["ALL parties/address/region"], scope="release_summary", sql=False, sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_release_summary,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
+                  release_summary.field_list->>'address', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS parties_address_region_percentage,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
+                  release_summary.field_list->>'address', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM release_summary
+
+    """)  # noqa: E501
+
+    # https://github.com/open-contracting/kingfisher-colab/issues/62
+    # assert capsys.readouterr().out == ""
+
+
+def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
+    sql = calculate_coverage(["ALL :items/description"], scope="awards_summary", sql=False, sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_awards_summary,
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
+                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_description_percentage,
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
+                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM awards_summary
+
+    """)  # noqa: E501
+
+    assert capsys.readouterr().out == ""
+
+
+def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
+    field = "ALL awards/items/additionalClassifications/scheme"
+    sql = calculate_coverage([field], scope="release_summary", sql=False, sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_release_summary,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
+                  release_summary.field_list->>'additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS awards_items_additionalclassifications_scheme_percentage,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
+                  release_summary.field_list->>'additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM release_summary
+
+    """)  # noqa: E501
+
+    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards/items` entry per `release`.\n"  # noqa: E501
+
+
+def test_calculate_coverage_join_release_summary(db, tmpdir):
+    sql = calculate_coverage(["awards/title", "contracts/title"], scope="contracts_summary", sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_contracts_summary,
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'awards/title' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS awards_title_percentage,
+            ROUND(SUM(CASE WHEN contracts_summary.field_list ? 'title' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS title_percentage,
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'awards/title' AND
+                contracts_summary.field_list ? 'title' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM contracts_summary
+        JOIN
+            release_summary ON release_summary.id = contracts_summary.id
+    """)  # noqa: E501
+
+
+@patch('ocdskingfishercolab._all_tables', _all_tables)
+def test_calculate_coverage_default_scope(db, tmpdir):
+    sql = calculate_coverage(["awards/date"], sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_awards_summary,
+            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS date_percentage,
+            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM awards_summary
+
+    """)  # noqa: E501
+
+
+@patch('ocdskingfishercolab._all_tables', _all_tables)
+def test_calculate_coverage_default_scope_tender_documents(db, tmpdir):
+    sql = calculate_coverage(["tender/documents/format"], sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_tender_documents_summary,
+            ROUND(SUM(CASE WHEN tender_documents_summary.field_list ? 'format' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS format_percentage,
+            ROUND(SUM(CASE WHEN tender_documents_summary.field_list ? 'format' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM tender_documents_summary
+
+    """)  # noqa: E501
+
+
+@pytest.mark.xfail()
+@patch('ocdskingfishercolab._all_tables', _all_tables)
+def test_calculate_coverage_default_scope_related_processes(db, tmpdir):
+    sql = calculate_coverage(["relatedProcesses/relationship"], sql_only=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_relatedprocesses_summary,
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'relatedProcesses/relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS relatedprocesses_relationship_percentage,
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'relatedProcesses/relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM relatedprocesses_summary
+        JOIN
+            release_summary ON release_summary.id = relatedprocesses_summary.id
+    """)  # noqa: E501
