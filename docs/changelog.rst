@@ -5,7 +5,7 @@ Changelog
 ------------------
 
 Changed
--------
+~~~~~~~
 
 -  Removed dependency on `libcoveocds <https://pypi.org/project/libcoveocds/>`__ (GPL).
 
@@ -15,7 +15,7 @@ Changed
 Added
 ~~~~~
 
--  Add :meth:`~ocdskingfishercolab.calculate_coverage` to calculate the co-occurence coverage of a group of fields. 
+-  Add :func:`~ocdskingfishercolab.calculate_coverage` to calculate the co-occurence coverage of a group of fields.
 
 0.3.6 (2021-09-15)
 ------------------
@@ -23,7 +23,7 @@ Added
 Changed
 -------
 
-- :meth:`~ocdskingfishercolab.list_collections`: `source_id` is now an optional argument. If omitted, all collections are returned.
+- :func:`~ocdskingfishercolab.list_collections`: `source_id` is now an optional argument. If omitted, all collections are returned.
 
 0.3.5 (2021-08-09)
 ------------------
@@ -31,7 +31,7 @@ Changed
 Added
 ~~~~~
 
--  Add :meth:`~ocdskingfishercolab.render_json` to render JSON into collapsible HTML. 
+-  Add :func:`~ocdskingfishercolab.render_json` to render JSON into collapsible HTML.
 
 0.3.4 (2021-04-16)
 ------------------
@@ -39,7 +39,7 @@ Added
 Fixed
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.set_search_path` no longer outputs an error message.
+-  :func:`~ocdskingfishercolab.set_search_path` no longer outputs an error message.
 
 0.3.3 (2021-04-10)
 ------------------
@@ -78,19 +78,19 @@ Changed
 
    -  ``ocdskingfishercolab.create_connection`` — replaced by using an ipython-sql connection string, e.g. ``%sql postgresql://user:pass@host/db``
    -  ``ocdskingfishercolab.execute_statement``, ``ocdskingfishercolab.get_dataframe_from_cursor`` and ``ocdskingfishercolab.get_dataframe_from_query`` — replaced by ipython-sql's ``%sql`` magic, e.g. ``%sql SELECT a FROM b``
-   -  ``ocdskingfishercolab.get_list_from_query`` — replaced by :meth:`ocdskingfishercolab.get_ipython_sql_resultset_from_query`. This returns an `ipython-sql ResultSet <https://pypi.org/project/ipython-sql/#examples>`__, the type returned by the ``%sql%`` magic when ``autopandas`` is off. It behaves like a list, but with extra methods.
-   -  :meth:`ocdskingfishercolab.download_package_from_query` no longer takes a ``params`` argument, and instead uses variables from the local scope, to be consisent with the ipython-sql's ``%sql`` magic.
+   -  ``ocdskingfishercolab.get_list_from_query`` — replaced by :func:`ocdskingfishercolab.get_ipython_sql_resultset_from_query`. This returns an `ipython-sql ResultSet <https://pypi.org/project/ipython-sql/#examples>`__, the type returned by the ``%sql%`` magic when ``autopandas`` is off. It behaves like a list, but with extra methods.
+   -  :func:`ocdskingfishercolab.download_package_from_query` no longer takes a ``params`` argument, and instead uses variables from the local scope, to be consisent with the ipython-sql's ``%sql`` magic.
 
    There's a shared (but not public) `colab notebook of examples run against live kingfisher <https://colab.research.google.com/drive/1cUYY4on72831DPSiQ_JLxJEY2uGTfVrN#scrollTo=I-QPDbliMVXC>`__.
 
--  :meth:`~ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
--  :meth:`~ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
--  Remove :meth:`~ocdskingfishercolab.reset_connection`.
+-  :func:`~ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
+-  :func:`~ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
+-  Remove :func:`~ocdskingfishercolab.reset_connection`.
 
 Fixed
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.write_data_as_json` replaces path separators with underscores in filenames.
+-  :func:`~ocdskingfishercolab.write_data_as_json` replaces path separators with underscores in filenames.
 
 0.2.2 (2020-04-22)
 ------------------
@@ -98,13 +98,13 @@ Fixed
 Added
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.set_search_path`
--  :meth:`~ocdskingfishercolab.get_list_from_query`
+-  :func:`~ocdskingfishercolab.set_search_path`
+-  :func:`~ocdskingfishercolab.get_list_from_query`
 
 Fixed
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.execute_statement` no longer has a mutable default argument value.
+-  :func:`~ocdskingfishercolab.execute_statement` no longer has a mutable default argument value.
 
 0.2.1 (2020-04-21)
 ------------------
@@ -112,7 +112,7 @@ Fixed
 Fixed
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.execute_statement` no longer errors if given a ``psycopg2.sql.Composable``.
+-  :func:`~ocdskingfishercolab.execute_statement` no longer errors if given a ``psycopg2.sql.Composable``.
 
 0.2.0 (2020-04-21)
 ------------------
@@ -125,12 +125,12 @@ Fixed
 Added
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.list_source_ids`
--  :meth:`~ocdskingfishercolab.list_collections`
--  :meth:`~ocdskingfishercolab.execute_statement`
--  :meth:`~ocdskingfishercolab.save_dataframe_to_spreadsheet`
--  :meth:`~ocdskingfishercolab.download_data_as_json`
--  :meth:`~ocdskingfishercolab.write_data_as_json`
+-  :func:`~ocdskingfishercolab.list_source_ids`
+-  :func:`~ocdskingfishercolab.list_collections`
+-  :func:`~ocdskingfishercolab.execute_statement`
+-  :func:`~ocdskingfishercolab.save_dataframe_to_spreadsheet`
+-  :func:`~ocdskingfishercolab.download_data_as_json`
+-  :func:`~ocdskingfishercolab.write_data_as_json`
 -  Add a comment to all SQL queries with a link to the notebook, for database administrators.
 
 Changed
@@ -142,8 +142,8 @@ Changed
 Fixed
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.download_package_from_ocid` returns structurally correct records. Previously, the ``ocid`` field was at the package-level instead of the record-level.
--  :meth:`~ocdskingfishercolab.download_package_from_ocid` and :meth:`~ocdskingfishercolab.download_package_from_query` return structurally correct packages. Previously, required fields were omitted.
+-  :func:`~ocdskingfishercolab.download_package_from_ocid` returns structurally correct records. Previously, the ``ocid`` field was at the package-level instead of the record-level.
+-  :func:`~ocdskingfishercolab.download_package_from_ocid` and :func:`~ocdskingfishercolab.download_package_from_query` return structurally correct packages. Previously, required fields were omitted.
 
 0.1.1 (2020-04-20)
 ------------------
@@ -164,7 +164,7 @@ Fixed
 Added
 ~~~~~
 
--  :meth:`~ocdskingfishercolab.download_package_from_query`
+-  :func:`~ocdskingfishercolab.download_package_from_query`
 
 Changed
 ~~~~~~~
@@ -172,15 +172,15 @@ Changed
 -  **Backwards-incompatible**: Renamed package from kingfishercolab to ocdskingfishercolab.
 -  Renamed methods for consistent style. Old-style methods are deprecated:
 
-   - ``saveToSheets`` is now :meth:`~ocdskingfishercolab.save_dataframe_to_sheet`
-   - ``saveStraightToSheets`` is now :meth:`~ocdskingfishercolab.save_dataframe_to_sheet` with ``prompt=False``
-   - ``saveToCSV`` is now :meth:`~ocdskingfishercolab.download_dataframe_as_csv`
-   - ``downloadReleases`` is now :meth:`~ocdskingfishercolab.download_package_from_ocid`
-   - ``output_notebook`` is now :meth:`~ocdskingfishercolab.get_dataframe_from_query`
-   - ``getResults`` is now :meth:`~ocdskingfishercolab.get_dataframe_from_cursor`
+   - ``saveToSheets`` is now :func:`~ocdskingfishercolab.save_dataframe_to_sheet`
+   - ``saveStraightToSheets`` is now :func:`~ocdskingfishercolab.save_dataframe_to_sheet` with ``prompt=False``
+   - ``saveToCSV`` is now :func:`~ocdskingfishercolab.download_dataframe_as_csv`
+   - ``downloadReleases`` is now :func:`~ocdskingfishercolab.download_package_from_ocid`
+   - ``output_notebook`` is now :func:`~ocdskingfishercolab.get_dataframe_from_query`
+   - ``getResults`` is now :func:`~ocdskingfishercolab.get_dataframe_from_cursor`
 
--  :meth:`~ocdskingfishercolab.get_dataframe_from_query` raises an error instead of returning an error.
--  :meth:`~ocdskingfishercolab.download_package_from_ocid` raises an error instead of printing a message.
+-  :func:`~ocdskingfishercolab.get_dataframe_from_query` raises an error instead of returning an error.
+-  :func:`~ocdskingfishercolab.download_package_from_ocid` raises an error instead of printing a message.
 
 0.0.1 (2020-04-20)
 ------------------
