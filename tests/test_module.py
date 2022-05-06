@@ -497,7 +497,6 @@ def test_calculate_coverage_default_scope_tender_documents(db, tmpdir):
     """)  # noqa: E501
 
 
-@pytest.mark.xfail()
 @patch('ocdskingfishercolab._all_tables', _all_tables)
 def test_calculate_coverage_default_scope_related_processes(db, tmpdir):
     sql = calculate_coverage(["relatedProcesses/relationship"], sql_only=True)

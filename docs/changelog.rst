@@ -9,6 +9,11 @@ Changed
 
 -  :func:`~ocdskingfishercolab.save_dataframe_to_sheet` and :func:`save_dataframe_to_spreadsheet` do nothing if the data frame is empty.
 
+Fixed
+~~~~~
+
+-  :func:`~ocdskingfishercolab.calculate_coverage` uses the ``relatedprocesses_summary`` table for fields starting with ``relatedProcesses/``, where appropriate.
+
 0.3.8 (2022-04-27)
 ------------------
 
