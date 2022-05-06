@@ -368,7 +368,7 @@ def test_calculate_coverage_all_one_to_one(db, capsys, tmpdir):
         SELECT
             count(*) AS total_awards_summary,
             ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'date' =
-                  awards_summary.field_list->>'date', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS date_percentage,
+                  awards_summary.field_list->>'date', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_date_percentage,
             ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'date' =
                   awards_summary.field_list->>'date', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM awards_summary
@@ -385,7 +385,7 @@ def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
         SELECT
             count(*) AS total_release_summary,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
-                  release_summary.field_list->>'address', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS parties_address_region_percentage,
+                  release_summary.field_list->>'address', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_parties_address_region_percentage,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
                   release_summary.field_list->>'address', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM release_summary
@@ -404,7 +404,7 @@ def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
         SELECT
             count(*) AS total_awards_summary,
             ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
-                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_description_percentage,
+                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_items_description_percentage,
             ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
                   awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM awards_summary
@@ -422,7 +422,7 @@ def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
         SELECT
             count(*) AS total_release_summary,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
-                  release_summary.field_list->>'additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS awards_items_additionalclassifications_scheme_percentage,
+                  release_summary.field_list->>'additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_awards_items_additionalclassifications_scheme_percentage,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
                   release_summary.field_list->>'additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM release_summary
@@ -435,13 +435,11 @@ def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
 def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL :items/description", ":items/description"], scope="awards_summary", sql=False, sql_only=True)
 
-    # There should not be two columns named "items_description_percentage", but there is a bug.
-    # https://github.com/open-contracting/kingfisher-colab/issues/64
     assert sql == textwrap.dedent("""\
         SELECT
             count(*) AS total_awards_summary,
             ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
-                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_description_percentage,
+                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_items_description_percentage,
             ROUND(SUM(CASE WHEN awards_summary.field_list ? 'items/description' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_description_percentage,
             ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
                   awards_summary.field_list->>'items', false) AND

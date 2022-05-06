@@ -12,7 +12,9 @@ Changed
 Fixed
 ~~~~~
 
+
 -  :func:`~ocdskingfishercolab.calculate_coverage` uses the ``relatedprocesses_summary`` table for fields starting with ``relatedProcesses/``, where appropriate.
+-  :func:`~ocdskingfishercolab.calculate_coverage` prefixes ``all_`` to the column if ``"ALL "`` is prefixed to the field.
 
 0.3.8 (2022-04-27)
 ------------------

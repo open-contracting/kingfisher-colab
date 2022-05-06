@@ -464,10 +464,6 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
 
         return table, "/".join(parts)
 
-    def wrap(condition, pointer):
-        alias = pointer.replace("/", "_").lower()
-        return f"ROUND(SUM(CASE WHEN {condition} THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS {alias}_percentage"
-
     # Default to the parent table of the first field.
     if not scope:
         all_tables = _all_tables()
@@ -481,19 +477,24 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
                 scope = candidate
                 break
 
-    join_release_summary = False
-    columns = []
+    columns = {}
     conditions = []
+    join = ""
     for field in fields:
         split = field.split()
+        if len(split) == 2 and split[0].lower() == "all":
+            mode = "all"
+        else:
+            mode = "any"
 
         table, pointer = get_table_and_pointer(scope, split[-1])
 
+        # Add a JOIN clause for the release_summary table, unless it is already in the FROM clause.
         if table == "release_summary" and scope != "release_summary":
-            join_release_summary = True
+            join = f"JOIN\n            release_summary ON release_summary.id = {scope}.id"
 
         # If the first token isn't "ALL" or if there are more than 2, behave as if only the last token was provided.
-        if len(split) == 2 and split[0].lower() == "all":
+        if mode == "all":
             parts = pointer.split("/")
             # https://github.com/open-contracting/kingfisher-colab/issues/62
             one_to_manys = [part for part in parts[:-1] if part.endswith("s")]
@@ -520,20 +521,21 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
             condition = f"{table}.field_list ? '{pointer}'"
 
         # Add the field coverage.
-        columns.append(wrap(condition, pointer))
+        alias = pointer.replace("/", "_").lower()
+        if mode == "all":
+            alias = f"all_{alias}"
+        columns[alias] = condition
 
         # Collect the conditions for co-occurrence coverage.
         conditions.append(condition)
 
     # Add the co-occurrence coverage.
-    columns.append(wrap(" AND\n                ".join(conditions), "total"))
+    columns["total"] = " AND\n                ".join(conditions)
 
-    select = ",\n            ".join(columns)
-    if join_release_summary:
-        join = f"JOIN\n            release_summary ON release_summary.id = {scope}.id"
-    else:
-        join = ""
-
+    select = ",\n            ".join(
+        f"ROUND(SUM(CASE WHEN {condition} THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS {alias}_percentage"
+        for alias, condition in columns.items()
+    )
     query = textwrap.dedent(f"""\
         SELECT
             count(*) AS total_{scope},
