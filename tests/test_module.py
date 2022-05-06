@@ -392,6 +392,7 @@ def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
 
     """)  # noqa: E501
 
+    # The output should be empty, but there is a bug.
     # https://github.com/open-contracting/kingfisher-colab/issues/62
     # assert capsys.readouterr().out == ""
 
@@ -429,6 +430,27 @@ def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
     """)  # noqa: E501
 
     assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards/items` entry per `release`.\n"  # noqa: E501
+
+
+def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
+    sql = calculate_coverage(["ALL :items/description", ":items/description"], scope="awards_summary", sql=False, sql_only=True)
+
+    # There should not be two columns named "items_description_percentage", but there is a bug.
+    # https://github.com/open-contracting/kingfisher-colab/issues/64
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_awards_summary,
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
+                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_description_percentage,
+            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'items/description' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_description_percentage,
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
+                  awards_summary.field_list->>'items', false) AND
+                awards_summary.field_list ? 'items/description' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM awards_summary
+
+    """)  # noqa: E501
+
+    assert capsys.readouterr().out == ""
 
 
 def test_calculate_coverage_join_release_summary(db, tmpdir):
@@ -483,9 +505,8 @@ def test_calculate_coverage_default_scope_related_processes(db, tmpdir):
     assert sql == textwrap.dedent("""\
         SELECT
             count(*) AS total_relatedprocesses_summary,
-            ROUND(SUM(CASE WHEN release_summary.field_list ? 'relatedProcesses/relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS relatedprocesses_relationship_percentage,
-            ROUND(SUM(CASE WHEN release_summary.field_list ? 'relatedProcesses/relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+            ROUND(SUM(CASE WHEN relatedprocesses_summary.field_list ? 'relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS relationship_percentage,
+            ROUND(SUM(CASE WHEN relatedprocesses_summary.field_list ? 'relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM relatedprocesses_summary
-        JOIN
-            release_summary ON release_summary.id = relatedprocesses_summary.id
+
     """)  # noqa: E501
