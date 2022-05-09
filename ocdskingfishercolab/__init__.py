@@ -464,6 +464,38 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
 
         return table, "/".join(parts)
 
+    # https://www.postgresql.org/docs/11/functions-json.html
+    def get_condition(table, pointer, mode):
+        if mode == "any":
+            # Test for the presence of the field.
+            return f"{table}.field_list ? '{pointer}'"
+
+        # The logic from here is for mode == "all".
+        parts = pointer.split("/")
+
+        # It would be more robust to analyze the release schema. That said, as of OCDS 1.1.5, all arrays of objects
+        # end in "s", and only one object ends in "s" ("address").
+        array_indices = [i for i, part in enumerate(parts[:-1]) if part.endswith("s") and part != "address"]
+
+        # If the field is an immediate child, the comparison will end up comparing the field's count to itself.
+        if not array_indices:
+            closest_array = parts[0]
+        else:
+            closest_array = "/".join(parts[:array_indices[-1] + 1])
+
+        if len(array_indices) > 1:
+            next_closest_array = "/".join(parts[:array_indices[-2] + 1])
+            print(
+                'WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one '
+                f"`{next_closest_array}` entry per {table} row."
+            )
+
+        # Test whether the number of occurrences of the path and its closest enclosing array are equal.
+        return (
+            f"coalesce({table}.field_list->>'{pointer}' =\n"
+            f"                  {table}.field_list->>'{closest_array}', false)"
+        )
+
     # Default to the parent table of the first field.
     if not scope:
         all_tables = _all_tables()
@@ -495,35 +527,7 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         if table == "release_summary" and scope != "release_summary":
             join = f"JOIN\n            release_summary ON release_summary.id = {scope}.id"
 
-        # https://www.postgresql.org/docs/11/functions-json.html
-        if mode == "all":
-            parts = pointer.split("/")
-
-            # It would be more robust to analyze the release schema. That said, as of OCDS 1.1.5, all arrays of objects
-            # end in "s", and only one object ends in "s" ("address").
-            arrays = [part for part in parts[:-1] if part.endswith("s") and part != "address"]
-
-            # This logic is likely incorrect.
-            # https://github.com/open-contracting/kingfisher-colab/issues/63
-            if not arrays:
-                nearest_one_to_many_parent = parts[0]
-            else:
-                nearest_one_to_many_parent = arrays[-1]
-
-            if len(arrays) > 1:
-                print(
-                    'WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one '
-                    f"`{'/'.join(arrays[:-1])}` entry per `{table[:-8]}`."
-                )
-
-            # Test whether the number of occurrences of the path and its nearest 1:n parent are equal.
-            condition = (
-                f"coalesce({table}.field_list->>'{pointer}' =\n"
-                f"                  {table}.field_list->>'{nearest_one_to_many_parent}', false)"
-            )
-        else:
-            # Test for the presence of the field.
-            condition = f"{table}.field_list ? '{pointer}'"
+        condition = get_condition(table, pointer, mode)
 
         # Add the field coverage.
         alias = pointer.replace("/", "_").lower()

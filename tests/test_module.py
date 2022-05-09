@@ -361,7 +361,7 @@ def test_calculate_coverage(db, tmpdir):
     """)  # noqa: E501
 
 
-def test_calculate_coverage_all_one_to_one(db, capsys, tmpdir):
+def test_calculate_coverage_all_one_to_one_1(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL :date"], scope="awards_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -378,7 +378,24 @@ def test_calculate_coverage_all_one_to_one(db, capsys, tmpdir):
     assert capsys.readouterr().out == ""
 
 
-def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
+def test_calculate_coverage_all_one_to_one_2(db, capsys, tmpdir):
+    sql = calculate_coverage(["ALL tender/id"], scope="release_summary", print_sql=False, return_sql=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_release_summary,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'tender/id' =
+                  release_summary.field_list->>'tender', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_tender_id_percentage,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'tender/id' =
+                  release_summary.field_list->>'tender', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM release_summary
+
+    """)  # noqa: E501
+
+    assert capsys.readouterr().out == ""
+
+
+def test_calculate_coverage_all_one_to_many_address(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL parties/address/region"], scope="release_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -395,7 +412,7 @@ def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
     assert capsys.readouterr().out == ""
 
 
-def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
+def test_calculate_coverage_all_one_to_many_1(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL :items/description"], scope="awards_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -412,7 +429,25 @@ def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
     assert capsys.readouterr().out == ""
 
 
-def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
+def test_calculate_coverage_all_many_to_many_2(db, capsys, tmpdir):
+    fields = ["ALL awards/items/description"]
+    sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_release_summary,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/description' =
+                  release_summary.field_list->>'awards/items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_awards_items_description_percentage,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/description' =
+                  release_summary.field_list->>'awards/items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM release_summary
+
+    """)  # noqa: E501
+
+    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards` entry per release_summary row.\n"  # noqa: E501
+
+
+def test_calculate_coverage_all_many_to_many_3(db, capsys, tmpdir):
     fields = ["ALL awards/items/additionalClassifications/scheme"]
     sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
 
@@ -420,14 +455,32 @@ def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
         SELECT
             count(*) AS total_release_summary,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
-                  release_summary.field_list->>'additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_awards_items_additionalclassifications_scheme_percentage,
+                  release_summary.field_list->>'awards/items/additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_awards_items_additionalclassifications_scheme_percentage,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
-                  release_summary.field_list->>'additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+                  release_summary.field_list->>'awards/items/additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM release_summary
 
     """)  # noqa: E501
 
-    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards/items` entry per `release`.\n"  # noqa: E501
+    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards/items` entry per release_summary row.\n"  # noqa: E501
+
+
+def test_calculate_coverage_all_many_to_many_interleaved(db, capsys, tmpdir):
+    fields = ["ALL a/bs/c/ds/e/fs/g"]
+    sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_release_summary,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'a/bs/c/ds/e/fs/g' =
+                  release_summary.field_list->>'a/bs/c/ds/e/fs', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_a_bs_c_ds_e_fs_g_percentage,
+            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'a/bs/c/ds/e/fs/g' =
+                  release_summary.field_list->>'a/bs/c/ds/e/fs', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM release_summary
+
+    """)  # noqa: E501
+
+    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `a/bs/c/ds` entry per release_summary row.\n"  # noqa: E501
 
 
 def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
