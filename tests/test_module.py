@@ -415,8 +415,8 @@ def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
 
 
 def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
-    field = "ALL awards/items/additionalClassifications/scheme"
-    sql = calculate_coverage([field], scope="release_summary", sql=False, sql_only=True)
+    fields = ["ALL awards/items/additionalClassifications/scheme"]
+    sql = calculate_coverage(fields, scope="release_summary", sql=False, sql_only=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -433,7 +433,8 @@ def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
 
 
 def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL :items/description", ":items/description"], scope="awards_summary", sql=False, sql_only=True)
+    fields = ["ALL :items/description", ":items/description"]
+    sql = calculate_coverage(fields, scope="awards_summary", sql=False, sql_only=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
