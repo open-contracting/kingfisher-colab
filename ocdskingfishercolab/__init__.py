@@ -466,8 +466,8 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
 
     # https://www.postgresql.org/docs/11/functions-json.html
     def get_condition(table, pointer, mode):
+        # Test for the presence of the field in any object.
         if mode == "any":
-            # Test for the presence of the field.
             return f"{table}.field_list ? '{pointer}'"
 
         # The logic from here is for mode == "all".
@@ -477,11 +477,11 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         # end in "s", and only one object ends in "s" ("address").
         array_indices = [i for i, part in enumerate(parts[:-1]) if part.endswith("s") and part != "address"]
 
-        # If the field is an immediate child, the comparison will end up comparing the field's count to itself.
+        # If the field is not within an array, simplify the logic from ALL to ANY.
         if not array_indices:
-            closest_array = parts[0]
-        else:
-            closest_array = "/".join(parts[:array_indices[-1] + 1])
+            return f"{table}.field_list ? '{pointer}'"
+
+        closest_array = "/".join(parts[:array_indices[-1] + 1])
 
         if len(array_indices) > 1:
             next_closest_array = "/".join(parts[:array_indices[-2] + 1])
@@ -522,12 +522,11 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
             mode = "any"
 
         table, pointer = get_table_and_pointer(scope, split[-1])
+        condition = get_condition(table, pointer, mode)
 
         # Add a JOIN clause for the release_summary table, unless it is already in the FROM clause.
         if table == "release_summary" and scope != "release_summary":
             join = f"JOIN\n            release_summary ON release_summary.id = {scope}.id"
-
-        condition = get_condition(table, pointer, mode)
 
         # Add the field coverage.
         alias = pointer.replace("/", "_").lower()

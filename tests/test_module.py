@@ -367,10 +367,8 @@ def test_calculate_coverage_all_one_to_one_1(db, capsys, tmpdir):
     assert sql == textwrap.dedent("""\
         SELECT
             count(*) AS total_awards_summary,
-            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'date' =
-                  awards_summary.field_list->>'date', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_date_percentage,
-            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'date' =
-                  awards_summary.field_list->>'date', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_date_percentage,
+            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM awards_summary
 
     """)  # noqa: E501
@@ -384,10 +382,8 @@ def test_calculate_coverage_all_one_to_one_2(db, capsys, tmpdir):
     assert sql == textwrap.dedent("""\
         SELECT
             count(*) AS total_release_summary,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'tender/id' =
-                  release_summary.field_list->>'tender', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_tender_id_percentage,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'tender/id' =
-                  release_summary.field_list->>'tender', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'tender/id' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_tender_id_percentage,
+            ROUND(SUM(CASE WHEN release_summary.field_list ? 'tender/id' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM release_summary
 
     """)  # noqa: E501
