@@ -349,7 +349,7 @@ def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
 
 
 def test_calculate_coverage(db, tmpdir):
-    sql = calculate_coverage(["ocid"], scope="release_summary", sql_only=True)
+    sql = calculate_coverage(["ocid"], scope="release_summary", return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -362,7 +362,7 @@ def test_calculate_coverage(db, tmpdir):
 
 
 def test_calculate_coverage_all_one_to_one(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL :date"], scope="awards_summary", sql=False, sql_only=True)
+    sql = calculate_coverage(["ALL :date"], scope="awards_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -379,7 +379,7 @@ def test_calculate_coverage_all_one_to_one(db, capsys, tmpdir):
 
 
 def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL parties/address/region"], scope="release_summary", sql=False, sql_only=True)
+    sql = calculate_coverage(["ALL parties/address/region"], scope="release_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -398,7 +398,7 @@ def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
 
 
 def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL :items/description"], scope="awards_summary", sql=False, sql_only=True)
+    sql = calculate_coverage(["ALL :items/description"], scope="awards_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -416,7 +416,7 @@ def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
 
 def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
     fields = ["ALL awards/items/additionalClassifications/scheme"]
-    sql = calculate_coverage(fields, scope="release_summary", sql=False, sql_only=True)
+    sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -434,7 +434,7 @@ def test_calculate_coverage_all_many_to_many(db, capsys, tmpdir):
 
 def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
     fields = ["ALL :items/description", ":items/description"]
-    sql = calculate_coverage(fields, scope="awards_summary", sql=False, sql_only=True)
+    sql = calculate_coverage(fields, scope="awards_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -453,7 +453,7 @@ def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
 
 
 def test_calculate_coverage_join_release_summary(db, tmpdir):
-    sql = calculate_coverage(["awards/title", "contracts/title"], scope="contracts_summary", sql_only=True)
+    sql = calculate_coverage(["awards/title", "contracts/title"], scope="contracts_summary", return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -470,7 +470,7 @@ def test_calculate_coverage_join_release_summary(db, tmpdir):
 
 @patch('ocdskingfishercolab._all_tables', _all_tables)
 def test_calculate_coverage_default_scope(db, tmpdir):
-    sql = calculate_coverage(["awards/date"], sql_only=True)
+    sql = calculate_coverage(["awards/date"], return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -484,7 +484,7 @@ def test_calculate_coverage_default_scope(db, tmpdir):
 
 @patch('ocdskingfishercolab._all_tables', _all_tables)
 def test_calculate_coverage_default_scope_tender_documents(db, tmpdir):
-    sql = calculate_coverage(["tender/documents/format"], sql_only=True)
+    sql = calculate_coverage(["tender/documents/format"], return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT
@@ -498,7 +498,7 @@ def test_calculate_coverage_default_scope_tender_documents(db, tmpdir):
 
 @patch('ocdskingfishercolab._all_tables', _all_tables)
 def test_calculate_coverage_default_scope_related_processes(db, tmpdir):
-    sql = calculate_coverage(["relatedProcesses/relationship"], sql_only=True)
+    sql = calculate_coverage(["relatedProcesses/relationship"], return_sql=True)
 
     assert sql == textwrap.dedent("""\
         SELECT

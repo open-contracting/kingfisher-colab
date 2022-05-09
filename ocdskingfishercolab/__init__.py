@@ -372,7 +372,7 @@ def render_json(json_string):
         """)
 
 
-def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
+def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
     """
     Calculates the coverage of one or more fields using the summary tables produced by Kingfisher Summarize's
     ``--field-lists`` option. Returns the coverage of each field and the co-occurrence coverage of all fields.
@@ -434,8 +434,8 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
 
     :param list fields: the fields to measure coverage of
     :param str scope: the table to measure coverage against
-    :param bool sql: print the SQL query
-    :param bool sql_only: return the SQL query instead of the results
+    :param bool print_sql: print the SQL query
+    :param bool return_sql: return the SQL query instead of executing the SQL query and returning the results
 
     :returns: the results as a pandas DataFrame or an ipython-sql :ipython-sql:`ResultSet<src/sql/run.py#L99>`,
               depending on whether ``%config SqlMagic.autopandas`` is ``True`` or ``False`` respectively. This is the
@@ -540,7 +540,7 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         f"ROUND(SUM(CASE WHEN {condition} THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS {alias}_percentage"
         for alias, condition in columns.items()
     )
-    query = textwrap.dedent(f"""\
+    sql = textwrap.dedent(f"""\
         SELECT
             count(*) AS total_{scope},
             {select}
@@ -548,13 +548,13 @@ def calculate_coverage(fields, scope=None, sql=True, sql_only=False):
         {join}
     """)
 
-    if sql:
-        print(query)
+    if print_sql:
+        print(sql)
 
-    if sql_only:
-        return query
+    if return_sql:
+        return sql
 
-    return get_ipython().run_cell_magic("sql", "", query)
+    return get_ipython().run_cell_magic("sql", "", sql)
 
 
 class OCDSKingfisherColabError(Exception):
