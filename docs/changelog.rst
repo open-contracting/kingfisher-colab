@@ -10,6 +10,7 @@ Changed
 -  :func:`~ocdskingfishercolab.save_dataframe_to_sheet` and :func:`save_dataframe_to_spreadsheet` do nothing if the data frame is empty.
 -  :func:`~ocdskingfishercolab.calculate_coverage`: Rename keyword arguments ``sql`` to ``print_sql`` and ``sql_only`` to ``return_sql``.
 -  :func:`~ocdskingfishercolab.calculate_coverage` simplifies the query if ``"ALL "`` is prefixed to a field that is not within an array.
+-  :func:`~ocdskingfishercolab.calculate_coverage` raises an error if no ``fields`` are provided.
 
 Fixed
 ~~~~~

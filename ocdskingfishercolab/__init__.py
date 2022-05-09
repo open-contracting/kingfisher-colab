@@ -496,6 +496,9 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
             f"                  {table}.field_list->>'{closest_array}', false)"
         )
 
+    if not fields:
+        raise MissingFieldsError("You must provide a list of fields as the first argument to `calculate_coverage`.")
+
     # Default to the parent table of the first field.
     if not scope:
         all_tables = _all_tables()
@@ -567,3 +570,7 @@ class OCDSKingfisherColabError(Exception):
 
 class UnknownPackageTypeError(OCDSKingfisherColabError, ValueError):
     """Raised when the provided package type is unknown"""
+
+
+class MissingFieldsError(OCDSKingfisherColabError):
+    """Raised when no fields are provided to a function"""
