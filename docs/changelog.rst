@@ -8,17 +8,17 @@ Changed
 ~~~~~~~
 
 -  :func:`~ocdskingfishercolab.save_dataframe_to_sheet` and :func:`~ocdskingfishercolab.save_dataframe_to_spreadsheet` do nothing if the data frame is empty.
--  :func:`~ocdskingfishercolab.calculate_coverage`: Rename keyword arguments ``sql`` to ``print_sql`` and ``sql_only`` to ``return_sql``.
--  :func:`~ocdskingfishercolab.calculate_coverage` simplifies the query if ``"ALL "`` is prefixed to a field that is not within an array.
--  :func:`~ocdskingfishercolab.calculate_coverage` raises an error if no ``fields`` are provided.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Rename keyword arguments from ``sql`` to ``print_sql`` and ``sql_only`` to ``return_sql``.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Simplify the query if ``"ALL "`` is prefixed to a field that is not within an array.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Raise an error if no ``fields`` are provided.
 
 Fixed
 ~~~~~
 
--  :func:`~ocdskingfishercolab.calculate_coverage` prefixes ``all_`` to the column if ``"ALL "`` is prefixed to the field, to avoid duplicate columns.
--  :func:`~ocdskingfishercolab.calculate_coverage` constructs correct conditions and warnings if a field is within nested arrays.
--  :func:`~ocdskingfishercolab.calculate_coverage` uses the ``relatedprocesses_summary`` table for fields starting with ``relatedProcesses/``, where appropriate.
--  :func:`~ocdskingfishercolab.calculate_coverage` no longer warns about ``address`` fields.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Construct correct conditions and warnings if a field is within nested arrays.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Use the ``relatedprocesses_summary`` table for fields starting with ``relatedProcesses/``, where appropriate.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Prefix ``all_`` to the column if ``"ALL "`` is prefixed to the field, to avoid duplicate columns.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: No longer warn about ``address`` fields.
 
 0.3.8 (2022-04-27)
 ------------------
