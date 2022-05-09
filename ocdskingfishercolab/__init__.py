@@ -482,6 +482,8 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
     join = ""
     for field in fields:
         split = field.split()
+
+        # If the first token isn't "ALL" or if there are more than 2, behave as if only the last token was provided.
         if len(split) == 2 and split[0].lower() == "all":
             mode = "all"
         else:
@@ -493,35 +495,34 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         if table == "release_summary" and scope != "release_summary":
             join = f"JOIN\n            release_summary ON release_summary.id = {scope}.id"
 
-        # If the first token isn't "ALL" or if there are more than 2, behave as if only the last token was provided.
+        # https://www.postgresql.org/docs/11/functions-json.html
         if mode == "all":
             parts = pointer.split("/")
-            # This causes spurious warnings.
-            # https://github.com/open-contracting/kingfisher-colab/issues/62
-            one_to_manys = [part for part in parts[:-1] if part.endswith("s")]
+
+            # It would be more robust to analyze the release schema. That said, as of OCDS 1.1.5, all arrays of objects
+            # end in "s", and only one object ends in "s" ("address").
+            arrays = [part for part in parts[:-1] if part.endswith("s") and part != "address"]
 
             # This logic is likely incorrect.
             # https://github.com/open-contracting/kingfisher-colab/issues/63
-            if not one_to_manys:
+            if not arrays:
                 nearest_one_to_many_parent = parts[0]
             else:
-                nearest_one_to_many_parent = one_to_manys[-1]
+                nearest_one_to_many_parent = arrays[-1]
 
-            if len(one_to_manys) > 1:
+            if len(arrays) > 1:
                 print(
                     'WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one '
-                    f"`{'/'.join(one_to_manys[:-1])}` entry per `{table[:-8]}`."
+                    f"`{'/'.join(arrays[:-1])}` entry per `{table[:-8]}`."
                 )
 
-            # This logic is likely incorrect.
-            # https://github.com/open-contracting/kingfisher-colab/issues/63#issuecomment-1120005015
+            # Test whether the number of occurrences of the path and its nearest 1:n parent are equal.
             condition = (
                 f"coalesce({table}.field_list->>'{pointer}' =\n"
                 f"                  {table}.field_list->>'{nearest_one_to_many_parent}', false)"
             )
         else:
             # Test for the presence of the field.
-            # https://www.postgresql.org/docs/11/functions-json.html
             condition = f"{table}.field_list ? '{pointer}'"
 
         # Add the field coverage.

@@ -385,16 +385,14 @@ def test_calculate_coverage_all_one_to_one_s(db, capsys, tmpdir):
         SELECT
             count(*) AS total_release_summary,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
-                  release_summary.field_list->>'address', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_parties_address_region_percentage,
+                  release_summary.field_list->>'parties', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_parties_address_region_percentage,
             ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
-                  release_summary.field_list->>'address', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+                  release_summary.field_list->>'parties', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM release_summary
 
     """)  # noqa: E501
 
-    # The output should be empty, but there is a bug.
-    # https://github.com/open-contracting/kingfisher-colab/issues/62
-    # assert capsys.readouterr().out == ""
+    assert capsys.readouterr().out == ""
 
 
 def test_calculate_coverage_all_one_to_many(db, capsys, tmpdir):
