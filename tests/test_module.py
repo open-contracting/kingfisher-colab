@@ -348,7 +348,7 @@ def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
         save.assert_not_called()
 
 
-def test_calculate_coverage(db, tmpdir):
+def test_calculate_coverage_ocid(db, tmpdir):
     sql = calculate_coverage(["ocid"], scope="release_summary", return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -361,7 +361,20 @@ def test_calculate_coverage(db, tmpdir):
     """)  # noqa: E501
 
 
-def test_calculate_coverage_all_one_to_one_1(db, capsys, tmpdir):
+def test_calculate_coverage_quantity_relative(db, tmpdir):
+    sql = calculate_coverage([":quantity"], scope="award_items_summary", return_sql=True)
+
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_award_items_summary,
+            ROUND(SUM(CASE WHEN award_items_summary.field_list ? 'quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS quantity_percentage,
+            ROUND(SUM(CASE WHEN award_items_summary.field_list ? 'quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM award_items_summary
+
+    """)  # noqa: E501
+
+
+def test_calculate_coverage_all_date_relative(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL :date"], scope="awards_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -376,7 +389,7 @@ def test_calculate_coverage_all_one_to_one_1(db, capsys, tmpdir):
     assert capsys.readouterr().out == ""
 
 
-def test_calculate_coverage_all_one_to_one_2(db, capsys, tmpdir):
+def test_calculate_coverage_all_tender_id(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL tender/id"], scope="release_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -391,7 +404,7 @@ def test_calculate_coverage_all_one_to_one_2(db, capsys, tmpdir):
     assert capsys.readouterr().out == ""
 
 
-def test_calculate_coverage_all_one_to_many_address(db, capsys, tmpdir):
+def test_calculate_coverage_all_parties_address_region(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL parties/address/region"], scope="release_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -408,7 +421,7 @@ def test_calculate_coverage_all_one_to_many_address(db, capsys, tmpdir):
     assert capsys.readouterr().out == ""
 
 
-def test_calculate_coverage_all_one_to_many_1(db, capsys, tmpdir):
+def test_calculate_coverage_all_items_description_relative(db, capsys, tmpdir):
     sql = calculate_coverage(["ALL :items/description"], scope="awards_summary", print_sql=False, return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -425,7 +438,7 @@ def test_calculate_coverage_all_one_to_many_1(db, capsys, tmpdir):
     assert capsys.readouterr().out == ""
 
 
-def test_calculate_coverage_all_many_to_many_2(db, capsys, tmpdir):
+def test_calculate_coverage_all_awards_items_description(db, capsys, tmpdir):
     fields = ["ALL awards/items/description"]
     sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
 
@@ -443,7 +456,7 @@ def test_calculate_coverage_all_many_to_many_2(db, capsys, tmpdir):
     assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards` path per release_summary row.\n"  # noqa: E501
 
 
-def test_calculate_coverage_all_many_to_many_3(db, capsys, tmpdir):
+def test_calculate_coverage_all_awards_items_additionalclassifications_scheme(db, capsys, tmpdir):
     fields = ["ALL awards/items/additionalClassifications/scheme"]
     sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
 
@@ -544,7 +557,7 @@ def test_calculate_coverage_default_scope_tender_documents(db, tmpdir):
 
 
 @patch('ocdskingfishercolab._all_tables', _all_tables)
-def test_calculate_coverage_default_scope_related_processes(db, tmpdir):
+def test_calculate_coverage_default_scope_relatedprocesses(db, tmpdir):
     sql = calculate_coverage(["relatedProcesses/relationship"], return_sql=True)
 
     assert sql == textwrap.dedent("""\
@@ -553,5 +566,20 @@ def test_calculate_coverage_default_scope_related_processes(db, tmpdir):
             ROUND(SUM(CASE WHEN relatedprocesses_summary.field_list ? 'relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS relationship_percentage,
             ROUND(SUM(CASE WHEN relatedprocesses_summary.field_list ? 'relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM relatedprocesses_summary
+
+    """)  # noqa: E501
+
+
+@patch('ocdskingfishercolab._all_tables', _all_tables)
+def test_calculate_coverage_default_scope_award_items(db, tmpdir):
+    sql = calculate_coverage(["awards/items/quantity"], return_sql=True)
+
+    # See https://github.com/open-contracting/kingfisher-colab/issues/61
+    assert sql == textwrap.dedent("""\
+        SELECT
+            count(*) AS total_awards_summary,
+            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'items/quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_quantity_percentage,
+            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'items/quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM awards_summary
 
     """)  # noqa: E501
