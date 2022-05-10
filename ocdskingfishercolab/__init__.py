@@ -510,7 +510,7 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         else:
             mode = "any"
 
-        # Handle relative pointers.
+        # Handle relative pointers. This includes `:awards` and `:contracts` (see Kingfisher Summarize).
         if pointer.startswith(":"):
             table, pointer = scope, pointer[1:]
         # Handle absolute pointers.
