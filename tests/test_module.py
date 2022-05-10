@@ -440,7 +440,7 @@ def test_calculate_coverage_all_many_to_many_2(db, capsys, tmpdir):
 
     """)  # noqa: E501
 
-    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards` entry per release_summary row.\n"  # noqa: E501
+    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards` path per release_summary row.\n"  # noqa: E501
 
 
 def test_calculate_coverage_all_many_to_many_3(db, capsys, tmpdir):
@@ -458,7 +458,7 @@ def test_calculate_coverage_all_many_to_many_3(db, capsys, tmpdir):
 
     """)  # noqa: E501
 
-    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards/items` entry per release_summary row.\n"  # noqa: E501
+    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards/items` path per release_summary row.\n"  # noqa: E501
 
 
 def test_calculate_coverage_all_many_to_many_interleaved(db, capsys, tmpdir):
@@ -476,7 +476,7 @@ def test_calculate_coverage_all_many_to_many_interleaved(db, capsys, tmpdir):
 
     """)  # noqa: E501
 
-    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `a/bs/c/ds` entry per release_summary row.\n"  # noqa: E501
+    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `a/bs/c/ds` path per release_summary row.\n"  # noqa: E501
 
 
 def test_calculate_coverage_all_mixed(db, capsys, tmpdir):

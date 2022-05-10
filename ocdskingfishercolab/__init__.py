@@ -443,12 +443,7 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
     :rtype: pandas.DataFrame or sql.run.ResultSet
     """
 
-    def get_table_and_pointer(scope, pointer):
-        # Handle relative pointers.
-        if pointer.startswith(":"):
-            return scope, pointer[1:]
-
-        # Handle absolute pointers.
+    def get_table_and_pointer(tables, pointer):
         parts = pointer.split("/")
         table = "release_summary"
 
@@ -457,9 +452,9 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         for i in range(len(parts), 0, -1):
             # Kingfisher Summarize tables are lowercase.
             candidate = f"{'_'.join(parts[:i])}_summary".lower()
-            if scope == candidate:
+            if candidate in tables:
                 parts = parts[i:]
-                table = scope
+                table = candidate
                 break
 
         return table, "/".join(parts)
@@ -481,19 +476,18 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         if not array_indices:
             return f"{table}.field_list ? '{pointer}'"
 
-        closest_array = "/".join(parts[:array_indices[-1] + 1])
-
+        # If arrays are nested, then the condition below can be satisfied for, e.g., awards/items/description, if there
+        # are 2 awards, only one of which sets items/description.
         if len(array_indices) > 1:
-            next_closest_array = "/".join(parts[:array_indices[-2] + 1])
             print(
                 'WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one '
-                f"`{next_closest_array}` entry per {table} row."
+                f"`{'/'.join(parts[:array_indices[-2] + 1])}` path per {table} row."
             )
 
         # Test whether the number of occurrences of the path and its closest enclosing array are equal.
         return (
             f"coalesce({table}.field_list->>'{pointer}' =\n"
-            f"                  {table}.field_list->>'{closest_array}', false)"
+            f"                  {table}.field_list->>'{'/'.join(parts[:array_indices[-1] + 1])}', false)"
         )
 
     if not fields:
@@ -501,22 +495,14 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
 
     # Default to the parent table of the first field.
     if not scope:
-        all_tables = _all_tables()
-        parts = fields[0].split()[-1].split("/")
-        scope = "release_summary"
-
-        for i in range(len(parts), 0, -1):
-            # Kingfisher Summarize tables are lowercase.
-            candidate = f"{'_'.join(parts[:i])}_summary".lower()
-            if candidate in all_tables:
-                scope = candidate
-                break
+        scope, _ = get_table_and_pointer(_all_tables(), fields[0].split()[-1])
 
     columns = {}
     conditions = []
     join = ""
     for field in fields:
         split = field.split()
+        pointer = split[-1]
 
         # If the first token isn't "ALL" or if there are more than 2, behave as if only the last token was provided.
         if len(split) == 2 and split[0].lower() == "all":
@@ -524,7 +510,13 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         else:
             mode = "any"
 
-        table, pointer = get_table_and_pointer(scope, split[-1])
+        # Handle relative pointers.
+        if pointer.startswith(":"):
+            table, pointer = scope, pointer[1:]
+        # Handle absolute pointers.
+        else:
+            table, pointer = get_table_and_pointer({scope}, pointer)
+
         condition = get_condition(table, pointer, mode)
 
         # Add a JOIN clause for the release_summary table, unless it is already in the FROM clause.
