@@ -348,148 +348,65 @@ def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
         save.assert_not_called()
 
 
-def test_calculate_coverage_ocid(db, tmpdir):
-    sql = calculate_coverage(["ocid"], scope="release_summary", return_sql=True)
+@pytest.mark.parametrize('field, pointer, alias, scope', [
+    # Absolute pointer.
+    ('ocid', 'ocid', 'ocid', 'release_summary'),
+    ('ALL tender/id', 'tender/id', 'all_tender_id', 'release_summary'),
+    # Relative pointer.
+    (':quantity', 'quantity', 'quantity', 'award_items_summary'),
+    ('ALL :date', 'date', 'all_date', 'awards_summary'),
+])
+def test_calculate_coverage_any(field, pointer, alias, scope, db, tmpdir):
+    sql = calculate_coverage([field], scope=scope, return_sql=True)
 
-    assert sql == textwrap.dedent("""\
+    assert sql == textwrap.dedent(f"""\
         SELECT
-            count(*) AS total_release_summary,
-            ROUND(SUM(CASE WHEN release_summary.field_list ? 'ocid' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS ocid_percentage,
-            ROUND(SUM(CASE WHEN release_summary.field_list ? 'ocid' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM release_summary
+            count(*) AS total_{scope},
+            ROUND(SUM(CASE WHEN {scope}.field_list ? '{pointer}' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS {alias}_percentage,
+            ROUND(SUM(CASE WHEN {scope}.field_list ? '{pointer}' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM {scope}
 
     """)  # noqa: E501
 
 
-def test_calculate_coverage_quantity_relative(db, tmpdir):
-    sql = calculate_coverage([":quantity"], scope="award_items_summary", return_sql=True)
+@pytest.mark.parametrize('field, parent, warning, scope', [
+    # Relative pointer.
+    (':items/description', 'items', None, 'awards_summary'),
+    # One nested array.
+    ('awards/items/description', 'awards/items', 'awards', 'release_summary'),
+    # Two nested arrays.
+    ('awards/items/additionalClassifications/scheme', 'awards/items/additionalClassifications', 'awards/items', 'release_summary'),  # noqa: E501
+    # The "address" field should not be treated as an array.
+    ('parties/address/region', 'parties', None, 'release_summary'),
+    # Non-array ancestors should be retained.
+    ('a/bs/c/ds/e/fs/g', 'a/bs/c/ds/e/fs', 'a/bs/c/ds', 'release_summary'),
+])
+def test_calculate_coverage_all(field, parent, warning, scope, db, capsys, tmpdir):
+    sql = calculate_coverage([f'ALL {field}'], scope=scope, print_sql=False, return_sql=True)
 
-    assert sql == textwrap.dedent("""\
+    if field.startswith(':'):
+        pointer = field[1:]
+    else:
+        pointer = field
+    alias = pointer.replace('/', '_').lower()
+
+    assert sql == textwrap.dedent(f"""\
         SELECT
-            count(*) AS total_award_items_summary,
-            ROUND(SUM(CASE WHEN award_items_summary.field_list ? 'quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS quantity_percentage,
-            ROUND(SUM(CASE WHEN award_items_summary.field_list ? 'quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM award_items_summary
+            count(*) AS total_{scope},
+            ROUND(SUM(CASE WHEN coalesce({scope}.field_list->>'{pointer}' =
+                  {scope}.field_list->>'{parent}', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_{alias}_percentage,
+            ROUND(SUM(CASE WHEN coalesce({scope}.field_list->>'{pointer}' =
+                  {scope}.field_list->>'{parent}', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM {scope}
 
     """)  # noqa: E501
 
+    if warning:
+        expected = f"WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `{warning}` path per {scope} row.\n"  # noqa: E501
+    else:
+        expected = ''
 
-def test_calculate_coverage_all_date_relative(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL :date"], scope="awards_summary", print_sql=False, return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_awards_summary,
-            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_date_percentage,
-            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM awards_summary
-
-    """)  # noqa: E501
-
-    assert capsys.readouterr().out == ""
-
-
-def test_calculate_coverage_all_tender_id(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL tender/id"], scope="release_summary", print_sql=False, return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_release_summary,
-            ROUND(SUM(CASE WHEN release_summary.field_list ? 'tender/id' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_tender_id_percentage,
-            ROUND(SUM(CASE WHEN release_summary.field_list ? 'tender/id' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM release_summary
-
-    """)  # noqa: E501
-
-    assert capsys.readouterr().out == ""
-
-
-def test_calculate_coverage_all_parties_address_region(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL parties/address/region"], scope="release_summary", print_sql=False, return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_release_summary,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
-                  release_summary.field_list->>'parties', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_parties_address_region_percentage,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'parties/address/region' =
-                  release_summary.field_list->>'parties', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM release_summary
-
-    """)  # noqa: E501
-
-    assert capsys.readouterr().out == ""
-
-
-def test_calculate_coverage_all_items_description_relative(db, capsys, tmpdir):
-    sql = calculate_coverage(["ALL :items/description"], scope="awards_summary", print_sql=False, return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_awards_summary,
-            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
-                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_items_description_percentage,
-            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
-                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM awards_summary
-
-    """)  # noqa: E501
-
-    assert capsys.readouterr().out == ""
-
-
-def test_calculate_coverage_all_awards_items_description(db, capsys, tmpdir):
-    fields = ["ALL awards/items/description"]
-    sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_release_summary,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/description' =
-                  release_summary.field_list->>'awards/items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_awards_items_description_percentage,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/description' =
-                  release_summary.field_list->>'awards/items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM release_summary
-
-    """)  # noqa: E501
-
-    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards` path per release_summary row.\n"  # noqa: E501
-
-
-def test_calculate_coverage_all_awards_items_additionalclassifications_scheme(db, capsys, tmpdir):
-    fields = ["ALL awards/items/additionalClassifications/scheme"]
-    sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_release_summary,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
-                  release_summary.field_list->>'awards/items/additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_awards_items_additionalclassifications_scheme_percentage,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'awards/items/additionalClassifications/scheme' =
-                  release_summary.field_list->>'awards/items/additionalClassifications', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM release_summary
-
-    """)  # noqa: E501
-
-    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `awards/items` path per release_summary row.\n"  # noqa: E501
-
-
-def test_calculate_coverage_all_many_to_many_interleaved(db, capsys, tmpdir):
-    fields = ["ALL a/bs/c/ds/e/fs/g"]
-    sql = calculate_coverage(fields, scope="release_summary", print_sql=False, return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_release_summary,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'a/bs/c/ds/e/fs/g' =
-                  release_summary.field_list->>'a/bs/c/ds/e/fs', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_a_bs_c_ds_e_fs_g_percentage,
-            ROUND(SUM(CASE WHEN coalesce(release_summary.field_list->>'a/bs/c/ds/e/fs/g' =
-                  release_summary.field_list->>'a/bs/c/ds/e/fs', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM release_summary
-
-    """)  # noqa: E501
-
-    assert capsys.readouterr().out == "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one `a/bs/c/ds` path per release_summary row.\n"  # noqa: E501
+    assert capsys.readouterr().out == expected
 
 
 def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
@@ -529,57 +446,21 @@ def test_calculate_coverage_join_release_summary(db, tmpdir):
 
 
 @patch('ocdskingfishercolab._all_tables', _all_tables)
-def test_calculate_coverage_default_scope(db, tmpdir):
-    sql = calculate_coverage(["awards/date"], return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_awards_summary,
-            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS date_percentage,
-            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'date' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM awards_summary
-
-    """)  # noqa: E501
-
-
-@patch('ocdskingfishercolab._all_tables', _all_tables)
-def test_calculate_coverage_default_scope_tender_documents(db, tmpdir):
-    sql = calculate_coverage(["tender/documents/format"], return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_tender_documents_summary,
-            ROUND(SUM(CASE WHEN tender_documents_summary.field_list ? 'format' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS format_percentage,
-            ROUND(SUM(CASE WHEN tender_documents_summary.field_list ? 'format' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM tender_documents_summary
-
-    """)  # noqa: E501
-
-
-@patch('ocdskingfishercolab._all_tables', _all_tables)
-def test_calculate_coverage_default_scope_relatedprocesses(db, tmpdir):
-    sql = calculate_coverage(["relatedProcesses/relationship"], return_sql=True)
-
-    assert sql == textwrap.dedent("""\
-        SELECT
-            count(*) AS total_relatedprocesses_summary,
-            ROUND(SUM(CASE WHEN relatedprocesses_summary.field_list ? 'relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS relationship_percentage,
-            ROUND(SUM(CASE WHEN relatedprocesses_summary.field_list ? 'relationship' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM relatedprocesses_summary
-
-    """)  # noqa: E501
-
-
-@patch('ocdskingfishercolab._all_tables', _all_tables)
-def test_calculate_coverage_default_scope_award_items(db, tmpdir):
-    sql = calculate_coverage(["awards/items/quantity"], return_sql=True)
-
+@pytest.mark.parametrize('field, pointer, table', [
+    ('awards/date', 'date', 'awards_summary'),
+    ('tender/documents/format', 'format', 'tender_documents_summary'),
+    ('relatedProcesses/relationship', 'relationship', 'relatedprocesses_summary'),
     # See https://github.com/open-contracting/kingfisher-colab/issues/61
-    assert sql == textwrap.dedent("""\
+    ('awards/items/quantity', 'items/quantity', 'awards_summary'),
+])
+def test_calculate_coverage_default_scope(field, pointer, table, db, tmpdir):
+    sql = calculate_coverage([field], return_sql=True)
+
+    assert sql == textwrap.dedent(f"""\
         SELECT
-            count(*) AS total_awards_summary,
-            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'items/quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_quantity_percentage,
-            ROUND(SUM(CASE WHEN awards_summary.field_list ? 'items/quantity' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
-        FROM awards_summary
+            count(*) AS total_{table},
+            ROUND(SUM(CASE WHEN {table}.field_list ? '{pointer}' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS {pointer.replace('/', '_').lower()}_percentage,
+            ROUND(SUM(CASE WHEN {table}.field_list ? '{pointer}' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+        FROM {table}
 
     """)  # noqa: E501
