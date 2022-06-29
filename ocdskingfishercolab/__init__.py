@@ -443,6 +443,11 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
     :rtype: pandas.DataFrame or sql.run.ResultSet
     """
 
+    head_replacements = {
+        "awards": "award",
+        "contracts": "contract",
+    }
+
     def get_table_and_pointer(tables, pointer):
         parts = pointer.split("/")
         table = "release_summary"
@@ -450,8 +455,12 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         # Abbreviate absolute pointers to relative pointers if the pointer is on the scope table.
         # For example: "awards/date" to "date" if the scope is "awards_summary."
         for i in range(len(parts), 0, -1):
+            head = parts[0]
+            # Kingfisher Summarize uses the singular prefixes "award_" and "contract_".
+            if i > 1:
+                head = head_replacements.get(head, head)
             # Kingfisher Summarize tables are lowercase.
-            candidate = f"{'_'.join(parts[:i])}_summary".lower()
+            candidate = f"{'_'.join([head] + parts[1:i])}_summary".lower()
             if candidate in tables:
                 parts = parts[i:]
                 table = candidate

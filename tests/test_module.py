@@ -450,8 +450,8 @@ def test_calculate_coverage_join_release_summary(db, tmpdir):
     ('awards/date', 'date', 'awards_summary'),
     ('tender/documents/format', 'format', 'tender_documents_summary'),
     ('relatedProcesses/relationship', 'relationship', 'relatedprocesses_summary'),
-    # See https://github.com/open-contracting/kingfisher-colab/issues/61
-    ('awards/items/quantity', 'items/quantity', 'awards_summary'),
+    ('awards/items/quantity', 'quantity', 'award_items_summary'),
+    ('contracts/implementation/documents/format', 'format', 'contract_implementation_documents_summary'),
 ])
 def test_calculate_coverage_default_scope(field, pointer, table, db, tmpdir):
     sql = calculate_coverage([field], return_sql=True)

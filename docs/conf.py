@@ -79,6 +79,7 @@ intersphinx_mapping = {
 }
 
 extlinks = {
+    "commit": ("https://github.com/open-contracting/kingfisher-colab/commit/%s", "%s"),
     "ipython-sql": (
         "https://github.com/catherinedevlin/ipython-sql/blob/b24ac6e9410416eafde86ae22fd8d6f34acbe05d/%s", None),
 }

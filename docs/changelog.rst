@@ -7,18 +7,30 @@ Changelog
 Changed
 ~~~~~~~
 
--  :func:`~ocdskingfishercolab.save_dataframe_to_sheet` and :func:`~ocdskingfishercolab.save_dataframe_to_spreadsheet` do nothing if the data frame is empty.
--  :func:`~ocdskingfishercolab.calculate_coverage`: Rename keyword arguments from ``sql`` to ``print_sql`` and ``sql_only`` to ``return_sql``.
--  :func:`~ocdskingfishercolab.calculate_coverage`: Simplify the query if ``"ALL "`` is prefixed to a field that is not within an array.
--  :func:`~ocdskingfishercolab.calculate_coverage`: Raise an error if no ``fields`` are provided.
+-  :func:`~ocdskingfishercolab.save_dataframe_to_sheet` and :func:`~ocdskingfishercolab.save_dataframe_to_spreadsheet` do nothing if the data frame is empty. :commit:`9b83348`
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Rename keyword arguments from ``sql`` to ``print_sql`` and ``sql_only`` to ``return_sql``. :commit:`d706145`
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Simplify the query if ``"ALL "`` is prefixed to a field that is not within an array. :commit:`869a9d0`
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Raise an error if no ``fields`` are provided. :commit:`8896336`
 
 Fixed
 ~~~~~
 
--  :func:`~ocdskingfishercolab.calculate_coverage`: Construct correct conditions and warnings if a field is within nested arrays.
--  :func:`~ocdskingfishercolab.calculate_coverage`: Use the ``relatedprocesses_summary`` table for fields starting with ``relatedProcesses/``, where appropriate.
--  :func:`~ocdskingfishercolab.calculate_coverage`: Prefix ``all_`` to the column if ``"ALL "`` is prefixed to the field, to avoid duplicate columns.
--  :func:`~ocdskingfishercolab.calculate_coverage`: No longer warn about ``address`` fields.
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Use the correct parent table if ``scope`` is not set. Previously, Kingfisher Colab would not use:
+
+   -  ``award_documents``
+   -  ``award_items``
+   -  ``award_suppliers``
+   -  ``contract_documents``
+   -  ``contract_items``
+   -  ``contract_milestones``
+   -  ``contract_implementation_documents``
+   -  ``contract_implementation_milestones``
+   -  ``contract_implementation_transactions``
+
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Construct correct conditions and warnings if a field is within nested arrays. :commit:`3dced1a`
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Use the ``relatedprocesses_summary`` table for fields starting with ``relatedProcesses/``, where appropriate. :commit:`9e6cdb7`
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Prefix ``all_`` to the column if ``"ALL "`` is prefixed to the field, to avoid duplicate columns. :commit:`e9427b2`
+-  :func:`~ocdskingfishercolab.calculate_coverage`: No longer warn about ``address`` fields. :commit:`e2b8d72`
 
 0.3.8 (2022-04-27)
 ------------------
