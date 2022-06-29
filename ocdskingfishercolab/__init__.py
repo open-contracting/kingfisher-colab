@@ -7,8 +7,17 @@ from urllib.parse import urljoin
 import flattentool
 import google.auth
 import gspread
+import httplib2
 import requests
 import sql
+from gspread_dataframe import set_with_dataframe
+from IPython import get_ipython
+from IPython.display import HTML
+from notebook import notebookapp
+from oauth2client.client import GoogleCredentials
+from oauth2client.contrib.gce import AppAssertionCredentials
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
 from sqlalchemy.exc import ResourceClosedError
 
 try:
@@ -20,19 +29,10 @@ except ImportError:
     files = Mock()
     files.download.return_value = None
 
-from gspread_dataframe import set_with_dataframe
-from IPython import get_ipython
-from IPython.display import HTML
-from notebook import notebookapp
-from oauth2client.client import GoogleCredentials
-from pydrive2.auth import GoogleAuth
-from pydrive2.drive import GoogleDrive
-
-# Monkeypatch ipython-sql's sql run function, to add a comment linking to the
-# colab notebook that it's run from
-# We monkeypatch run(), but don't call it directly below, as calling the magic
-# will handle connections for us.
+# Patch ipython-sql to add a comment to all SQL queries.
 old_run = sql.run.run
+# Patch PyDrive2 like at: https://github.com/googlecolab/colabtools/blob/main/google/colab/_import_hooks/_pydrive.py
+old_local_webserver_auth = GoogleAuth.LocalWebserverAuth
 
 
 def run(conn, _sql, *args, **kwargs):
@@ -43,7 +43,15 @@ def run(conn, _sql, *args, **kwargs):
     return old_run(conn, comment + _sql, *args, **kwargs)
 
 
+def LocalWebServerAuth(self, *args, **kwargs):
+    if isinstance(self.credentials, AppAssertionCredentials):
+        self.credentials.refresh(httplib2.Http())
+        return
+    return old_local_webserver_auth(self, *args, **kwargs)
+
+
 sql.run.run = run
+GoogleAuth.LocalWebserverAuth = LocalWebServerAuth
 
 
 spreadsheet_name = None

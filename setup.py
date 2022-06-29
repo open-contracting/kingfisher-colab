@@ -21,6 +21,7 @@ setup(
         'google-auth',
         'gspread',
         'gspread-dataframe',
+        'httplib2',
         'ipython',
         'ipython-sql~=0.4.0',  # Google Colaboratory uses 0.3.x
         'notebook',
