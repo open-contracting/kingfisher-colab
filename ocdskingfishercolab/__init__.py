@@ -53,7 +53,7 @@ def LocalWebServerAuth(self, *args, **kwargs):
 sql.run.run = run
 GoogleAuth.LocalWebserverAuth = LocalWebServerAuth
 
-
+# A global variable used in set_spreadsheet_name() and save_dataframe_to_sheet().
 spreadsheet_name = None
 
 # Use the same placeholder values as OCDS Kit.
