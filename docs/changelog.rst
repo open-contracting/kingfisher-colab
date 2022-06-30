@@ -15,7 +15,7 @@ Changed
 Fixed
 ~~~~~
 
--  :func:`~ocdskingfishercolab.calculate_coverage`: Use the correct parent table if ``scope`` is not set. Previously, Kingfisher Colab would not use:
+-  :func:`~ocdskingfishercolab.calculate_coverage`: Use the correct parent table if ``scope`` is not set. Previously, Kingfisher Colab would not use: :commit:`a7c0936`
 
    -  ``award_documents``
    -  ``award_items``
