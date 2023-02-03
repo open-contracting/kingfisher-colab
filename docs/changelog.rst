@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.10 (2023-02-03)
+-------------------
+
+Fixed
+~~~~~
+
+-  Pin to SQLAlchemy 1.x.
+
 0.3.9 (2022-06-30)
 ------------------
 
@@ -103,16 +111,20 @@ Changed
 ~~~~~~~
 
 -  Refactor to build upon `ipython-sql <https://pypi.org/project/ipython-sql/>`__.
-   Removes several functions that can be replaced with direct usage of ipython-sql magics in the notebook, and replace all remaining sql calls with calls to ipython-sql.
 
-   Replacements (must run ``%load_ext sql`` first, and ``%config SqlMagic.autopandas = True`` to get a pandas ``DataFrame``):
+   You must run ``%load_ext sql`` first, and ``%config SqlMagic.autopandas = True`` to get a pandas ``DataFrame``.
 
-   -  ``ocdskingfishercolab.create_connection`` — replaced by using an ipython-sql connection string, e.g. ``%sql postgresql://user:pass@host/db``
-   -  ``ocdskingfishercolab.execute_statement``, ``ocdskingfishercolab.get_dataframe_from_cursor`` and ``ocdskingfishercolab.get_dataframe_from_query`` — replaced by ipython-sql's ``%sql`` magic, e.g. ``%sql SELECT a FROM b``
-   -  ``ocdskingfishercolab.get_list_from_query`` — replaced by :func:`ocdskingfishercolab.get_ipython_sql_resultset_from_query`. This returns an `ipython-sql ResultSet <https://pypi.org/project/ipython-sql/#examples>`__, the type returned by the ``%sql%`` magic when ``autopandas`` is off. It behaves like a list, but with extra methods.
-   -  :func:`ocdskingfishercolab.download_package_from_query` no longer takes a ``params`` argument, and instead uses variables from the local scope, to be consistent with the ipython-sql's ``%sql`` magic.
+   -  Remove functions that can be replaced by ipython-sql magics in the notebook.
 
-   There's a shared (but not public) `colab notebook of examples run against live kingfisher <https://colab.research.google.com/drive/1cUYY4on72831DPSiQ_JLxJEY2uGTfVrN#scrollTo=I-QPDbliMVXC>`__.
+      -  ``create_connection``: Use an ipython-sql connection string, e.g. ``%sql postgresql://user:pass@host/db``
+      -  ``execute_statement``, ``get_dataframe_from_cursor``, ``get_dataframe_from_query``: Use ipython-sql's ``%sql`` magic, e.g. ``%sql SELECT a FROM b``
+
+   -  Replace SQL calls with ipython-sql calls in remaining functions.
+
+      -  ``get_list_from_query``: Use :func:`~ocdskingfishercolab.get_ipython_sql_resultset_from_query`. This returns an `ipython-sql ResultSet <https://pypi.org/project/ipython-sql/#examples>`__, the type returned by the ``%sql%`` magic when ``autopandas`` is off. It behaves like a list, but with extra methods.
+      -  :func:`ocdskingfishercolab.download_package_from_query` no longer takes a ``params`` argument, and instead uses variables from the local scope, to be consistent with the ipython-sql's ``%sql`` magic.
+
+   There's a shared (but not public) `colab notebook of examples run against Kingfisher <https://colab.research.google.com/drive/1cUYY4on72831DPSiQ_JLxJEY2uGTfVrN#scrollTo=I-QPDbliMVXC>`__.
 
 -  :func:`~ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
 -  :func:`~ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
