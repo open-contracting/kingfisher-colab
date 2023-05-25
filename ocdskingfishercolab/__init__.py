@@ -476,7 +476,7 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
 
         return table, "/".join(parts)
 
-    # https://www.postgresql.org/docs/11/functions-json.html
+    # https://www.postgresql.org/docs/current/functions-json.html
     def get_condition(table, pointer, mode):
         # Test for the presence of the field in any object.
         if mode == "any":
