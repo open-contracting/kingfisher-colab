@@ -13,16 +13,16 @@ from IPython import get_ipython
 def db():
     # This can't be named DATABASE_URL, because ipython-sql will try and use it.
     database_url = os.getenv('TEST_DATABASE_URL', f'postgresql://{getpass.getuser()}:@localhost:5432/postgres')
-    parts = urlsplit(database_url)
-    created_database_url = parts._replace(path='/ocdskingfishercolab_test').geturl()
+    parsed = urlsplit(database_url)
+    created_database_url = parsed._replace(path='/ocdskingfishercolab_test').geturl()
     kwargs = {
-        'user': parts.username,
-        'password': parts.password,
-        'host': parts.hostname,
-        'port': parts.port,
+        'user': parsed.username,
+        'password': parsed.password,
+        'host': parsed.hostname,
+        'port': parsed.port,
     }
 
-    connection = psycopg2.connect(dbname=parts.path[1:], **kwargs)
+    connection = psycopg2.connect(dbname=parsed.path[1:], **kwargs)
     cursor = connection.cursor()
 
     # Avoid "CREATE DATABASE cannot run inside a transaction block" error
