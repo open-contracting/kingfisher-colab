@@ -1,6 +1,7 @@
 import json
 import os
 import textwrap
+import seaborn as sns
 import warnings
 from urllib.parse import urljoin
 
@@ -571,6 +572,22 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         return sql
 
     return get_ipython().run_cell_magic("sql", "", sql)
+
+
+def set_dark_mode():
+    sns.set_style('dark', {
+        'figure.facecolor': '#383838',
+        'axes.edgecolor': '#d5d5d5',
+        'axes.facecolor': '#383838',
+        'axes.labelcolor': '#d5d5d5',
+        'text.color': '#d5d5d5',
+        'xtick.color': '#d5d5d5',
+        'ytick.color': '#d5d5d5',
+    })
+
+
+def set_light_mode():
+    sns.set_theme()
 
 
 class OCDSKingfisherColabError(Exception):
