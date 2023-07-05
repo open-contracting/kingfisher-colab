@@ -1,7 +1,6 @@
 import json
 import os
 import textwrap
-import seaborn as sns
 import warnings
 from urllib.parse import urljoin
 
@@ -9,7 +8,9 @@ import flattentool
 import google.auth
 import gspread
 import httplib2
+import matplotlib.ticker
 import requests
+import seaborn as sns
 import sql
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
@@ -575,6 +576,9 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
 
 
 def set_dark_mode():
+    """
+    Set the Seaborn theme to match Google Colaboratory's dark mode.
+    """
     sns.set_style('dark', {
         'figure.facecolor': '#383838',
         'axes.edgecolor': '#d5d5d5',
@@ -587,7 +591,17 @@ def set_dark_mode():
 
 
 def set_light_mode():
+    """
+    Set the Seaborn theme to light mode, for exporting plots.
+    """
     sns.set_theme()
+
+
+def format_thousands(axis):
+    """
+    Use a comma as the thousands separator on the given axis.
+    """
+    axis.set_major_formatter(matplotlib.ticker.StrMethodFormatter('{x:,.0f}'))
 
 
 class OCDSKingfisherColabError(Exception):
