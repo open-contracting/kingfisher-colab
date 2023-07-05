@@ -9,6 +9,7 @@ Added
 
 -  :func:`~ocdskingfishercolab.set_dark_mode`, if *Tools > Settings > Site > Theme* is set to *dark* in Google Colaboratory.
 -  :func:`~ocdskingfishercolab.set_light_mode`, for the default Seaborn theme.
+-  :func:`~ocdskingfishercolab.format_thousands`.
 
 0.3.10 (2023-02-03)
 -------------------
