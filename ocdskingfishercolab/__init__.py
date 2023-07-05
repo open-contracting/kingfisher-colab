@@ -12,6 +12,7 @@ import matplotlib.ticker
 import requests
 import seaborn as sns
 import sql
+from babel.numbers import format_decimal
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
 from IPython.display import HTML
@@ -597,11 +598,13 @@ def set_light_mode():
     sns.set_theme()
 
 
-def format_thousands(axis):
+def format_thousands(axis, locale='en_US'):
     """
-    Use a comma as the thousands separator on the given axis.
+    Set the thousands separator on the given axis for the given locale, e.g. ``en_US``.
     """
-    axis.set_major_formatter(matplotlib.ticker.StrMethodFormatter('{x:,.0f}'))
+    axis.set_major_formatter(
+        matplotlib.ticker.FuncFormatter(lambda x, p: format_decimal(x, format="#", locale=locale))
+    )
 
 
 class OCDSKingfisherColabError(Exception):
