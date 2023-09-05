@@ -16,7 +16,7 @@ from babel.numbers import format_decimal
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
 from IPython.display import HTML
-from notebook import notebookapp
+from jupyter_server import serverapp
 from oauth2client.client import GoogleCredentials
 from oauth2client.contrib.gce import AppAssertionCredentials
 from pydrive2.auth import GoogleAuth
@@ -338,7 +338,7 @@ def write_data_as_json(data, filename):
 
 
 def _notebook_id():
-    server = next(notebookapp.list_running_servers())
+    server = next(serverapp.list_running_servers())
     return requests.get(urljoin(server['url'], 'api/sessions')).json()[0]['path'][7:]  # fileId=
 
 
