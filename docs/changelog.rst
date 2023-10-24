@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.12 (2023-10-23)
+-------------------
+
+Changed
+~~~~~~~
+
+-  Update dependencies to match Google Colaboratory.
+
 0.3.11 (2023-07-04)
 -------------------
 
