@@ -18,9 +18,6 @@ jobs:
       - shell: bash
         run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
       - run: pip install .[test]
-      - env:
-          # https://github.com/catherinedevlin/ipython-sql/issues/217
-          STANDARD_MAINTENANCE_SCRIPTS_IGNORE: sqlalchemy
-        run: pytest /tmp/test_requirements.py
+      - run: pytest /tmp/test_requirements.py
       - run: pip install --upgrade check-manifest
       - run: check-manifest
