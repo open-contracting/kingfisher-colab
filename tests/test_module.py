@@ -13,10 +13,18 @@ import pandas
 import pytest
 from IPython import get_ipython
 
-from ocdskingfishercolab import (UnknownPackageTypeError, calculate_coverage, download_dataframe_as_csv,
-                                 download_package_from_ocid, download_package_from_query,
-                                 get_ipython_sql_resultset_from_query, list_collections, list_source_ids,
-                                 save_dataframe_to_spreadsheet, set_search_path)
+from ocdskingfishercolab import (
+    UnknownPackageTypeError,
+    calculate_coverage,
+    download_dataframe_as_csv,
+    download_package_from_ocid,
+    download_package_from_query,
+    get_ipython_sql_resultset_from_query,
+    list_collections,
+    list_source_ids,
+    save_dataframe_to_spreadsheet,
+    set_search_path,
+)
 
 
 def _notebook_id():
