@@ -6,7 +6,7 @@ If you are viewing this on GitHub, open the `full documentation <https://kingfis
 
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/ocdskingfishercolab.svg
    :target: https://pypi.org/project/ocdskingfishercolab/
-.. |Build Status| image:: https://github.com/open-contracting/kingfisher-colab/actions/workflows/ci.yml
+.. |Build Status| image:: https://github.com/open-contracting/kingfisher-colab/actions/workflows/ci.yml/badge.svg
    :target: https://github.com/open-contracting/kingfisher-colab/actions/workflows/ci.yml
 .. |Coverage Status| image:: https://coveralls.io/repos/github/open-contracting/kingfisher-colab/badge.svg?branch=main
    :target: https://coveralls.io/github/open-contracting/kingfisher-colab?branch=main
