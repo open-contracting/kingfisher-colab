@@ -13,6 +13,7 @@ import requests
 import seaborn as sns
 import sql
 from babel.numbers import format_decimal
+from flattentool.exceptions import FlattenToolWarning
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
 from IPython.display import HTML
@@ -213,7 +214,7 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     write_data_as_json(dataframe['release_package'][0], 'release_package.json')
 
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore')  # flattentool uses UserWarning, so we can't set a specific category
+        warnings.filterwarnings('ignore', category=FlattenToolWarning)
 
         flattentool.flatten(
             'release_package.json',
