@@ -18,9 +18,7 @@ jobs:
           JUPYTER_PLATFORM_DIRS: 1
         # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
         run: ipython -m pytest -- -W error --cov ocdskingfishercolab
-      - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: coveralls --service=github
+      - uses: coverallsapp/github-action@v2
     services:
       postgres:
         image: postgres:15
