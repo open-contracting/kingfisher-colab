@@ -1,3 +1,50 @@
 [build-system]
 requires = ["setuptools>=61.2"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "ocdskingfishercolab"
+version = "0.3.13"
+authors = [{name = "Open Contracting Partnership", email = "data@open-contracting.org"}]
+description = "A set of utility functions for Google Colaboratory notebooks using OCDS data"
+readme = "README.rst"
+license = {text = "BSD"}
+urls = {Homepage = "https://github.com/open-contracting/kingfisher-colab"}
+classifiers = [
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+]
+dependencies = [
+    "babel",
+    "flattentool",
+    "google-auth",
+    "gspread",
+    "gspread-dataframe",
+    "httplib2",
+    "ipython",
+    "ipython-sql",
+    "jupyter_server",
+    "matplotlib",
+    "notebook",
+    "oauth2client",
+    "pydrive2",
+    "requests",
+    "seaborn",
+    "sqlalchemy",
+]
+
+[project.optional-dependencies]
+test = [
+    "pandas",
+    "psycopg2-binary",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools.packages.find]
+exclude = [
+    "tests",
+    "tests.*",
+]
