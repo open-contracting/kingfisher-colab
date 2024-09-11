@@ -17,8 +17,12 @@ jobs:
           # https://jupyter-core.readthedocs.io/en/stable/changelog.html#migrate-to-standard-platform-directories
           JUPYTER_PLATFORM_DIRS: 1
         # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
+        # However, ipython always returns exit code 0.
         # https://github.com/OpenDataServices/flatten-tool/pull/458
-        run: ipython -m pytest -- -W error -W ignore::DeprecationWarning:ijson.compat --cov ocdskingfishercolab
+        run: |
+          ipython -m pytest -- -W error -W ignore::DeprecationWarning:ijson.compat --cov ocdskingfishercolab > pytest.out
+          cat pytest.out
+          [ -z "$(grep SystemExit pytest.out)" ]
       - uses: coverallsapp/github-action@v2
     services:
       postgres:
