@@ -266,7 +266,7 @@ def test_get_ipython_sql_resultset_from_query_error(db, capsys):
            'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
            '                                                                ^\n\n' \
            '[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid]\n' \
-           '(Background on this error at: https://sqlalche.me/e/14/f405)\n' in capsys.readouterr().out
+           '(Background on this error at: https://sqlalche.me/e/' in capsys.readouterr().out
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)

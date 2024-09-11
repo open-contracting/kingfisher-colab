@@ -62,7 +62,7 @@ def db():
             conn.commit()
 
             ipython = get_ipython()
-            ipython.run_line_magic('load_ext', 'sql')
+            ipython.run_line_magic('reload_ext', 'sql')
             ipython.run_line_magic('sql', created_database_url)
             # Avoid "KeyError: 'DEFAULT'" in some test environments.
             # https://github.com/catherinedevlin/ipython-sql/issues/129
@@ -78,8 +78,8 @@ def db():
         # ipython-sql's own connection closing logic is broken.
         # https://github.com/catherinedevlin/ipython-sql/issues/170
         for ipython_sql_connection in sql.connection.Connection.connections.values():
-            ipython_sql_connection.session.close()
-            ipython_sql_connection.session.engine.dispose()
+            ipython_sql_connection.internal_connection.close()
+            ipython_sql_connection.internal_connection.engine.dispose()
         sql.connection.Connection.connections = {}
 
         cursor.execute('DROP DATABASE ocdskingfishercolab_test')

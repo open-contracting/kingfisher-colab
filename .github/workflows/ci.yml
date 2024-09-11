@@ -17,7 +17,8 @@ jobs:
           # https://jupyter-core.readthedocs.io/en/stable/changelog.html#migrate-to-standard-platform-directories
           JUPYTER_PLATFORM_DIRS: 1
         # The unit tests are run with ipython, as the code requires an iPython instance, like in a notebook.
-        run: ipython -m pytest -- -W error --cov ocdskingfishercolab
+        # https://github.com/OpenDataServices/flatten-tool/pull/458
+        run: ipython -m pytest -- -W error -W ignore::DeprecationWarning:ijson.compat --cov ocdskingfishercolab
       - uses: coverallsapp/github-action@v2
     services:
       postgres:
