@@ -9,7 +9,7 @@ from IPython import get_ipython
 
 
 # If this fixture becomes too slow, we can setup the database once, and run each test in a transaction.
-@pytest.fixture()
+@pytest.fixture
 def db():
     # This can't be named DATABASE_URL, because ipython-sql will try and use it.
     database_url = os.getenv('TEST_DATABASE_URL', f'postgresql://{getpass.getuser()}:@localhost:5432/postgres')

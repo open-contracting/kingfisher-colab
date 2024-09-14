@@ -359,7 +359,7 @@ def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
         save.assert_not_called()
 
 
-@pytest.mark.parametrize('field, pointer, alias, scope', [
+@pytest.mark.parametrize(('field', 'pointer', 'alias', 'scope'), [
     # Absolute pointer.
     ('ocid', 'ocid', 'ocid', 'release_summary'),
     ('ALL tender/id', 'tender/id', 'all_tender_id', 'release_summary'),
@@ -380,7 +380,7 @@ def test_calculate_coverage_any(field, pointer, alias, scope, db, tmpdir):
     """)  # noqa: E501
 
 
-@pytest.mark.parametrize('field, parent, warning, scope', [
+@pytest.mark.parametrize(('field', 'parent', 'warning', 'scope'), [
     # Relative pointer.
     (':items/description', 'items', None, 'awards_summary'),
     # One nested array.
@@ -454,7 +454,7 @@ def test_calculate_coverage_join_release_summary(db, tmpdir):
 
 
 @patch('ocdskingfishercolab._all_tables', _all_tables)
-@pytest.mark.parametrize('field, pointer, table', [
+@pytest.mark.parametrize(('field', 'pointer', 'table'), [
     ('awards/date', 'date', 'awards_summary'),
     ('tender/documents/format', 'format', 'tender_documents_summary'),
     ('relatedProcesses/relationship', 'relationship', 'relatedprocesses_summary'),
