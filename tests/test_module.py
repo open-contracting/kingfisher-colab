@@ -9,7 +9,7 @@ import textwrap
 from unittest.mock import patch
 from zipfile import ZipFile
 
-import pandas
+import pandas as pd
 import pytest
 from IPython import get_ipython
 
@@ -77,12 +77,12 @@ def chdir(path):
 def test_set_search_path(db):
     set_search_path('test')
 
-    get_ipython().run_line_magic('sql', 'show search_path')['search_path'][0] == 'test, public'
+    assert get_ipython().run_line_magic('sql', 'show search_path')['search_path'][0] == 'test, public'
 
 
 @patch('ocdskingfishercolab.files.download')
 def test_download_dataframe_as_csv(download, tmpdir):
-    df = pandas.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]})
+    df = pd.DataFrame(data={'col1': [1, 2], 'col2': [3, 4]})
 
     with chdir(tmpdir):
         download_dataframe_as_csv(df, 'file.csv')
@@ -262,11 +262,14 @@ def test_get_ipython_sql_resultset_from_query(db):
 def test_get_ipython_sql_resultset_from_query_error(db, capsys):
     get_ipython().run_line_magic('sql', 'invalid')
 
-    assert '(psycopg2.errors.SyntaxError) syntax error at or near "invalid"\n' \
-           'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n' \
-           '                                                                ^\n\n' \
-           '[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid]\n' \
-           '(Background on this error at: https://sqlalche.me/e/' in capsys.readouterr().out
+    assert (
+        '(psycopg2.errors.SyntaxError) syntax error at or near "invalid"\n'
+        'LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n'
+        '                                                                ^\n\n'
+        '[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid]\n'
+        '(Background on this error at: https://sqlalche.me/e/'
+        in capsys.readouterr().out
+    )
 
 
 @patch('ocdskingfishercolab._notebook_id', _notebook_id)
@@ -313,7 +316,7 @@ def test_list_collections(db):
 def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
     save.return_value = {'id': 'test'}
 
-    df = pandas.DataFrame(data={'release_package': [{'releases': [{'ocid': 'ocds-213czf-1'}]}]})
+    df = pd.DataFrame(data={'release_package': [{'releases': [{'ocid': 'ocds-213czf-1'}]}]})
 
     with chdir(tmpdir):
         save_dataframe_to_spreadsheet(df, 'yet_another_excel_file')
@@ -343,7 +346,7 @@ def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
 
 @patch('ocdskingfishercolab._save_file_to_drive')
 def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
-    df = pandas.DataFrame()
+    df = pd.DataFrame()
 
     with chdir(tmpdir):
         save_dataframe_to_spreadsheet(df, 'yet_another_excel_file')
@@ -392,10 +395,7 @@ def test_calculate_coverage_any(field, pointer, alias, scope, db, tmpdir):
 def test_calculate_coverage_all(field, parent, warning, scope, db, capsys, tmpdir):
     sql = calculate_coverage([f'ALL {field}'], scope=scope, print_sql=False, return_sql=True)
 
-    if field.startswith(':'):
-        pointer = field[1:]
-    else:
-        pointer = field
+    pointer = field[1:] if field.startswith(':') else field
     alias = pointer.replace('/', '_').lower()
 
     assert sql == textwrap.dedent(f"""\

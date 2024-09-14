@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 import textwrap
@@ -51,15 +52,15 @@ def run(conn, _sql, *args, **kwargs):
     return old_run(conn, comment + _sql, *args, **kwargs)
 
 
-def LocalWebServerAuth(self, *args, **kwargs):
+def local_web_server_auth(self, *args, **kwargs):
     if isinstance(self.credentials, AppAssertionCredentials):
         self.credentials.refresh(httplib2.Http())
-        return
+        return None
     return old_local_webserver_auth(self, *args, **kwargs)
 
 
 sql.run.run = run
-GoogleAuth.LocalWebserverAuth = LocalWebServerAuth
+GoogleAuth.LocalWebserverAuth = local_web_server_auth
 
 # A global variable used in set_spreadsheet_name() and save_dataframe_to_sheet().
 spreadsheet_name = None
@@ -162,14 +163,12 @@ def set_search_path(schema_name):
 
     :param str schema_name: a schema name
     """
-    try:
-        get_ipython().run_line_magic('sql', f'SET search_path = {schema_name}, public')
     # https://github.com/catherinedevlin/ipython-sql/issues/191
-    except ResourceClosedError:
-        pass
+    with contextlib.suppress(ResourceClosedError):
+        get_ipython().run_line_magic('sql', f'SET search_path = {schema_name}, public')
 
 
-def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
+def save_dataframe_to_sheet(dataframe, sheetname, *, prompt=True):
     """
     Saves a data frame to a worksheet in Google Sheets, after asking the user for confirmation.
 
@@ -180,7 +179,7 @@ def save_dataframe_to_sheet(dataframe, sheetname, prompt=True):
     :param bool prompt: whether to prompt the user
     """
     if dataframe.empty:
-        print('Data frame is empty.')
+        print('Data frame is empty.')  # noqa: T201
         return
 
     if not prompt or input('Save to Google Sheets? (y/N)') == 'y':
@@ -208,7 +207,7 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     :param str name: the basename of the Excel file to write
     """
     if dataframe.empty:
-        print('Data frame is empty.')
+        print('Data frame is empty.')  # noqa: T201
         return
 
     write_data_as_json(dataframe['release_package'][0], 'release_package.json')
@@ -229,7 +228,7 @@ def save_dataframe_to_spreadsheet(dataframe, name):
         )
 
     drive_file = _save_file_to_drive({'title': f'{name}.xlsx'}, 'flattened.xlsx')
-    print(f"Uploaded file with ID {drive_file['id']!r}")
+    print(f"Uploaded file with ID {drive_file['id']!r}")  # noqa: T201
 
 
 def download_dataframe_as_csv(dataframe, filename):
@@ -344,7 +343,9 @@ def write_data_as_json(data, filename):
 
 def _notebook_id():
     server = next(serverapp.list_running_servers())
-    return requests.get(urljoin(server['url'], 'api/sessions')).json()[0]['path'][7:]  # fileId=
+    response = requests.get(urljoin(server['url'], 'api/sessions'), timeout=10)
+    response.raise_for_status()
+    return response.json()[0]['path'][7:]  # fileId=
 
 
 def _save_file_to_drive(metadata, filename):
@@ -363,7 +364,7 @@ def _all_tables():
     tables = set()
     for column, table in (('viewname', 'pg_views'), ('tablename', 'pg_tables')):
         tables.update(_pluck(
-            f"SELECT {column} FROM pg_catalog.{table} WHERE schemaname = ANY(CURRENT_SCHEMAS(false))"
+            f"SELECT {column} FROM pg_catalog.{table} WHERE schemaname = ANY(CURRENT_SCHEMAS(false))"  # noqa: S608
         ))
     return tables
 
@@ -388,7 +389,7 @@ def render_json(json_string):
         """)
 
 
-def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
+def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
     """
     Calculates the coverage of one or more fields using the summary tables produced by Kingfisher Summarize's
     ``--field-lists`` option. Returns the coverage of each field and the co-occurrence coverage of all fields.
@@ -504,7 +505,7 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         # If arrays are nested, then the condition below can be satisfied for, e.g., awards/items/description, if there
         # are 2 awards, only one of which sets items/description.
         if len(array_indices) > 1:
-            print(
+            print(  # noqa: T201
                 'WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one '
                 f"`{'/'.join(parts[:array_indices[-2] + 1])}` path per {table} row."
             )
@@ -530,10 +531,7 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
         pointer = split[-1]
 
         # If the first token isn't "ALL" or if there are more than 2, behave as if only the last token was provided.
-        if len(split) == 2 and split[0].lower() == "all":
-            mode = "all"
-        else:
-            mode = "any"
+        mode = 'all' if len(split) == 2 and split[0].lower() == 'all' else 'any'
 
         # Handle relative pointers. This includes `:awards` and `:contracts` (see Kingfisher Summarize).
         if pointer.startswith(":"):
@@ -573,7 +571,7 @@ def calculate_coverage(fields, scope=None, print_sql=True, return_sql=False):
     """)
 
     if print_sql:
-        print(sql)
+        print(sql)  # noqa: T201
 
     if return_sql:
         return sql
@@ -608,7 +606,7 @@ def format_thousands(axis, locale='en_US'):
     Set the thousands separator on the given axis for the given locale, e.g. ``en_US``.
     """
     axis.set_major_formatter(
-        matplotlib.ticker.FuncFormatter(lambda x, p: format_decimal(x, format="#", locale=locale))
+        matplotlib.ticker.FuncFormatter(lambda x, _: format_decimal(x, format="#", locale=locale))
     )
 
 
