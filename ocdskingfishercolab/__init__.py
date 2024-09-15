@@ -44,7 +44,7 @@ old_run = sql.run.run
 old_local_webserver_auth = GoogleAuth.LocalWebserverAuth
 
 
-def run(conn, _sql, *args, **kwargs):
+def _run(conn, _sql, *args, **kwargs):
     try:
         comment = f'/* https://colab.research.google.com/drive/{_notebook_id()} */'
     except KeyError:
@@ -52,15 +52,15 @@ def run(conn, _sql, *args, **kwargs):
     return old_run(conn, comment + _sql, *args, **kwargs)
 
 
-def local_web_server_auth(self, *args, **kwargs):
+def _local_web_server_auth(self, *args, **kwargs):
     if isinstance(self.credentials, AppAssertionCredentials):
         self.credentials.refresh(httplib2.Http())
         return None
     return old_local_webserver_auth(self, *args, **kwargs)
 
 
-sql.run.run = run
-GoogleAuth.LocalWebserverAuth = local_web_server_auth
+sql.run.run = _run
+GoogleAuth.LocalWebserverAuth = _local_web_server_auth
 
 # A global variable used in set_spreadsheet_name() and save_dataframe_to_sheet().
 spreadsheet_name = None
@@ -78,7 +78,7 @@ package_metadata = {
 
 def authenticate_gspread():
     """
-    Authenticates the current user and gives the notebook permission to connect to Google Spreadsheets.
+    Authenticate the current user and give the notebook permission to connect to Google Spreadsheets.
 
     :returns: a `Google Sheets Client <https://gspread.readthedocs.io/en/latest/api.html#client>`__ instance
     :rtype: gspread.Client
@@ -90,7 +90,7 @@ def authenticate_gspread():
 
 def authenticate_pydrive():
     """
-    Authenticates the current user and gives the notebook permission to connect to Google Drive.
+    Authenticate the current user and give the notebook permission to connect to Google Drive.
 
     :returns: a `GoogleDrive <https://gsuitedevs.github.io/PyDrive/docs/build/html/pydrive.html#module-pydrive.drive>`__ instance
     :rtype: pydrive.drive.GoogleDrive
@@ -103,7 +103,7 @@ def authenticate_pydrive():
 
 def set_spreadsheet_name(name):
     """
-    Sets the name of the spreadsheet to which to save.
+    Set the name of the spreadsheet to which to save.
 
     Used by :meth:`ocdskingfishercolab.save_dataframe_to_sheet`.
 
@@ -115,7 +115,7 @@ def set_spreadsheet_name(name):
 
 def list_source_ids(pattern=''):
     """
-    Returns, as a ResultSet or DataFrame, a list of source IDs matching the given pattern.
+    Return, as a ResultSet or DataFrame, a list of source IDs matching the given pattern.
 
     :param str pattern: a substring, like "paraguay"
     :returns: the results as a pandas DataFrame or an ipython-sql :ipython-sql:`ResultSet<src/sql/run.py#L99>`,
@@ -139,7 +139,7 @@ def list_source_ids(pattern=''):
 
 def list_collections(source_id=None):
     """
-    Returns, as a ResultSet or DataFrame, a list of collections with the given source ID.
+    Return, as a ResultSet or DataFrame, a list of collections with the given source ID.
 
     :param str source_id: a source ID
     :returns: the results as a pandas DataFrame or an ipython-sql :ipython-sql:`ResultSet<src/sql/run.py#L99>`,
@@ -158,7 +158,7 @@ def list_collections(source_id=None):
 
 def set_search_path(schema_name):
     """
-    Sets the `search_path <https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-SEARCH-PATH>`__
+    Set the `search_path <https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-SEARCH-PATH>`__
     to the given schema, followed by the ``public`` schema.
 
     :param str schema_name: a schema name
@@ -170,7 +170,7 @@ def set_search_path(schema_name):
 
 def save_dataframe_to_sheet(dataframe, sheetname, *, prompt=True):
     """
-    Saves a data frame to a worksheet in Google Sheets, after asking the user for confirmation.
+    Save a data frame to a worksheet in Google Sheets, after asking the user for confirmation.
 
     Use :meth:`ocdskingfishercolab.set_spreadsheet_name` to set the spreadsheet name.
 
@@ -200,8 +200,8 @@ def save_dataframe_to_sheet(dataframe, sheetname, *, prompt=True):
 
 def save_dataframe_to_spreadsheet(dataframe, name):
     """
-    Dumps the ``release_package`` column of a data frame to a JSON file, converts the JSON file to an Excel file,
-    and uploads the Excel file to Google Drive.
+    Dump the ``release_package`` column of a data frame to a JSON file, convert the JSON file to an Excel file,
+    and upload the Excel file to Google Drive.
 
     :param pandas.DataFrame dataframe: a data frame
     :param str name: the basename of the Excel file to write
@@ -233,7 +233,7 @@ def save_dataframe_to_spreadsheet(dataframe, name):
 
 def download_dataframe_as_csv(dataframe, filename):
     """
-    Converts the data frame to a CSV file, and invokes a browser download of the CSV file to your local computer.
+    Convert the data frame to a CSV file, and invoke a browser download of the CSV file to your local computer.
 
     :param pandas.DataFrame dataframe: a data frame
     :param str filename: a file name
@@ -244,7 +244,7 @@ def download_dataframe_as_csv(dataframe, filename):
 
 def download_data_as_json(data, filename):
     """
-    Dumps the data to a JSON file, and invokes a browser download of the CSV file to your local computer.
+    Dump the data to a JSON file, and invoke a browser download of the CSV file to your local computer.
 
     :param data: JSON-serializable data
     :param str filename: a file name
@@ -257,7 +257,7 @@ def download_data_as_json(data, filename):
 # local variables are prefixed with "_", to avoid shadowing local variables in the notebook's cells.
 def get_ipython_sql_resultset_from_query(sql, _collection_id=None, _ocid=None):
     """
-    Executes a SQL statement and returns a ResultSet.
+    Execute a SQL statement and return a ResultSet.
 
     Parameters are taken from the scope this function is called from (same behaviour as ipython-sql's ``%sql`` magic).
 
@@ -277,7 +277,7 @@ def get_ipython_sql_resultset_from_query(sql, _collection_id=None, _ocid=None):
 
 def download_package_from_query(sql, package_type=None):
     """
-    Executes a SQL statement that SELECTs only the ``data`` column of the ``data`` table, and invokes a browser
+    Execute a SQL statement that SELECTs only the ``data`` column of the ``data`` table, and invoke a browser
     download of the packaged data to your local computer.
 
     :param str sql: a SQL statement
@@ -300,7 +300,7 @@ def download_package_from_query(sql, package_type=None):
 
 def download_package_from_ocid(collection_id, ocid, package_type):
     """
-    Selects all releases with the given ocid from the given collection, and invokes a browser download of the packaged
+    Select all releases with the given ocid from the given collection, and invoke a browser download of the packaged
     releases to your local computer.
 
     :param int collection_id: a collection's ID
@@ -332,7 +332,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
 
 def write_data_as_json(data, filename):
     """
-    Dumps the data to a JSON file.
+    Dump the data to a JSON file.
 
     :param data: JSON-serializable data
     :param str filename: a file name
@@ -372,7 +372,7 @@ def _all_tables():
 
 def render_json(json_string):
     """
-    Renders JSON into collapsible HTML.
+    Render JSON into collapsible HTML.
 
     :param json_string: JSON-deserializable string
     """
@@ -392,8 +392,8 @@ def render_json(json_string):
 
 def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
     """
-    Calculates the coverage of one or more fields using the summary tables produced by Kingfisher Summarize's
-    ``--field-lists`` option. Returns the coverage of each field and the co-occurrence coverage of all fields.
+    Calculate the coverage of one or more fields using the summary tables produced by Kingfisher Summarize's
+    ``--field-lists`` option. Return the coverage of each field and the co-occurrence coverage of all fields.
 
     ``scope`` is the Kingfisher Summarize table to measure coverage against, e.g. ``"awards_summary"``.
     Coverage is calculated using the number of rows in this table as the denominator.
@@ -460,7 +460,6 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
               same behaviour as ipython-sql's ``%sql`` magic.
     :rtype: pandas.DataFrame or sql.run.ResultSet
     """
-
     head_replacements = {
         "awards": "award",
         "contracts": "contract",
@@ -581,9 +580,7 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
 
 
 def set_dark_mode():
-    """
-    Set the Seaborn theme to match Google Colaboratory's dark mode.
-    """
+    """Set the Seaborn theme to match Google Colaboratory's dark mode."""
     sns.set_style('dark', {
         'figure.facecolor': '#383838',
         'axes.edgecolor': '#d5d5d5',
@@ -596,28 +593,24 @@ def set_dark_mode():
 
 
 def set_light_mode():
-    """
-    Set the Seaborn theme to light mode, for exporting plots.
-    """
+    """Set the Seaborn theme to light mode, for exporting plots."""
     sns.set_theme()
 
 
 def format_thousands(axis, locale='en_US'):
-    """
-    Set the thousands separator on the given axis for the given locale, e.g. ``en_US``.
-    """
+    """Set the thousands separator on the given axis for the given locale, e.g. ``en_US``."""
     axis.set_major_formatter(
         matplotlib.ticker.FuncFormatter(lambda x, _: format_decimal(x, format="#", locale=locale))
     )
 
 
 class OCDSKingfisherColabError(Exception):
-    """Base class for exceptions from within this package"""
+    """Base class for exceptions from within this package."""
 
 
 class UnknownPackageTypeError(OCDSKingfisherColabError, ValueError):
-    """Raised when the provided package type is unknown"""
+    """Raised when the provided package type is unknown."""
 
 
 class MissingFieldsError(OCDSKingfisherColabError):
-    """Raised when no fields are provided to a function"""
+    """Raised when no fields are provided to a function."""
