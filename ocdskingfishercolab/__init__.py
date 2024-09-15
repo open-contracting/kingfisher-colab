@@ -109,7 +109,7 @@ def set_spreadsheet_name(name):
 
     :param str name: a spreadsheet name
     """
-    global spreadsheet_name
+    global spreadsheet_name  # noqa: PLW0603
     spreadsheet_name = name
 
 
