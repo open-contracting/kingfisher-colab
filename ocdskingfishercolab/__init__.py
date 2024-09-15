@@ -364,7 +364,8 @@ def _all_tables():
     tables = set()
     for column, table in (('viewname', 'pg_views'), ('tablename', 'pg_tables')):
         tables.update(_pluck(
-            f"SELECT {column} FROM pg_catalog.{table} WHERE schemaname = ANY(CURRENT_SCHEMAS(false))"  # noqa: S608
+            f"SELECT {column} FROM pg_catalog.{table} "  # noqa: S608 # false positive
+            "WHERE schemaname = ANY(CURRENT_SCHEMAS(false))"
         ))
     return tables
 
