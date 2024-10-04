@@ -147,13 +147,13 @@ def list_collections(source_id=None):
               same behaviour as ipython-sql's ``%sql`` magic.
     :rtype: pandas.DataFrame or sql.run.ResultSet
     """
-    sql = "SELECT * FROM collection"
+    sql = ["SELECT * FROM collection"]
     if source_id:
-        sql += " WHERE source_id = :source_id"
-    sql += " ORDER BY id DESC"
+        sql.append("WHERE source_id = :source_id")
+    sql.append("ORDER BY id DESC")
 
     # This inspects locals to find `source_id`.
-    return get_ipython().run_line_magic('sql', sql)
+    return get_ipython().run_line_magic('sql', ' '.join(sql))
 
 
 def set_search_path(schema_name):
@@ -312,11 +312,16 @@ def download_package_from_ocid(collection_id, ocid, package_type):
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
     sql = """
-    SELECT data
-    FROM data
-    JOIN release ON data.id = release.data_id
-    WHERE collection_id = :_collection_id AND ocid = :_ocid
-    ORDER BY data->>'date' DESC
+    SELECT
+        data
+    FROM
+        release
+        JOIN data ON data.id = data_id
+    WHERE
+        collection_id = :_collection_id
+        AND ocid = :_ocid
+    ORDER BY
+        data ->> 'date' DESC
     """
 
     data = _pluck(sql, _collection_id=collection_id, _ocid=ocid)
@@ -512,8 +517,8 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
 
         # Test whether the number of occurrences of the path and its closest enclosing array are equal.
         return (
-            f"coalesce({table}.field_list->>'{pointer}' =\n"
-            f"                  {table}.field_list->>'{'/'.join(parts[:array_indices[-1] + 1])}', false)"
+            f"coalesce({table}.field_list ->> '{pointer}' =\n"
+            f"                  {table}.field_list ->> '{'/'.join(parts[:array_indices[-1] + 1])}', false)"
         )
 
     if not fields:
