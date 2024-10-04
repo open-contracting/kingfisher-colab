@@ -321,7 +321,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
         collection_id = :_collection_id
         AND ocid = :_ocid
     ORDER BY
-        data ->> 'date' DESC
+        data->>'date' DESC
     """
 
     data = _pluck(sql, _collection_id=collection_id, _ocid=ocid)
@@ -517,8 +517,8 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
 
         # Test whether the number of occurrences of the path and its closest enclosing array are equal.
         return (
-            f"coalesce({table}.field_list ->> '{pointer}' =\n"
-            f"                  {table}.field_list ->> '{'/'.join(parts[:array_indices[-1] + 1])}', false)"
+            f"coalesce({table}.field_list->>'{pointer}' =\n"
+            f"                  {table}.field_list->>'{'/'.join(parts[:array_indices[-1] + 1])}', false)"
         )
 
     if not fields:
