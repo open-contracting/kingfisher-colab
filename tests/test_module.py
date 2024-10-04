@@ -401,10 +401,10 @@ def test_calculate_coverage_all(field, parent, warning, scope, db, capsys, tmpdi
     assert sql == textwrap.dedent(f"""\
         SELECT
             count(*) AS total_{scope},
-            ROUND(SUM(CASE WHEN coalesce({scope}.field_list->>'{pointer}' =
-                  {scope}.field_list->>'{parent}', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_{alias}_percentage,
-            ROUND(SUM(CASE WHEN coalesce({scope}.field_list->>'{pointer}' =
-                  {scope}.field_list->>'{parent}', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
+            ROUND(SUM(CASE WHEN coalesce({scope}.field_list ->> '{pointer}' =
+                  {scope}.field_list ->> '{parent}', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_{alias}_percentage,
+            ROUND(SUM(CASE WHEN coalesce({scope}.field_list ->> '{pointer}' =
+                  {scope}.field_list ->> '{parent}', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM {scope}
 
     """)  # noqa: E501
@@ -424,11 +424,11 @@ def test_calculate_coverage_all_mixed(db, capsys, tmpdir):
     assert sql == textwrap.dedent("""\
         SELECT
             count(*) AS total_awards_summary,
-            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
-                  awards_summary.field_list->>'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_items_description_percentage,
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list ->> 'items/description' =
+                  awards_summary.field_list ->> 'items', false) THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS all_items_description_percentage,
             ROUND(SUM(CASE WHEN awards_summary.field_list ? 'items/description' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS items_description_percentage,
-            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list->>'items/description' =
-                  awards_summary.field_list->>'items', false) AND
+            ROUND(SUM(CASE WHEN coalesce(awards_summary.field_list ->> 'items/description' =
+                  awards_summary.field_list ->> 'items', false) AND
                 awards_summary.field_list ? 'items/description' THEN 1 ELSE 0 END) * 100.0 / count(*), 2) AS total_percentage
         FROM awards_summary
 
