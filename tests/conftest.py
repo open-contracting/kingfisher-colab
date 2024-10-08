@@ -36,7 +36,7 @@ def db():
 
         try:
             cur.execute("CREATE TABLE collection (id int, source_id text, transform_from_collection_id int)")
-            cur.execute("CREATE TABLE release (id int, collection_id int, ocid text, data_id int)")
+            cur.execute("CREATE TABLE release (id int, collection_id int, ocid text, data_id int, release_date text)")
             cur.execute("CREATE TABLE record (id int, collection_id int, ocid text, data_id int)")
             cur.execute("CREATE TABLE data (id int, data jsonb)")
 
@@ -46,13 +46,13 @@ def db():
             cur.execute("INSERT INTO collection VALUES (4, 'paraguay_dncp_releases', 3)")
             cur.execute("INSERT INTO collection VALUES (5, 'paraguay_dncp_releases', 4)")
 
-            cur.execute("INSERT INTO release VALUES (1, 1, 'ocds-213czf-1', 1)")
+            cur.execute("INSERT INTO release VALUES (1, 1, 'ocds-213czf-1', 1, '2000')")
             cur.execute("""INSERT INTO data VALUES (1, '{"ocid":"ocds-213czf-1","date":"2000"}'::jsonb)""")
 
-            cur.execute("INSERT INTO release VALUES (2, 1, 'ocds-213czf-1', 2)")
+            cur.execute("INSERT INTO release VALUES (2, 1, 'ocds-213czf-1', 2, '2001')")
             cur.execute("""INSERT INTO data VALUES (2, '{"ocid":"ocds-213czf-1","date":"2001"}'::jsonb)""")
 
-            cur.execute("INSERT INTO release VALUES (3, 1, 'ocds-213czf-1/a', 3)")
+            cur.execute("INSERT INTO release VALUES (3, 1, 'ocds-213czf-1/a', 3, '')")
             cur.execute("""INSERT INTO data VALUES (3, '{"ocid":"ocds-213czf-1/a"}'::jsonb)""")
 
             cur.execute("INSERT INTO record VALUES (1, 1, 'ocds-213czf-2', 4)")
