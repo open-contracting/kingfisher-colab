@@ -321,7 +321,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
         collection_id = :_collection_id
         AND ocid = :_ocid
     ORDER BY
-        data->>'date' DESC
+        release_date DESC
     """
 
     data = _pluck(sql, _collection_id=collection_id, _ocid=ocid)
