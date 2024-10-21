@@ -281,10 +281,10 @@ def download_package_from_query(sql, package_type=None):
     download of the packaged data to your local computer.
 
     :param str sql: a SQL statement
-    :param str package_type: "record" or "release"
+    :param str package_type: "release" or "record"
     :raises UnknownPackageTypeError: when the provided package type is unknown
     """
-    if package_type not in {'record', 'release'}:
+    if package_type not in {'release', 'record'}:
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
     data = _pluck(sql)
@@ -305,10 +305,10 @@ def download_package_from_ocid(collection_id, ocid, package_type):
 
     :param int collection_id: a collection's ID
     :param str ocid: an OCID
-    :param str package_type: "record" or "release"
+    :param str package_type: "release" or "record"
     :raises UnknownPackageTypeError: when the provided package type is unknown
     """
-    if package_type not in {'record', 'release'}:
+    if package_type not in {'release', 'record'}:
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
     sql = """
