@@ -217,12 +217,12 @@ def save_dataframe_to_spreadsheet(dataframe, name):
 
         flattentool.flatten(
             'release_package.json',
-            main_sheet_name='releases',  # root_list_path
-            root_list_path='releases',  # root_list_path
-            root_id='ocid',  # root_id
-            schema='https://standard.open-contracting.org/1.1/en/release-schema.json',  # schema_version_choices
-            disable_local_refs=True,  # flatten_tool.disable_local_refs
-            remove_empty_schema_columns=True,  # flatten_tool.remove_empty_schema_columns
+            main_sheet_name='releases',
+            root_list_path='releases',
+            root_id='ocid',
+            schema='https://standard.open-contracting.org/1.1/en/release-schema.json',
+            disable_local_refs=True,
+            remove_empty_schema_columns=True,
             root_is_list=False,
             output_format='xlsx',
         )
