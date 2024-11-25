@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.3.14 (2024-11-25)
+-------------------
+
+Fixed
+~~~~~
+
+-  Constrain the version of prettytable to be compatible with ipython-sql.
+
 0.3.13 (2023-10-27)
 -------------------
 
