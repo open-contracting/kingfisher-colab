@@ -20,7 +20,9 @@ jobs:
       - run: pip install .[test]
       - env:
           # kingfisher-colab tries one or the other, for Jupyter Notebook 6 or later.
-          STANDARD_MAINTENANCE_SCRIPTS_IGNORE: notebook,jupyter_server
+          #
+          # https://github.com/catherinedevlin/ipython-sql/issues/252
+          STANDARD_MAINTENANCE_SCRIPTS_IGNORE: jupyter_server,notebook,prettytable
         run: pytest /tmp/test_requirements.py
       - run: pip install --upgrade check-manifest
       - run: check-manifest

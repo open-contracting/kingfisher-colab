@@ -29,6 +29,7 @@ dependencies = [
     "matplotlib",
     "notebook",
     "oauth2client",
+    "prettytable<3.12",
     "pydrive2",
     "requests",
     "seaborn",
