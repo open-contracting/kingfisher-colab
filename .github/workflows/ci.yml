@@ -20,6 +20,7 @@ jobs:
         #
         # https://github.com/OpenDataServices/flatten-tool/pull/458
         run: |
+          ipython -m pytest
           ipython -m pytest -- -W error -W ignore::DeprecationWarning:ijson.compat --cov ocdskingfishercolab > pytest.out
           cat pytest.out
           [ -z "$(grep SystemExit pytest.out)" ]
