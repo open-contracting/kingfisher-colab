@@ -395,7 +395,7 @@ def test_calculate_coverage_any(field, pointer, alias, scope, db, tmpdir):
 def test_calculate_coverage_all(field, parent, warning, scope, db, capsys, tmpdir):
     sql = calculate_coverage([f'ALL {field}'], scope=scope, print_sql=False, return_sql=True)
 
-    pointer = field[1:] if field.startswith(':') else field
+    pointer = field.removeprefix(':')
     alias = pointer.replace('/', '_').lower()
 
     assert sql == textwrap.dedent(f"""\

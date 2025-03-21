@@ -573,7 +573,7 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
             {select}
         FROM {scope}
         {join}
-    """)
+    """)  # noqa: S608
 
     if print_sql:
         print(sql)  # noqa: T201
