@@ -466,7 +466,7 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
             if i > 1:
                 head = head_replacements.get(head, head)
             # Kingfisher Summarize tables are lowercase.
-            candidate = f"{'_'.join([head] + parts[1:i])}_summary".lower()
+            candidate = f"{'_'.join([head, *parts[1:i]])}_summary".lower()
             if candidate in tables:
                 parts = parts[i:]
                 table = candidate
