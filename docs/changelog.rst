@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.4.0 (2025-05-13)
+------------------
+
+Changed
+~~~~~~~
+
+-  Add ``spreadsheet_name`` as the first argument to :func:`~ocdskingfishercolab.save_dataframe_to_sheet`.
+
+Removed
+~~~~~~~
+
+-  Remove ``ocdskingfishercolab.set_spreadsheet_name``.
+
 0.3.14 (2024-11-25)
 -------------------
 

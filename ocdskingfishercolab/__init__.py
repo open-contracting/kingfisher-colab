@@ -62,9 +62,6 @@ def _local_web_server_auth(self, *args, **kwargs):
 sql.run.run = _run
 GoogleAuth.LocalWebserverAuth = _local_web_server_auth
 
-# A global variable used in set_spreadsheet_name() and save_dataframe_to_sheet().
-spreadsheet_name = None
-
 # Use the same placeholder values as OCDS Kit.
 package_metadata = {
     'uri': 'placeholder:',
@@ -99,18 +96,6 @@ def authenticate_pydrive():
     gauth = GoogleAuth()
     gauth.credentials = GoogleCredentials.get_application_default()
     return GoogleDrive(gauth)
-
-
-def set_spreadsheet_name(name):
-    """
-    Set the name of the spreadsheet to which to save.
-
-    Used by :meth:`ocdskingfishercolab.save_dataframe_to_sheet`.
-
-    :param str name: a spreadsheet name
-    """
-    global spreadsheet_name  # noqa: PLW0603
-    spreadsheet_name = name
 
 
 def list_source_ids(pattern=''):
@@ -168,14 +153,13 @@ def set_search_path(schema_name):
         get_ipython().run_line_magic('sql', f'SET search_path = {schema_name}, public')
 
 
-def save_dataframe_to_sheet(dataframe, sheetname, *, prompt=True):
+def save_dataframe_to_sheet(spreadsheet_name, dataframe, sheetname, *, prompt=True):
     """
     Save a data frame to a worksheet in Google Sheets, after asking the user for confirmation.
 
-    Use :meth:`ocdskingfishercolab.set_spreadsheet_name` to set the spreadsheet name.
-
+    :param str spreadsheet_name: the name of the spreadsheet
     :param pandas.DataFrame dataframe: a data frame
-    :param str sheetname: a sheet name
+    :param str sheetname: the name of the sheet to add
     :param bool prompt: whether to prompt the user
     """
     if dataframe.empty:
