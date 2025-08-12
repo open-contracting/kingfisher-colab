@@ -46,7 +46,7 @@ old_local_webserver_auth = GoogleAuth.LocalWebserverAuth
 
 def _run(conn, _sql, *args, **kwargs):
     try:
-        comment = f'/* https://colab.research.google.com/drive/{_notebook_id()} */'
+        comment = f"/* https://colab.research.google.com/drive/{_notebook_id()} */"
     except KeyError:
         comment = "/* run from a notebook, but no colab id */"
     return old_run(conn, comment + _sql, *args, **kwargs)
@@ -64,12 +64,12 @@ GoogleAuth.LocalWebserverAuth = _local_web_server_auth
 
 # Use the same placeholder values as OCDS Kit.
 package_metadata = {
-    'uri': 'placeholder:',
-    'publisher': {
-        'name': '',
+    "uri": "placeholder:",
+    "publisher": {
+        "name": "",
     },
-    'publishedDate': '9999-01-01T00:00:00Z',
-    'version': '1.1',
+    "publishedDate": "9999-01-01T00:00:00Z",
+    "version": "1.1",
 }
 
 
@@ -98,7 +98,7 @@ def authenticate_pydrive():
     return GoogleDrive(gauth)
 
 
-def list_source_ids(pattern=''):
+def list_source_ids(pattern=""):
     """
     Return, as a ResultSet or DataFrame, a list of source IDs matching the given pattern.
 
@@ -116,10 +116,10 @@ def list_source_ids(pattern=''):
     ORDER BY source_id
     """
 
-    pattern = f'%{pattern}%'
+    pattern = f"%{pattern}%"
 
     # This inspects locals to find `pattern`.
-    return get_ipython().run_line_magic('sql', sql)
+    return get_ipython().run_line_magic("sql", sql)
 
 
 def list_collections(source_id=None):
@@ -138,7 +138,7 @@ def list_collections(source_id=None):
     sql.append("ORDER BY id DESC")
 
     # This inspects locals to find `source_id`.
-    return get_ipython().run_line_magic('sql', ' '.join(sql))
+    return get_ipython().run_line_magic("sql", " ".join(sql))
 
 
 def set_search_path(schema_name):
@@ -150,7 +150,7 @@ def set_search_path(schema_name):
     """
     # https://github.com/catherinedevlin/ipython-sql/issues/191
     with contextlib.suppress(ResourceClosedError):
-        get_ipython().run_line_magic('sql', f'SET search_path = {schema_name}, public')
+        get_ipython().run_line_magic("sql", f"SET search_path = {schema_name}, public")
 
 
 def save_dataframe_to_sheet(spreadsheet_name, dataframe, sheetname, *, prompt=True):
@@ -163,10 +163,10 @@ def save_dataframe_to_sheet(spreadsheet_name, dataframe, sheetname, *, prompt=Tr
     :param bool prompt: whether to prompt the user
     """
     if dataframe.empty:
-        print('Data frame is empty.')  # noqa: T201
+        print("Data frame is empty.")  # noqa: T201
         return
 
-    if not prompt or input('Save to Google Sheets? (y/N)') == 'y':
+    if not prompt or input("Save to Google Sheets? (y/N)") == "y":
         gc = authenticate_gspread()
         try:
             sheet = gc.open(spreadsheet_name)
@@ -176,7 +176,7 @@ def save_dataframe_to_sheet(spreadsheet_name, dataframe, sheetname, *, prompt=Tr
         try:
             worksheet = sheet.add_worksheet(sheetname, dataframe.shape[0], dataframe.shape[1])
         except gspread.exceptions.APIError:
-            newsheetname = input(f'{sheetname} already exists, enter a new name:')
+            newsheetname = input(f"{sheetname} already exists, enter a new name:")
             worksheet = sheet.add_worksheet(newsheetname, dataframe.shape[0], dataframe.shape[1])
 
         set_with_dataframe(worksheet, dataframe)
@@ -191,27 +191,27 @@ def save_dataframe_to_spreadsheet(dataframe, name):
     :param str name: the basename of the Excel file to write
     """
     if dataframe.empty:
-        print('Data frame is empty.')  # noqa: T201
+        print("Data frame is empty.")  # noqa: T201
         return
 
-    write_data_as_json(dataframe['release_package'][0], 'release_package.json')
+    write_data_as_json(dataframe["release_package"][0], "release_package.json")
 
     with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', category=FlattenToolWarning)
+        warnings.filterwarnings("ignore", category=FlattenToolWarning)
 
         flattentool.flatten(
-            'release_package.json',
-            main_sheet_name='releases',
-            root_list_path='releases',
-            root_id='ocid',
-            schema='https://standard.open-contracting.org/1.1/en/release-schema.json',
+            "release_package.json",
+            main_sheet_name="releases",
+            root_list_path="releases",
+            root_id="ocid",
+            schema="https://standard.open-contracting.org/1.1/en/release-schema.json",
             disable_local_refs=True,
             remove_empty_schema_columns=True,
             root_is_list=False,
-            output_format='xlsx',
+            output_format="xlsx",
         )
 
-    drive_file = _save_file_to_drive({'title': f'{name}.xlsx'}, 'flattened.xlsx')
+    drive_file = _save_file_to_drive({"title": f"{name}.xlsx"}, "flattened.xlsx")
     print(f"Uploaded file with ID {drive_file['id']!r}")  # noqa: T201
 
 
@@ -250,12 +250,12 @@ def get_ipython_sql_resultset_from_query(sql, _collection_id=None, _ocid=None):
     :rtype: sql.run.ResultSet
     """
     ipython = get_ipython()
-    autopandas = ipython.run_line_magic('config', 'SqlMagic.autopandas')
+    autopandas = ipython.run_line_magic("config", "SqlMagic.autopandas")
     if autopandas:
-        ipython.run_line_magic('config', 'SqlMagic.autopandas = False')
-    results = ipython.run_line_magic('sql', sql)
+        ipython.run_line_magic("config", "SqlMagic.autopandas = False")
+    results = ipython.run_line_magic("sql", sql)
     if autopandas:
-        ipython.run_line_magic('config', 'SqlMagic.autopandas = True')
+        ipython.run_line_magic("config", "SqlMagic.autopandas = True")
     return results
 
 
@@ -268,18 +268,18 @@ def download_package_from_query(sql, package_type=None):
     :param str package_type: "release" or "record"
     :raises UnknownPackageTypeError: when the provided package type is unknown
     """
-    if package_type not in {'release', 'record'}:
+    if package_type not in {"release", "record"}:
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
     data = _pluck(sql)
 
-    if package_type == 'record':
-        package = {'records': data}
-    elif package_type == 'release':
-        package = {'releases': data}
+    if package_type == "record":
+        package = {"records": data}
+    elif package_type == "release":
+        package = {"releases": data}
 
     package.update(package_metadata)
-    download_data_as_json(package, f'{package_type}_package.json')
+    download_data_as_json(package, f"{package_type}_package.json")
 
 
 def download_package_from_ocid(collection_id, ocid, package_type):
@@ -292,7 +292,7 @@ def download_package_from_ocid(collection_id, ocid, package_type):
     :param str package_type: "release" or "record"
     :raises UnknownPackageTypeError: when the provided package type is unknown
     """
-    if package_type not in {'release', 'record'}:
+    if package_type not in {"release", "record"}:
         raise UnknownPackageTypeError("package_type argument must be either 'release' or 'record'")
 
     sql = """
@@ -310,13 +310,13 @@ def download_package_from_ocid(collection_id, ocid, package_type):
 
     data = _pluck(sql, _collection_id=collection_id, _ocid=ocid)
 
-    if package_type == 'record':
-        package = {'records': [{'ocid': ocid, 'releases': data}]}
-    elif package_type == 'release':
-        package = {'releases': data}
+    if package_type == "record":
+        package = {"records": [{"ocid": ocid, "releases": data}]}
+    elif package_type == "release":
+        package = {"releases": data}
 
     package.update(package_metadata)
-    download_data_as_json(package, f'{ocid}_{package_type}_package.json')
+    download_data_as_json(package, f"{ocid}_{package_type}_package.json")
 
 
 def write_data_as_json(data, filename):
@@ -326,15 +326,15 @@ def write_data_as_json(data, filename):
     :param data: JSON-serializable data
     :param str filename: a file name
     """
-    with open(filename.replace(os.sep, '_'), 'w') as f:
+    with open(filename.replace(os.sep, "_"), "w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
 def _notebook_id():
     server = next(serverapp.list_running_servers())
-    response = requests.get(urljoin(server['url'], 'api/sessions'), timeout=10)
+    response = requests.get(urljoin(server["url"], "api/sessions"), timeout=10)
     response.raise_for_status()
-    return response.json()[0]['path'][7:]  # fileId=
+    return response.json()[0]["path"][7:]  # fileId=
 
 
 def _save_file_to_drive(metadata, filename):
@@ -351,11 +351,13 @@ def _pluck(sql, **kwargs):
 
 def _all_tables():
     tables = set()
-    for column, table in (('viewname', 'pg_views'), ('tablename', 'pg_tables')):
-        tables.update(_pluck(
-            f"SELECT {column} FROM pg_catalog.{table} "  # noqa: S608 # false positive
-            "WHERE schemaname = ANY(CURRENT_SCHEMAS(false))"
-        ))
+    for column, table in (("viewname", "pg_views"), ("tablename", "pg_tables")):
+        tables.update(
+            _pluck(
+                f"SELECT {column} FROM pg_catalog.{table} "  # noqa: S608 # false positive
+                "WHERE schemaname = ANY(CURRENT_SCHEMAS(false))"
+            )
+        )
     return tables
 
 
@@ -495,14 +497,14 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
         # are 2 awards, only one of which sets items/description.
         if len(array_indices) > 1:
             print(  # noqa: T201
-                'WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one '
-                f"`{'/'.join(parts[:array_indices[-2] + 1])}` path per {table} row."
+                "WARNING: Results might be inaccurate due to nested arrays. Check that there is exactly one "
+                f"`{'/'.join(parts[: array_indices[-2] + 1])}` path per {table} row."
             )
 
         # Test whether the number of occurrences of the path and its closest enclosing array are equal.
         return (
             f"coalesce({table}.field_list->>'{pointer}' =\n"
-            f"                  {table}.field_list->>'{'/'.join(parts[:array_indices[-1] + 1])}', false)"
+            f"                  {table}.field_list->>'{'/'.join(parts[: array_indices[-1] + 1])}', false)"
         )
 
     if not fields:
@@ -520,7 +522,7 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
         pointer = split[-1]
 
         # If the first token isn't "ALL" or if there are more than 2, behave as if only the last token was provided.
-        mode = 'all' if len(split) == 2 and split[0].lower() == 'all' else 'any'
+        mode = "all" if len(split) == 2 and split[0].lower() == "all" else "any"
 
         # Handle relative pointers. This includes `:awards` and `:contracts` (see Kingfisher Summarize).
         if pointer.startswith(":"):
@@ -570,15 +572,18 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
 
 def set_dark_mode():
     """Set the Seaborn theme to match Google Colaboratory's dark mode."""
-    sns.set_style('dark', {
-        'figure.facecolor': '#383838',
-        'axes.edgecolor': '#d5d5d5',
-        'axes.facecolor': '#383838',
-        'axes.labelcolor': '#d5d5d5',
-        'text.color': '#d5d5d5',
-        'xtick.color': '#d5d5d5',
-        'ytick.color': '#d5d5d5',
-    })
+    sns.set_style(
+        "dark",
+        {
+            "figure.facecolor": "#383838",
+            "axes.edgecolor": "#d5d5d5",
+            "axes.facecolor": "#383838",
+            "axes.labelcolor": "#d5d5d5",
+            "text.color": "#d5d5d5",
+            "xtick.color": "#d5d5d5",
+            "ytick.color": "#d5d5d5",
+        },
+    )
 
 
 def set_light_mode():
@@ -586,7 +591,7 @@ def set_light_mode():
     sns.set_theme()
 
 
-def format_thousands(axis, locale='en_US'):
+def format_thousands(axis, locale="en_US"):
     """Set the thousands separator on the given axis for the given locale, e.g. ``en_US``."""
     axis.set_major_formatter(
         matplotlib.ticker.FuncFormatter(lambda x, _: format_decimal(x, format="#", locale=locale))

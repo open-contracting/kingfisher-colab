@@ -12,14 +12,14 @@ from IPython import get_ipython
 @pytest.fixture
 def db():
     # This can't be named DATABASE_URL, because ipython-sql will try and use it.
-    database_url = os.getenv('TEST_DATABASE_URL', f'postgresql://{getpass.getuser()}:@localhost:5432/postgres')
+    database_url = os.getenv("TEST_DATABASE_URL", f"postgresql://{getpass.getuser()}:@localhost:5432/postgres")
     parsed = urlsplit(database_url)
-    created_database_url = parsed._replace(path='/ocdskingfishercolab_test').geturl()
+    created_database_url = parsed._replace(path="/ocdskingfishercolab_test").geturl()
     kwargs = {
-        'user': parsed.username,
-        'password': parsed.password,
-        'host': parsed.hostname,
-        'port': parsed.port,
+        "user": parsed.username,
+        "password": parsed.password,
+        "host": parsed.hostname,
+        "port": parsed.port,
     }
 
     connection = psycopg2.connect(dbname=parsed.path[1:], **kwargs)
@@ -29,9 +29,9 @@ def db():
     connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
     try:
-        cursor.execute('CREATE DATABASE ocdskingfishercolab_test')
+        cursor.execute("CREATE DATABASE ocdskingfishercolab_test")
 
-        conn = psycopg2.connect(dbname='ocdskingfishercolab_test', **kwargs)
+        conn = psycopg2.connect(dbname="ocdskingfishercolab_test", **kwargs)
         cur = conn.cursor()
 
         try:
@@ -56,18 +56,20 @@ def db():
             cur.execute("""INSERT INTO data VALUES (3, '{"ocid":"ocds-213czf-1/a"}'::jsonb)""")
 
             cur.execute("INSERT INTO record VALUES (1, 1, 'ocds-213czf-2', 4)")
-            cur.execute("""INSERT INTO data VALUES (4, '{"ocid":"ocds-213czf-2","""
-                        """"releases":[{"ocid":"ocds-213czf-2"}]}'::jsonb)""")
+            cur.execute(
+                """INSERT INTO data VALUES (4, '{"ocid":"ocds-213czf-2","""
+                """"releases":[{"ocid":"ocds-213czf-2"}]}'::jsonb)"""
+            )
 
             conn.commit()
 
             ipython = get_ipython()
-            ipython.run_line_magic('reload_ext', 'sql')
-            ipython.run_line_magic('sql', created_database_url)
+            ipython.run_line_magic("reload_ext", "sql")
+            ipython.run_line_magic("sql", created_database_url)
             # Avoid "KeyError: 'DEFAULT'" in some test environments.
             # https://github.com/catherinedevlin/ipython-sql/issues/129
-            ipython.run_line_magic('config', 'SqlMagic.style = "NONE"')
-            ipython.run_line_magic('config', 'SqlMagic.autopandas = True')
+            ipython.run_line_magic("config", 'SqlMagic.style = "NONE"')
+            ipython.run_line_magic("config", "SqlMagic.autopandas = True")
 
             yield cur
         finally:
@@ -82,7 +84,7 @@ def db():
             ipython_sql_connection.internal_connection.engine.dispose()
         sql.connection.Connection.connections = {}
 
-        cursor.execute('DROP DATABASE ocdskingfishercolab_test')
+        cursor.execute("DROP DATABASE ocdskingfishercolab_test")
 
         cursor.close()
         connection.close()
