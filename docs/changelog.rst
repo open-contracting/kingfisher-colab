@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.5.0 (2025-08-14)
+------------------
+
+Removed
+~~~~~~~
+
+-  Remove support for Jupyter Notebook 6 or earlier.
+
 0.4.0 (2025-05-13)
 ------------------
 

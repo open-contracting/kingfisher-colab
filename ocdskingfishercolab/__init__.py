@@ -18,16 +18,12 @@ from flattentool.exceptions import FlattenToolWarning
 from gspread_dataframe import set_with_dataframe
 from IPython import get_ipython
 from IPython.display import HTML
+from jupyter_server import serverapp
 from oauth2client.client import GoogleCredentials
 from oauth2client.contrib.gce import AppAssertionCredentials
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 from sqlalchemy.exc import ResourceClosedError
-
-try:
-    from notebook import notebookapp as serverapp
-except ImportError:
-    from jupyter_server import serverapp
 
 try:
     from google.colab import auth, files
