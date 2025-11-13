@@ -52,7 +52,7 @@ Changed
 Added
 ~~~~~
 
--  :func:`~ocdskingfishercolab.set_dark_mode`, if *Tools > Settings > Site > Theme* is set to *dark* in Google Colaboratory.
+-  :func:`~ocdskingfishercolab.set_dark_mode`, if *Tools > Settings > Site > Theme* is set to *dark* in Google Colab.
 -  :func:`~ocdskingfishercolab.set_light_mode`, for the default Seaborn theme.
 -  :func:`~ocdskingfishercolab.format_thousands`.
 
@@ -157,7 +157,7 @@ Fixed
 Fixed
 ~~~~~
 
--  Fixed dependencies to install cleanly both locally and on Google Colaboratory.
+-  Fixed dependencies to install cleanly both locally and on Google Colab.
 
 0.3.0 (2020-12-15)
 ------------------

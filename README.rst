@@ -1,6 +1,6 @@
 |PyPI Version| |Build Status| |Coverage Status| |Python Version|
 
-A set of utility functions for `Google Colaboratory <https://colab.research.google.com/notebooks/intro.ipynb>`__ notebooks using OCDS data.
+A set of utility functions for `Google Colab <https://colab.research.google.com/notebooks/intro.ipynb>`__ notebooks using OCDS data.
 
 If you are viewing this on GitHub, open the `full documentation <https://kingfisher-colab.readthedocs.io/>`__ for additional details.
 

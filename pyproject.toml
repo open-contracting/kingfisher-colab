@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ocdskingfishercolab"
 version = "0.5.0"
 authors = [{name = "Open Contracting Partnership", email = "data@open-contracting.org"}]
-description = "A set of utility functions for Google Colaboratory notebooks using OCDS data"
+description = "A set of utility functions for Google Colab notebooks using OCDS data"
 readme = "README.rst"
 license = {text = "BSD"}
 urls = {Homepage = "https://github.com/open-contracting/kingfisher-colab"}

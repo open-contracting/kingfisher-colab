@@ -14,7 +14,7 @@ Troubleshooting
 Using Jupyter Notebook
 ^^^^^^^^^^^^^^^^^^^^^^
 
-If you are using Kingfisher Colab in a Jupyter Notebook (not on Google Colaboratory), you need to:
+If you are using Kingfisher Colab in a Jupyter Notebook (not on Google Colab), you need to:
 
 #. Install the ``google-colab`` package:
 

@@ -567,7 +567,7 @@ def calculate_coverage(fields, scope=None, *, print_sql=True, return_sql=False):
 
 
 def set_dark_mode():
-    """Set the Seaborn theme to match Google Colaboratory's dark mode."""
+    """Set the Seaborn theme to match Google Colab's dark mode."""
     sns.set_style(
         "dark",
         {
