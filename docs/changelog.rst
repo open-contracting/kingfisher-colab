@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.6.0 (2025-11-13)
+------------------
+
+Changed
+~~~~~~~
+
+-  Upgrade to Python 3.12 to match Google Colab.
+
 0.5.0 (2025-08-14)
 ------------------
 
@@ -44,7 +52,7 @@ Fixed
 Changed
 ~~~~~~~
 
--  Update dependencies to match Google Colaboratory.
+-  Upgrade to Python 3.10 and other dependencies to match Google Colab.
 
 0.3.11 (2023-07-04)
 -------------------

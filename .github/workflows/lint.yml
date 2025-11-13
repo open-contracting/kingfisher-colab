@@ -6,6 +6,6 @@ jobs:
     permissions:
       contents: read
     with:
-      python-version: '3.10'
+      python-version: '3.12'
       # https://github.com/catherinedevlin/ipython-sql/issues/252
       standard-maintenance-scripts-ignore: prettytable
