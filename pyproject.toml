@@ -26,7 +26,7 @@ dependencies = [
     "ipython",
     "ipython-sql",
     "jupyter_server",
-    "matplotlib",
+    "matplotlib>=3.10.7",
     "oauth2client",
     "prettytable<3.12",
     "pydrive2",
