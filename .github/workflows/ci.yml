@@ -19,11 +19,9 @@ jobs:
           # https://jupyter-core.readthedocs.io/en/stable/changelog.html#migrate-to-standard-platform-directories
           JUPYTER_PLATFORM_DIRS: 1
         # The tests must be run with ipython. However, ipython always returns exit code 0.
-        #
-        # https://github.com/OpenDataServices/flatten-tool/pull/458
         run: |
           ipython -m pytest
-          ipython -m pytest -- -W error -W ignore::DeprecationWarning:ijson.compat --cov ocdskingfishercolab > pytest.out
+          ipython -m pytest -- -W error --cov ocdskingfishercolab > pytest.out
           cat pytest.out
           [ -z "$(grep SystemExit pytest.out)" ]
       - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
