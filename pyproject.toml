@@ -22,7 +22,7 @@ dependencies = [
     "google-auth",
     "gspread",
     "gspread-dataframe",
-    "httplib2",
+    "httplib2>=0.31.1",
     "ipython",
     "ipython-sql",
     "jupyter_server",
