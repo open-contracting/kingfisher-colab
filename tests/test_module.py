@@ -73,14 +73,14 @@ def chdir(path):
         os.chdir(cwd)
 
 
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_set_search_path(db):
     set_search_path("test")
 
     assert get_ipython().run_line_magic("sql", "show search_path")["search_path"][0] == "test, public"
 
 
-@patch("ocdskingfishercolab.files.download")
+@patch("ocdskingfishercolab.download.files.download")
 def test_download_dataframe_as_csv(download, tmpdir):
     df = pd.DataFrame(data={"col1": [1, 2], "col2": [3, 4]})
 
@@ -93,8 +93,8 @@ def test_download_dataframe_as_csv(download, tmpdir):
         assert data == ",col1,col2\n0,1,3\n1,2,4\n"
 
 
-@patch("ocdskingfishercolab.files.download")
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.download.files.download")
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_download_package_from_ocid_release(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, "ocds-213czf-1", "release")
@@ -116,8 +116,8 @@ def test_download_package_from_ocid_release(download, db, tmpdir):
         download.assert_called_once_with("ocds-213czf-1_release_package.json")
 
 
-@patch("ocdskingfishercolab.files.download")
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.download.files.download")
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_download_package_from_ocid_record(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, "ocds-213czf-1", "record")
@@ -144,8 +144,8 @@ def test_download_package_from_ocid_record(download, db, tmpdir):
         download.assert_called_once_with("ocds-213czf-1_record_package.json")
 
 
-@patch("ocdskingfishercolab.files.download")
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.download.files.download")
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_download_package_from_ocid_path_separator(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, "ocds-213czf-1/a", "release")
@@ -171,8 +171,8 @@ def test_download_package_from_ocid_other():
     assert str(excinfo.value) == "package_type argument must be either 'release' or 'record'"
 
 
-@patch("ocdskingfishercolab.files.download")
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.download.files.download")
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_download_package_from_query_release(download, db, tmpdir):
     with chdir(tmpdir):
         get_ipython().run_cell(
@@ -202,8 +202,8 @@ def test_download_package_from_query_release(download, db, tmpdir):
         download.assert_called_once_with("release_package.json")
 
 
-@patch("ocdskingfishercolab.files.download")
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.download.files.download")
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_download_package_from_query_record(download, db, tmpdir):
     with chdir(tmpdir):
         get_ipython().run_cell(
@@ -245,14 +245,14 @@ def test_download_package_from_query_other():
     assert str(excinfo.value) == "package_type argument must be either 'release' or 'record'"
 
 
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_get_list_from_query(db):
     result = get_ipython_sql_resultset_from_query("SELECT * FROM record")
 
     assert result == [(1, 1, "ocds-213czf-2", 4)]
 
 
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_get_ipython_sql_resultset_from_query(db):
     result = get_ipython_sql_resultset_from_query("SELECT * FROM record")
 
@@ -264,7 +264,7 @@ def test_get_ipython_sql_resultset_from_query(db):
     }
 
 
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_get_ipython_sql_resultset_from_query_error(db, capsys):
     get_ipython().run_line_magic("sql", "invalid")
 
@@ -277,7 +277,7 @@ def test_get_ipython_sql_resultset_from_query_error(db, capsys):
     )
 
 
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_list_source_ids(db):
     dataframe = list_source_ids("paraguay")
 
@@ -286,7 +286,7 @@ def test_list_source_ids(db):
     }
 
 
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_list_source_ids_default(db):
     dataframe = list_source_ids()
 
@@ -295,7 +295,7 @@ def test_list_source_ids_default(db):
     }
 
 
-@patch("ocdskingfishercolab._notebook_id", _notebook_id)
+@patch("ocdskingfishercolab.sql._notebook_id", _notebook_id)
 def test_list_collections(db):
     dataframe = list_collections("paraguay_dncp_releases")
 
@@ -317,7 +317,7 @@ def test_list_collections(db):
     assert math.isnan(actual["transform_from_collection_id"][2])
 
 
-@patch("ocdskingfishercolab._save_file_to_drive")
+@patch("ocdskingfishercolab.google._save_file_to_drive")
 def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
     save.return_value = {"id": "test"}
 
@@ -349,7 +349,7 @@ def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
         save.assert_called_once_with({"title": "yet_another_excel_file.xlsx"}, "flattened.xlsx")
 
 
-@patch("ocdskingfishercolab._save_file_to_drive")
+@patch("ocdskingfishercolab.google._save_file_to_drive")
 def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
     df = pd.DataFrame()
 
@@ -469,7 +469,7 @@ def test_calculate_coverage_join_release_summary(db, tmpdir):
     """)  # noqa: E501
 
 
-@patch("ocdskingfishercolab._all_tables", _all_tables)
+@patch("ocdskingfishercolab.kingfisher._all_tables", _all_tables)
 @pytest.mark.parametrize(
     ("field", "pointer", "table"),
     [
