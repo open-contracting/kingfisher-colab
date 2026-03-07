@@ -48,6 +48,9 @@ autodoc_type_aliases = {}
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "gspread": ("https://docs.gspread.org/en/latest/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "pydrive2": ("https://docs.iterative.ai/PyDrive2/", None),
 }
 
 extlinks = {

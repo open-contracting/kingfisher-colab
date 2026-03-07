@@ -179,7 +179,7 @@ Changed
 
    -  Remove functions that can be replaced by ipython-sql magics in the notebook.
 
-      -  ``create_connection``: Use an ipython-sql connection string, e.g. ``%sql postgresql://user:pass@host/db``
+      -  ``create_connection``, ``reset_connection``: Use an ipython-sql connection string, e.g. ``%sql postgresql://user:pass@host/db``
       -  ``execute_statement``, ``get_dataframe_from_cursor``, ``get_dataframe_from_query``: Use ipython-sql's ``%sql`` magic, e.g. ``%sql SELECT a FROM b``
 
    -  Replace SQL calls with ipython-sql calls in remaining functions.
@@ -189,9 +189,7 @@ Changed
 
    There's a shared (but not public) `colab notebook of examples run against Kingfisher <https://colab.research.google.com/drive/1cUYY4on72831DPSiQ_JLxJEY2uGTfVrN#scrollTo=I-QPDbliMVXC>`__.
 
--  :func:`~ocdskingfishercolab.create_connection` creates a new connection if the current connection is closed.
 -  :func:`~ocdskingfishercolab.download_package_from_ocid` orders packaged releases in reverse date order.
--  Remove :func:`~ocdskingfishercolab.reset_connection`.
 
 Fixed
 ~~~~~
@@ -205,12 +203,12 @@ Added
 ~~~~~
 
 -  :func:`~ocdskingfishercolab.set_search_path`
--  :func:`~ocdskingfishercolab.get_list_from_query`
+-  ``get_list_from_query``
 
 Fixed
 ~~~~~
 
--  :func:`~ocdskingfishercolab.execute_statement` no longer has a mutable default argument value.
+-  `execute_statement`` no longer has a mutable default argument value.
 
 0.2.1 (2020-04-21)
 ------------------
@@ -218,7 +216,7 @@ Fixed
 Fixed
 ~~~~~
 
--  :func:`~ocdskingfishercolab.execute_statement` no longer errors if given a ``psycopg2.sql.Composable``.
+-  ``execute_statement`` no longer errors if given a ``psycopg2.sql.Composable``.
 
 0.2.0 (2020-04-21)
 ------------------
@@ -233,7 +231,7 @@ Added
 
 -  :func:`~ocdskingfishercolab.list_source_ids`
 -  :func:`~ocdskingfishercolab.list_collections`
--  :func:`~ocdskingfishercolab.execute_statement`
+-  ``execute_statement``
 -  :func:`~ocdskingfishercolab.save_dataframe_to_spreadsheet`
 -  :func:`~ocdskingfishercolab.download_data_as_json`
 -  :func:`~ocdskingfishercolab.write_data_as_json`
@@ -282,10 +280,10 @@ Changed
    - ``saveStraightToSheets`` is now :func:`~ocdskingfishercolab.save_dataframe_to_sheet` with ``prompt=False``
    - ``saveToCSV`` is now :func:`~ocdskingfishercolab.download_dataframe_as_csv`
    - ``downloadReleases`` is now :func:`~ocdskingfishercolab.download_package_from_ocid`
-   - ``output_notebook`` is now :func:`~ocdskingfishercolab.get_dataframe_from_query`
-   - ``getResults`` is now :func:`~ocdskingfishercolab.get_dataframe_from_cursor`
+   - ``output_notebook`` is now ``get_dataframe_from_query``
+   - ``getResults`` is now ``get_dataframe_from_cursor``
 
--  :func:`~ocdskingfishercolab.get_dataframe_from_query` raises an error instead of returning an error.
+-  ``get_dataframe_from_query`` raises an error instead of returning an error.
 -  :func:`~ocdskingfishercolab.download_package_from_ocid` raises an error instead of printing a message.
 
 0.0.1 (2020-04-20)
