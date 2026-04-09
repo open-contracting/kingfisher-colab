@@ -74,3 +74,6 @@ ignore-variadic-names = true
 "tests/*" = [
     "ARG001", "D", "FBT003", "INP001", "PLR2004", "S", "TRY003",
 ]
+
+[tool.uv.pip]
+exclude-newer = "1 week"
