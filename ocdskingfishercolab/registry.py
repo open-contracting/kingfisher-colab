@@ -1,5 +1,7 @@
-import requests
+"""Data registry utilities."""
+
 import pandas as pd
+import requests
 from ipywidgets import widgets
 
 DATA_REGISTRY_BASE_URL = "https://data.open-contracting.org/en/"
@@ -7,6 +9,7 @@ PUBLICATIONS_URL = f"{DATA_REGISTRY_BASE_URL}publications.json"
 
 
 def get_publications():
+    """Return all publications from the data registry, with a label field added."""
     publications = requests.get(PUBLICATIONS_URL, timeout=10).json()
     for publication in publications:
         publication["label"] = f"{publication['country']} - {publication['title']}"
@@ -14,6 +17,7 @@ def get_publications():
 
 
 def get_publication_select_box():
+    """Return a dropdown widget listing all available publications."""
     return widgets.Dropdown(
         options=sorted([entry["label"] for entry in get_publications()]),
         description="Publication:",
@@ -22,6 +26,7 @@ def get_publication_select_box():
 
 
 def format_coverage(coverage):
+    """Return a DataFrame of field paths from a coverage dictionary."""
     if not coverage:
         return pd.DataFrame(columns=["path"])
     fields = (

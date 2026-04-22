@@ -1,3 +1,5 @@
+"""Usability and red flags indicator functions."""
+
 from collections import Counter
 
 import numpy as np
@@ -8,6 +10,7 @@ from ocdskingfishercolab import authenticate_gspread, calculate_coverage
 
 
 def get_coverage(indicators_dic):
+    """Return a list of coverage percentages for each indicator in the dictionary."""
     coverage = []
     for i in indicators_dic.values():
         fields = [item for sublist in i for item in sublist][1:]
@@ -18,6 +21,7 @@ def get_coverage(indicators_dic):
 
 
 def most_common_fields_to_calculate_indicators(indicators_dict, fields_table):
+    """Return a DataFrame of the most common fields needed to calculate indicators."""
     fields = list(indicators_dict.values())
     fields = [item[1:] for item in fields]
     flat_list = [item for sublist in [item for sublist in fields for item in sublist] for item in sublist]
@@ -35,7 +39,7 @@ def most_common_fields_to_calculate_indicators(indicators_dict, fields_table):
     return fields_count
 
 
-def _indicator_checks(fields_list, indicators_dic, name_col, id_col, check_coverage=False):
+def _indicator_checks(fields_list, indicators_dic, name_col, id_col, *, check_coverage=False):
     results_list = []
     missing_fields = []
 
@@ -70,6 +74,7 @@ def _indicator_checks(fields_list, indicators_dic, name_col, id_col, check_cover
 
 
 def check_red_flags_indicators(result):
+    """Return a DataFrame of red flags indicator results for the given collection."""
     gc = authenticate_gspread()
 
     # NEW Red Flags to OCDS mapping #Public
@@ -87,9 +92,11 @@ def check_red_flags_indicators(result):
 
 
 def get_red_flags_dictionary(fields_list):
-    """To calculate some indicators there are alternative fields that can be used, for example to calculate the
+    """
+    To calculate some indicators there are alternative fields that can be used, for example to calculate the
     number of tenderers  both the `tender/numberOfTenderers` or the `tender/tenderers/id` could be used.  This
-    section checks which fields are available in the publication. """
+    section checks which fields are available in the publication.
+    """
     # buyers
     buyer = ["buyer/name", "buyer/id"]
     procuring = ["tender/procuringEntity/name", "tender/procuringEntity/id"]
@@ -905,7 +912,10 @@ def get_indicators_dictionary(fields_list):
             ["U048"],
             ["ocid", "contracts/id", "contracts/amendments", *buyer_var],
         ],
-        "Percent of tenders which have been closed for more than 30 days, but whose basic awards information is not published": [
+        (
+            "Percent of tenders which have been closed for more than 30 days, "
+            "but whose basic awards information is not published"
+        ): [
             ["U049"],
             [
                 "tender/id",
@@ -1041,6 +1051,7 @@ def usability_checks(fields_list, indicators_dic):
 
 
 def check_usability_indicators(lang, result):
+    """Return a DataFrame of usability indicator results for the given collection and language."""
     gc = authenticate_gspread()
 
     if lang.value == "English":
@@ -1080,6 +1091,7 @@ def check_usability_indicators(lang, result):
 
 
 def is_relevant(field_list):
+    """Return a DataFrame indicating whether each relevance rule is met by the field list."""
     relevant_rules = {
         "who": [
             "buyer/id",
@@ -1154,6 +1166,7 @@ def is_relevant(field_list):
 
 
 def get_usability_language_select_box():
+    """Return a dropdown widget for selecting the usability report language."""
     style = {"description_width": "initial"}
     languages = ["Spanish", "English"]
     return widgets.Dropdown(options=languages, description="language", style=style)

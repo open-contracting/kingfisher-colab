@@ -1,8 +1,13 @@
+"""Charts for data visualization."""
+
 import altair as alt
 
 
 class MissingColumnsError(Exception):
+    """Raised when required columns are missing from the source data."""
+
     def __init__(self, columns):
+        """Initialize with the set of missing columns."""
         super().__init__(f"The source data is missing one or more of these columns: {columns}")
 
 
@@ -22,12 +27,14 @@ chart_axis = {
 
 
 def check_columns(columns, data):
+    """Raise MissingColumnsError if any of the given columns are absent from the data."""
     # check if input contains the right columns
     if not columns.issubset(data.columns):
         raise MissingColumnsError(columns)
 
 
 def plot_release_count(release_counts):
+    """Plot a bar chart of release counts by release type."""
     check_columns({"collection_id", "release_type", "release_count", "ocid_count"}, release_counts)
     return (
         alt.Chart(release_counts)
@@ -63,6 +70,7 @@ def plot_release_count(release_counts):
 
 
 def plot_objects_per_stage(objects_per_stage):
+    """Plot a bar chart of object counts per procurement stage."""
     check_columns({"stage", "object_count"}, objects_per_stage)
     stages = ["planning", "tender", "awards", "contracts", "implementation"]
     return (
@@ -93,6 +101,7 @@ def plot_objects_per_stage(objects_per_stage):
 
 
 def plot_releases_by_month(release_dates):
+    """Plot a line chart of release counts aggregated by month."""
     check_columns({"date", "collection_id", "release_type", "release_count"}, release_dates)
     max_rows = 5000
     # check if number of rows is more than 5000
@@ -131,6 +140,7 @@ def plot_releases_by_month(release_dates):
 
 
 def plot_objects_per_year(objects_per_year):
+    """Plot a line chart of tenders and awards counts per year."""
     check_columns({"year", "tenders", "awards"}, objects_per_year)
     stages = ["tenders", "awards"]
     return (
@@ -168,6 +178,7 @@ def plot_objects_per_year(objects_per_year):
 
 
 def plot_top_buyers(buyers):
+    """Plot a horizontal bar chart of the top buyers by number of tenders."""
     check_columns({"name", "total_tenders"}, buyers)
     return (
         alt.Chart(buyers)
@@ -196,6 +207,7 @@ def plot_top_buyers(buyers):
 
 
 def plot_usability_indicators(data, lang="English"):
+    """Plot a dot chart of usability indicators grouped by use case."""
     labels = {
         "English": {
             "nrow": "row_number(indicator)",
