@@ -4,7 +4,9 @@
   "title": "Indicators",
   "description": "Schema for OCDS usability and red flags indicators with shared rules",
   "type": "object",
-  "required": ["indicators"],
+  "required": [
+    "indicators"
+  ],
   "additionalProperties": false,
   "properties": {
     "rules": {
@@ -22,7 +24,10 @@
       },
       "additionalProperties": {
         "type": "object",
-        "required": ["name", "rule"],
+        "required": [
+          "name",
+          "rule"
+        ],
         "additionalProperties": false,
         "properties": {
           "name": {
@@ -47,7 +52,9 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["all"],
+          "required": [
+            "all"
+          ],
           "properties": {
             "all": {
               "type": "array",
@@ -61,7 +68,9 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["any"],
+          "required": [
+            "any"
+          ],
           "properties": {
             "any": {
               "type": "array",
@@ -75,7 +84,9 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["$ref"],
+          "required": [
+            "$ref"
+          ],
           "properties": {
             "$ref": {
               "type": "string",
