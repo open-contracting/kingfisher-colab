@@ -9,3 +9,4 @@ jobs:
       python-version: '3.12'
       # https://github.com/catherinedevlin/ipython-sql/issues/252
       standard-maintenance-scripts-ignore: prettytable
+      ocds-schema-exceptions: my-schema.json
