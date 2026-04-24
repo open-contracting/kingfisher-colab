@@ -205,7 +205,7 @@
         "all": [
           "ocid",
           {
-            "$ref": "USABILITY_BUYER_RULE"
+            "ref": "USABILITY_BUYER_RULE"
           }
         ]
       }
@@ -216,7 +216,7 @@
         "all": [
           "ocid",
           {
-            "$ref": "TENDERERS_RULE"
+            "ref": "TENDERERS_RULE"
           }
         ]
       }
@@ -267,7 +267,7 @@
         "all": [
           "ocid",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -332,7 +332,7 @@
           "ocid",
           "tender/procurementMethod",
           {
-            "$ref": "AWARDS_WITH_VALUES_RULE"
+            "ref": "AWARDS_WITH_VALUES_RULE"
           }
         ]
       }
@@ -344,7 +344,7 @@
           "ocid",
           "tender/procurementMethod",
           {
-            "$ref": "AWARDS_WITH_VALUES_RULE"
+            "ref": "AWARDS_WITH_VALUES_RULE"
           }
         ]
       }
@@ -356,7 +356,7 @@
           "ocid",
           "tender/procurementMethod",
           {
-            "$ref": "USABILITY_TENDERERS_COUNT_RULE"
+            "ref": "USABILITY_TENDERERS_COUNT_RULE"
           }
         ]
       }
@@ -371,7 +371,7 @@
           "awards/value/amount",
           "awards/value/currency",
           {
-            "$ref": "USABILITY_TENDERERS_COUNT_RULE"
+            "ref": "USABILITY_TENDERERS_COUNT_RULE"
           }
         ]
       }
@@ -383,7 +383,7 @@
           "ocid",
           "tender/procurementMethod",
           {
-            "$ref": "USABILITY_TENDERERS_COUNT_RULE"
+            "ref": "USABILITY_TENDERERS_COUNT_RULE"
           }
         ]
       }
@@ -395,7 +395,7 @@
           "ocid",
           "tender/procurementMethod",
           {
-            "$ref": "USABILITY_TENDERERS_COUNT_RULE"
+            "ref": "USABILITY_TENDERERS_COUNT_RULE"
           }
         ]
       }
@@ -407,10 +407,10 @@
           "ocid",
           "tender/procurementMethod",
           {
-            "$ref": "USABILITY_TENDERERS_COUNT_RULE"
+            "ref": "USABILITY_TENDERERS_COUNT_RULE"
           },
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -423,7 +423,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -477,7 +477,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "AWARDS_WITH_VALUES_RULE"
+            "ref": "AWARDS_WITH_VALUES_RULE"
           }
         ]
       }
@@ -490,7 +490,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "USABILITY_BUYER_RULE"
+            "ref": "USABILITY_BUYER_RULE"
           }
         ]
       }
@@ -583,7 +583,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "AWARDS_WITH_ITEMS_RULE"
+            "ref": "AWARDS_WITH_ITEMS_RULE"
           }
         ]
       }
@@ -616,7 +616,7 @@
         "all": [
           "awards/suppliers/id",
           {
-            "$ref": "TENDERERS_RULE"
+            "ref": "TENDERERS_RULE"
           }
         ]
       }
@@ -640,7 +640,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -652,7 +652,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "AWARDS_WITH_VALUES_RULE"
+            "ref": "AWARDS_WITH_VALUES_RULE"
           }
         ]
       }
@@ -664,7 +664,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "AWARDS_WITH_VALUES_RULE"
+            "ref": "AWARDS_WITH_VALUES_RULE"
           }
         ]
       }
@@ -693,7 +693,7 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "USABILITY_BUYER_RULE"
+            "ref": "USABILITY_BUYER_RULE"
           }
         ]
       }
@@ -708,7 +708,7 @@
           "awards/status",
           "tender/procurementMethod",
           {
-            "$ref": "USABILITY_TENDERERS_COUNT_RULE"
+            "ref": "USABILITY_TENDERERS_COUNT_RULE"
           }
         ]
       }
@@ -749,7 +749,7 @@
           "contracts/id",
           "contracts/amendments",
           {
-            "$ref": "USABILITY_BUYER_RULE"
+            "ref": "USABILITY_BUYER_RULE"
           }
         ]
       }
@@ -930,7 +930,7 @@
       "rule": {
         "all": [
           {
-            "$ref": "AWARDS_WITH_ITEMS_RULE"
+            "ref": "AWARDS_WITH_ITEMS_RULE"
           },
           {
             "any": [
@@ -960,7 +960,7 @@
           "contracts/value/amount",
           "contracts/value/currency",
           {
-            "$ref": "TENDER_VALUE_RULE"
+            "ref": "TENDER_VALUE_RULE"
           }
         ]
       }
@@ -974,7 +974,7 @@
           "contracts/value/amount",
           "contracts/value/currency",
           {
-            "$ref": "TENDER_VALUE_RULE"
+            "ref": "TENDER_VALUE_RULE"
           }
         ]
       }
@@ -1040,7 +1040,7 @@
           "tender/procurementMethod",
           "tender/tenderPeriod/startDate",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }
@@ -1093,7 +1093,7 @@
           "tender/items/classification/id",
           "tender/items/classification/scheme",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           },
           "tender/value/amount"
         ]
@@ -1135,13 +1135,13 @@
         "all": [
           "tender/procurementMethod",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           },
           "tender/value/amount",
           "tender/value/currency",
           "tender/tenderPeriod/startDate",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }
@@ -1162,7 +1162,7 @@
         "all": [
           "tender/procurementMethod",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }
@@ -1194,7 +1194,7 @@
           "tender/value/amount",
           "tender/value/currency",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           },
           "tender/procurementMethod"
         ]
@@ -1205,7 +1205,7 @@
       "rule": {
         "all": [
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           },
           {
             "any": [
@@ -1238,7 +1238,7 @@
         "all": [
           "tender/procurementMethod",
           {
-            "$ref": "REDFLAGS_TENDERERS_COUNT_RULE"
+            "ref": "REDFLAGS_TENDERERS_COUNT_RULE"
           }
         ]
       }
@@ -1249,13 +1249,13 @@
         "all": [
           "tender/procurementMethod",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           },
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           },
           {
-            "$ref": "REDFLAGS_TENDERERS_COUNT_RULE"
+            "ref": "REDFLAGS_TENDERERS_COUNT_RULE"
           }
         ]
       }
@@ -1274,7 +1274,7 @@
         "all": [
           "tender/awardCriteria",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }
@@ -1310,7 +1310,7 @@
           "bids/details/value/currency",
           "bids/details/status",
           {
-            "$ref": "WINNING_BID_RULE"
+            "ref": "WINNING_BID_RULE"
           }
         ]
       }
@@ -1322,7 +1322,7 @@
           "awards/suppliers/id",
           "bids/details/status",
           {
-            "$ref": "TENDERERS_RULE"
+            "ref": "TENDERERS_RULE"
           }
         ]
       }
@@ -1336,7 +1336,7 @@
           "awards/status",
           "awards/date",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -1347,10 +1347,10 @@
         "all": [
           "tender/procurementMethod",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           },
           {
-            "$ref": "TENDERERS_RULE"
+            "ref": "TENDERERS_RULE"
           },
           {
             "any": [
@@ -1385,7 +1385,7 @@
             ]
           },
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -1399,7 +1399,7 @@
           "bids/details/status",
           "tender/tenderPeriod/endDate",
           {
-            "$ref": "WINNING_BID_RULE"
+            "ref": "WINNING_BID_RULE"
           }
         ]
       }
@@ -1415,7 +1415,7 @@
           "tender/value/amount",
           "tender/value/currency",
           {
-            "$ref": "WINNING_BID_RULE"
+            "ref": "WINNING_BID_RULE"
           }
         ]
       }
@@ -1462,7 +1462,7 @@
           "bids/details/status",
           "awards/status",
           {
-            "$ref": "WINNING_BID_RULE"
+            "ref": "WINNING_BID_RULE"
           }
         ]
       }
@@ -1499,10 +1499,10 @@
           "bids/details/id",
           "bids/details/status",
           {
-            "$ref": "TENDERERS_RULE"
+            "ref": "TENDERERS_RULE"
           },
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }
@@ -1523,7 +1523,7 @@
       "rule": {
         "all": [
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           },
           "awards/status",
           "awards/date",
@@ -1547,7 +1547,7 @@
       "rule": {
         "all": [
           {
-            "$ref": "BIDDERS_INFO_RULE"
+            "ref": "BIDDERS_INFO_RULE"
           }
         ]
       }
@@ -1575,7 +1575,7 @@
           "parties/roles",
           "parties/id",
           {
-            "$ref": "BIDDERS_INFO_RULE"
+            "ref": "BIDDERS_INFO_RULE"
           }
         ]
       }
@@ -1613,7 +1613,7 @@
       "rule": {
         "all": [
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           },
           "awards/suppliers/id",
           "awards/suppliers/name"
@@ -1629,7 +1629,7 @@
           "awards/date",
           "tender/procurementMethod",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }
@@ -1641,12 +1641,12 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           },
           "awards/value/amount",
           "awards/value/currency",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           },
           "awards/date",
           "awards/status"
@@ -1660,10 +1660,10 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "AWARDS_OR_CONTRACTS_RULE"
+            "ref": "AWARDS_OR_CONTRACTS_RULE"
           },
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -1676,10 +1676,10 @@
           "awards/suppliers/name",
           "tender/procurementMethod",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           },
           {
-            "$ref": "AWARDS_OR_CONTRACTS_RULE"
+            "ref": "AWARDS_OR_CONTRACTS_RULE"
           }
         ]
       }
@@ -1691,7 +1691,7 @@
           "bids/details/id",
           "bids/details/status",
           {
-            "$ref": "WINNING_BID_RULE"
+            "ref": "WINNING_BID_RULE"
           }
         ]
       }
@@ -1717,10 +1717,10 @@
           "awards/suppliers/id",
           "awards/suppliers/name",
           {
-            "$ref": "AWARDS_OR_CONTRACTS_RULE"
+            "ref": "AWARDS_OR_CONTRACTS_RULE"
           },
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }
@@ -1733,7 +1733,7 @@
           "bids/details/status",
           "bids/details/documents",
           {
-            "$ref": "WINNING_BID_RULE"
+            "ref": "WINNING_BID_RULE"
           }
         ]
       }
@@ -1749,7 +1749,7 @@
           "bids/details/value/amount",
           "bids/details/value/currency",
           {
-            "$ref": "ITEM_CLASSIFICATIONS_RULE"
+            "ref": "ITEM_CLASSIFICATIONS_RULE"
           }
         ]
       }
@@ -1763,7 +1763,7 @@
           "bids/details/value/currency",
           "bids/details/status",
           {
-            "$ref": "WINNING_BID_RULE"
+            "ref": "WINNING_BID_RULE"
           }
         ]
       }
@@ -1903,7 +1903,7 @@
           "contracts/relatedProcesses/relationship",
           "awards/suppliers/id",
           {
-            "$ref": "TENDERERS_RULE"
+            "ref": "TENDERERS_RULE"
           }
         ]
       }
@@ -1923,7 +1923,7 @@
         "all": [
           "awards/hasSubcontracting",
           {
-            "$ref": "REDFLAGS_BUYER_RULE"
+            "ref": "REDFLAGS_BUYER_RULE"
           }
         ]
       }

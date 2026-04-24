@@ -11,13 +11,15 @@
   "properties": {
     "rules": {
       "type": "object",
+      "title": "Rules",
       "description": "Reusable rule definitions that can be referenced via $ref",
       "additionalProperties": {
-        "$ref": "#/$defs/rule"
+        "$ref": "#/$defs/Rule"
       }
     },
     "indicators": {
       "type": "object",
+      "title": "Indicators",
       "description": "Indicator definitions keyed by ID (U### for usability, R### for red flags)",
       "propertyNames": {
         "pattern": "^[UR][0-9]{3}$"
@@ -32,17 +34,19 @@
         "properties": {
           "name": {
             "type": "string",
+            "title": "name",
             "description": "Human-readable name of the indicator"
           },
           "rule": {
-            "$ref": "#/$defs/rule"
+            "$ref": "#/$defs/Rule"
           }
         }
       }
     }
   },
   "$defs": {
-    "rule": {
+    "Rule": {
+      "title": "Rule",
       "description": "A rule specifying required fields using all/any logic",
       "oneOf": [
         {
@@ -60,7 +64,7 @@
               "type": "array",
               "description": "All sub-rules must be satisfied (logical AND)",
               "items": {
-                "$ref": "#/$defs/rule"
+                "$ref": "#/$defs/Rule"
               }
             }
           }
@@ -76,7 +80,7 @@
               "type": "array",
               "description": "At least one sub-rule must be satisfied (logical OR)",
               "items": {
-                "$ref": "#/$defs/rule"
+                "$ref": "#/$defs/Rule"
               }
             }
           }
@@ -85,10 +89,10 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "$ref"
+            "ref"
           ],
           "properties": {
-            "$ref": {
+            "ref": {
               "type": "string",
               "description": "Reference to a rule defined in the rules object"
             }

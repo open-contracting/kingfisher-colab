@@ -22,12 +22,12 @@ def _get_validator():
 
 
 def _resolve_refs(rule, rules):
-    """Recursively resolve $ref references in a rule."""
+    """Recursively resolve ``ref`` references in a rule."""
     if isinstance(rule, str):
         return rule
     if isinstance(rule, dict):
-        if "$ref" in rule:
-            ref_name = rule["$ref"]
+        if "ref" in rule:
+            ref_name = rule["ref"]
             if ref_name not in rules:
                 msg = f"Unknown rule reference: {ref_name}"
                 raise ValueError(msg)
