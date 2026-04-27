@@ -15,7 +15,8 @@
       "description": "Reusable rule definitions that can be referenced via $ref",
       "additionalProperties": {
         "$ref": "#/$defs/Rule"
-      }
+      },
+      "minProperties": 1
     },
     "indicators": {
       "type": "object",
@@ -35,13 +36,16 @@
           "name": {
             "type": "string",
             "title": "name",
-            "description": "Human-readable name of the indicator"
+            "description": "Human-readable name of the indicator",
+            "minLength": 1
           },
           "rule": {
             "$ref": "#/$defs/Rule"
           }
-        }
-      }
+        },
+        "minProperties": 1
+      },
+      "minProperties": 1
     }
   },
   "$defs": {
@@ -51,7 +55,8 @@
       "oneOf": [
         {
           "type": "string",
-          "description": "A field path (e.g., 'tender/id')"
+          "description": "A field path (e.g., 'tender/id')",
+          "minLength": 1
         },
         {
           "type": "object",
@@ -65,9 +70,12 @@
               "description": "All sub-rules must be satisfied (logical AND)",
               "items": {
                 "$ref": "#/$defs/Rule"
-              }
+              },
+              "uniqueItems": true,
+              "minItems": 1
             }
-          }
+          },
+          "minProperties": 1
         },
         {
           "type": "object",
@@ -81,9 +89,12 @@
               "description": "At least one sub-rule must be satisfied (logical OR)",
               "items": {
                 "$ref": "#/$defs/Rule"
-              }
+              },
+              "uniqueItems": true,
+              "minItems": 1
             }
-          }
+          },
+          "minProperties": 1
         },
         {
           "type": "object",
@@ -94,11 +105,14 @@
           "properties": {
             "ref": {
               "type": "string",
-              "description": "Reference to a rule defined in the rules object"
+              "description": "Reference to a rule defined in the rules object",
+              "minLength": 1
             }
-          }
+          },
+          "minProperties": 1
         }
       ]
     }
-  }
+  },
+  "minProperties": 1
 }
