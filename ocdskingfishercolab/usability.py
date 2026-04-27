@@ -4,6 +4,57 @@ import pandas as pd
 
 from ocdskingfishercolab import authenticate_gspread
 
+RELEVANT_RULES = {
+    "who": [
+        "buyer/id",
+        "buyer/name",
+        "tender/procuringEntity/id",
+        "tender/procuringEntity/name",
+    ],
+    "bought what": [
+        "tender/items/classification/id",
+        "awards/items/classification/id",
+        "contracts/items/classification/id",
+        "tender/items/classification/description",
+        "awards/items/classification/description",
+        "contracts/items/classification/description",
+        "tender/items/description",
+        "awards/items/description",
+        "contracts/items/description",
+        "tender/description",
+        "awards/description",
+        "contracts/description",
+        "tender/title",
+        "awards/title",
+        "contracts/title",
+    ],
+    "from whom": [
+        "awards/suppliers/id",
+        "awards/suppliers/name",
+    ],
+    "for how much": [
+        "awards/value/amount",
+        "contracts/value/amount",
+        [
+            "awards/items/quantity",
+            "awards/items/unit/value/amount",
+        ],
+        [
+            "contracts/items/quantity",
+            "contracts/items/unit/value/amount",
+        ],
+    ],
+    "when": [
+        "tender/tenderPeriod/endDate",
+        "awards/date",
+        "contracts/dateSigned",
+    ],
+    "how": [
+        "tender/procurementMethod",
+        "tender/procurementMethodDetails",
+    ],
+}
+
 
 def check_red_flags_indicators(result):
     """
@@ -54,62 +105,12 @@ def is_relevant(field_list):
     """
     Check if the dataset has the basic fields to answer: who bought what, from whom, for how much, when, and how.
 
-    Each rule in relevant_rules is satisfied if ANY of its options is present:
+    Each rule in RELEVANT_RULES is satisfied if ANY of its options is present:
     - String options: the field must be in field_list
     - List options: all fields in the list must be in field_list
     """
-    relevant_rules = {
-        "who": [
-            "buyer/id",
-            "buyer/name",
-            "tender/procuringEntity/id",
-            "tender/procuringEntity/name",
-        ],
-        "bought what": [
-            "tender/items/classification/id",
-            "awards/items/classification/id",
-            "contracts/items/classification/id",
-            "tender/items/classification/description",
-            "awards/items/classification/description",
-            "contracts/items/classification/description",
-            "tender/items/description",
-            "awards/items/description",
-            "contracts/items/description",
-            "tender/description",
-            "awards/description",
-            "contracts/description",
-            "tender/title",
-            "awards/title",
-            "contracts/title",
-        ],
-        "from whom": [
-            "awards/suppliers/id",
-            "awards/suppliers/name",
-        ],
-        "for how much": [
-            "awards/value/amount",
-            "contracts/value/amount",
-            [
-                "awards/items/quantity",
-                "awards/items/unit/value/amount",
-            ],
-            [
-                "contracts/items/quantity",
-                "contracts/items/unit/value/amount",
-            ],
-        ],
-        "when": [
-            "tender/tenderPeriod/endDate",
-            "awards/date",
-            "contracts/dateSigned",
-        ],
-        "how": [
-            "tender/procurementMethod",
-            "tender/procurementMethodDetails",
-        ],
-    }
     results = []
-    for rule_name, options in relevant_rules.items():
+    for rule_name, options in RELEVANT_RULES.items():
         available = []
         missing = []
         possible = False
