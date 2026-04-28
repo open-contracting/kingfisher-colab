@@ -52,6 +52,9 @@ exclude = [
     "tests.*",
 ]
 
+[tool.setuptools.package-data]
+ocdskingfishercolab = ["indicators/*.json"]
+
 [tool.ruff]
 line-length = 119
 target-version = "py312"
