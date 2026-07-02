@@ -269,9 +269,9 @@ def test_get_ipython_sql_resultset_from_query_error(db, capsys):
     get_ipython().run_line_magic("sql", "invalid")
 
     assert (
-        '(psycopg2.errors.SyntaxError) syntax error at or near "invalid"\n'
+        '(psycopg.errors.SyntaxError) syntax error at or near "invalid"\n'
         "LINE 1: ...google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid\n"
-        "                                                                ^\n\n"
+        "                                                                ^\n"
         "[SQL: /* https://colab.research.google.com/drive/1lpWoGnOb6KcjHDEhSBjWZgA8aBLCfDp0 */invalid]\n"
         "(Background on this error at: https://sqlalche.me/e/" in capsys.readouterr().out
     )
