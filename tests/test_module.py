@@ -6,6 +6,7 @@ import json
 import math
 import os
 import textwrap
+from pathlib import Path
 from unittest.mock import patch
 from zipfile import ZipFile
 
@@ -65,7 +66,7 @@ def _all_tables():
 
 @contextlib.contextmanager
 def chdir(path):
-    cwd = os.getcwd()
+    cwd = Path.cwd()
     os.chdir(path)
     try:
         yield
@@ -87,7 +88,7 @@ def test_download_dataframe_as_csv(download, tmpdir):
     with chdir(tmpdir):
         download_dataframe_as_csv(df, "file.csv")
 
-        with open("file.csv") as f:
+        with Path("file.csv").open() as f:
             data = f.read()
 
         assert data == ",col1,col2\n0,1,3\n1,2,4\n"
@@ -99,7 +100,7 @@ def test_download_package_from_ocid_release(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, "ocds-213czf-1", "release")
 
-        with open("ocds-213czf-1_release_package.json") as f:
+        with Path("ocds-213czf-1_release_package.json").open() as f:
             data = json.load(f)
 
         assert data == {
@@ -122,7 +123,7 @@ def test_download_package_from_ocid_record(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, "ocds-213czf-1", "record")
 
-        with open("ocds-213czf-1_record_package.json") as f:
+        with Path("ocds-213czf-1_record_package.json").open() as f:
             data = json.load(f)
 
         assert data == {
@@ -150,7 +151,7 @@ def test_download_package_from_ocid_path_separator(download, db, tmpdir):
     with chdir(tmpdir):
         download_package_from_ocid(1, "ocds-213czf-1/a", "release")
 
-        with open("ocds-213czf-1_a_release_package.json") as f:
+        with Path("ocds-213czf-1_a_release_package.json").open() as f:
             data = json.load(f)
 
         assert data == {
@@ -188,7 +189,7 @@ def test_download_package_from_query_release(download, db, tmpdir):
         """)
         )
 
-        with open("release_package.json") as f:
+        with Path("release_package.json").open() as f:
             data = json.load(f)
 
         assert data == {
@@ -219,7 +220,7 @@ def test_download_package_from_query_record(download, db, tmpdir):
         """)
         )
 
-        with open("record_package.json") as f:
+        with Path("record_package.json").open() as f:
             data = json.load(f)
 
         assert data == {
@@ -326,7 +327,7 @@ def test_save_dataframe_to_spreadsheet(save, capsys, tmpdir):
     with chdir(tmpdir):
         save_dataframe_to_spreadsheet(df, "yet_another_excel_file")
 
-        with open("release_package.json") as f:
+        with Path("release_package.json").open() as f:
             assert json.load(f) == {"releases": [{"ocid": "ocds-213czf-1"}]}
 
         with ZipFile("flattened.xlsx") as zipfile:
@@ -357,7 +358,7 @@ def test_save_dataframe_to_spreadsheet_empty(save, capsys, tmpdir):
         save_dataframe_to_spreadsheet(df, "yet_another_excel_file")
 
         for filename in ("release_package.json", "flattened.xlsx"):
-            assert not os.path.exists(filename)
+            assert not Path(filename).exists()
 
         assert capsys.readouterr().out == "Data frame is empty.\n"
 
