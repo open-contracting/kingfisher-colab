@@ -2,6 +2,7 @@
 
 import json
 import os
+from pathlib import Path
 
 from ocdskingfishercolab.exceptions import UnknownPackageTypeError
 from ocdskingfishercolab.sql import _pluck
@@ -33,7 +34,7 @@ def write_data_as_json(data, filename):
     :param data: JSON-serializable data
     :param str filename: a file name
     """
-    with open(filename.replace(os.sep, "_"), "w") as f:
+    with Path(filename.replace(os.sep, "_")).open("w") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 

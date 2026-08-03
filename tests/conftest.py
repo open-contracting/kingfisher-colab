@@ -2,7 +2,7 @@ import getpass
 import os
 from urllib.parse import urlsplit
 
-import psycopg2
+import psycopg
 import pytest
 import sql
 from IPython import get_ipython
@@ -12,7 +12,7 @@ from IPython import get_ipython
 @pytest.fixture
 def db():
     # This can't be named DATABASE_URL, because ipython-sql will try and use it.
-    database_url = os.getenv("TEST_DATABASE_URL", f"postgresql://{getpass.getuser()}:@localhost:5432/postgres")
+    database_url = os.getenv("TEST_DATABASE_URL", f"postgresql+psycopg://{getpass.getuser()}:@localhost:5432/postgres")
     parsed = urlsplit(database_url)
     created_database_url = parsed._replace(path="/ocdskingfishercolab_test").geturl()
     kwargs = {
@@ -22,16 +22,15 @@ def db():
         "port": parsed.port,
     }
 
-    connection = psycopg2.connect(dbname=parsed.path[1:], **kwargs)
-    cursor = connection.cursor()
-
+    connection = psycopg.connect(dbname=parsed.path[1:], **kwargs)
     # Avoid "CREATE DATABASE cannot run inside a transaction block" error
-    connection.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
+    connection.autocommit = True
+    cursor = connection.cursor()
 
     try:
         cursor.execute("CREATE DATABASE ocdskingfishercolab_test")
 
-        conn = psycopg2.connect(dbname="ocdskingfishercolab_test", **kwargs)
+        conn = psycopg.connect(dbname="ocdskingfishercolab_test", **kwargs)
         cur = conn.cursor()
 
         try:
