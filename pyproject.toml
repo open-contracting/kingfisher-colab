@@ -28,6 +28,7 @@ dependencies = [
     "ipython",
     "ipython-sql",
     "ipywidgets",
+    "jsonschema",
     "jupyter_server",
     "matplotlib>=3.10.7",
     "numpy",
