@@ -18,6 +18,7 @@ classifiers = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "altair",
     "babel",
     "flattentool>=0.27",
     "google-auth",
@@ -26,9 +27,13 @@ dependencies = [
     "httplib2>=0.31.1",
     "ipython",
     "ipython-sql",
+    "ipywidgets",
+    "jsonschema",
     "jupyter_server",
     "matplotlib>=3.10.7",
+    "numpy",
     "oauth2client",
+    "pandas",
     "prettytable<3.12",
     "pydrive2",
     "requests",
@@ -49,6 +54,9 @@ exclude = [
     "tests",
     "tests.*",
 ]
+
+[tool.setuptools.package-data]
+ocdskingfishercolab = ["indicators/*.json"]
 
 [tool.ruff]
 line-length = 119
